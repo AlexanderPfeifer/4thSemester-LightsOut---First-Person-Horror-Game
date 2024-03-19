@@ -8,9 +8,17 @@ public class PlayerController : MonoBehaviour
     private float finalAcc;
     [SerializeField] private float sensitivity = .85f;
     private Camera mainCam;
-    
+    [SerializeField] private GameObject console;
+    private Vector3 consoleStartPos;
+    private Vector3 consolePutAwayPos;
+    private bool putAwayConsole;
+
     private void Start()
     {
+        var position = console.transform.position;
+        consoleStartPos = position;
+        consolePutAwayPos =  new Vector3(position.x, position.y - 4, position.z);
+        
         Cursor.lockState = CursorLockMode.Locked;
         mainCam = FindObjectOfType<Camera>();
     }
@@ -18,6 +26,13 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         MouseRotation();
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            putAwayConsole = !putAwayConsole;
+        }
+
+        CloseConsole();
     }
     
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
@@ -41,5 +56,18 @@ public class PlayerController : MonoBehaviour
     {
         var cameraRotation = Quaternion.Euler(CameraClamp(x), CameraClamp(y), 0);
         return cameraRotation;
+    }
+
+    private void CloseConsole()
+    {
+        if (putAwayConsole)
+        {
+            console.transform.position = Vector3.Lerp(console.transform.position, consolePutAwayPos, Time.deltaTime * 4);
+        }
+        
+        if(!putAwayConsole)
+        {
+            console.transform.position = Vector3.Lerp(console.transform.position, consoleStartPos, Time.deltaTime * 4);
+        }
     }
 }
