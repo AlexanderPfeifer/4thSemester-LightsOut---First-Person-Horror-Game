@@ -1,40 +1,37 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerInputs : MonoBehaviour
 {
     [Header("MouseCamera")]
-    private Vector2 turn;
+    [SerializeField] private float sensitivity = .85f;
+    [SerializeField] private Camera mainCam;
+    [SerializeField] private GameObject console;
+    [SerializeField] private float consolePutAwaySpeed = 4;
+    [SerializeField] private LayerMask selectableMask;
+
     private const float Acceleration = 10f;
     private float finalAcc;
-    [SerializeField] private float sensitivity = .85f;
-    private Camera mainCam;
-    [SerializeField] private GameObject console;
-    private Vector3 consoleStartPos;
-    private Vector3 consolePutAwayPos;
-    [HideInInspector] public bool putAwayConsole;
-    public bool gameIsPaused;
-    [SerializeField] private float consolePutAwaySpeed = 4;
+    public bool consoleGameIsPaused;
+    private bool noObjectInHand;
     private bool canMoveCam;
+    private Vector2 turn;
+    private Vector3 playerHoldPos;
+    private Transform selectedGameObject;
+    private Vector3 putAwayPos;
 
     private void Start()
     {
-        var position = console.transform.position;
-        consoleStartPos = position;
-        consolePutAwayPos =  new Vector3(position.x, position.y - 3, position.z + 3);
-        
+        selectedGameObject = console.transform;
+        playerHoldPos = selectedGameObject.position;
         Cursor.lockState = CursorLockMode.Locked;
-        mainCam = FindObjectOfType<Camera>();
+        Cursor.visible = false;
     }
 
     void Update()
     {
         MouseRotationForCamera();
-
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            putAwayConsole = !putAwayConsole;
-        }
-
+        
         ConsoleBehaviour();
     }
     
@@ -66,21 +63,92 @@ public class PlayerInputs : MonoBehaviour
 
     private void ConsoleBehaviour()
     {
-        switch (putAwayConsole)
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
-            case true:
-                console.transform.position = Vector3.Lerp(console.transform.position, consolePutAwayPos, Time.deltaTime * consolePutAwaySpeed);
-                console.transform.localRotation = Quaternion.Lerp(console.transform.localRotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * consolePutAwaySpeed);
-                canMoveCam = true;
-                break;
-            case false:
-                canMoveCam = false;
-                mainCam.transform.localRotation = Quaternion.Lerp(mainCam.transform.localRotation, Quaternion.Euler(0, 0, 0),consolePutAwaySpeed * Time.deltaTime);
-                console.transform.position = Vector3.Lerp(console.transform.position, consoleStartPos, Time.deltaTime * consolePutAwaySpeed);
-                console.transform.localRotation = Quaternion.Lerp(console.transform.localRotation, Quaternion.Euler(0, 90, 0), Time.deltaTime * consolePutAwaySpeed);
-                break;
+            StartCoroutine(PutHoldingObjectDownCoroutine());
+            consoleGameIsPaused = true;
         }
 
-        gameIsPaused = !(Vector3.Distance(console.transform.position, consoleStartPos) < 0.1f);
+        if (noObjectInHand)
+        {
+            LookDirectionRaycastHit();
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (selectedGameObject != null)
+                {
+                    StartCoroutine(LiftUpSelectedObjectUpCoroutine());
+                }
+            }
+        }
+    }
+
+    private void LookDirectionRaycastHit()
+    {
+        if (Physics.Raycast(mainCam.transform.position, mainCam.transform.forward, out var raycastHit, float.MaxValue, selectableMask))
+        {
+            selectedGameObject = raycastHit.transform;
+            selectedGameObject.GetChild(0).gameObject.SetActive(true);
+        }
+        else
+        {
+            if (selectedGameObject != null)
+            {
+                selectedGameObject.GetChild(0).gameObject.SetActive(false);
+                selectedGameObject = null;
+            }
+        }
+    }
+
+    private IEnumerator PutHoldingObjectDownCoroutine()
+    {
+        if (selectedGameObject.TryGetComponent(out MathBookBehaviour mathBookBehaviour))
+        {
+            putAwayPos = mathBookBehaviour.mathBookPutAwayPos;
+        }
+        
+        if (selectedGameObject.TryGetComponent(out ConsoleBehaviour consoleBehaviour))
+        {
+            putAwayPos = consoleBehaviour.consolePutAwayPos;
+        }
+        
+        while (Vector3.Distance(selectedGameObject.position, putAwayPos) > 0.01f)
+        {
+            selectedGameObject.position = Vector3.Lerp(selectedGameObject.position, putAwayPos, Time.deltaTime * consolePutAwaySpeed);
+            selectedGameObject.localRotation = Quaternion.Lerp(selectedGameObject.localRotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * consolePutAwaySpeed);
+            canMoveCam = true;
+            yield return null;
+        }
+
+        if (Vector3.Distance(selectedGameObject.position, putAwayPos) <= 0.01f)
+        {
+            noObjectInHand = true;
+            yield return null;
+        }
+    }
+    
+    private IEnumerator LiftUpSelectedObjectUpCoroutine()
+    {
+        noObjectInHand = false;
+        selectedGameObject.GetChild(0).gameObject.SetActive(false);
+        
+        while (Vector3.Distance(selectedGameObject.position, playerHoldPos) > 0.01f)
+        {
+            mainCam.transform.localRotation = Quaternion.Lerp(mainCam.transform.localRotation, Quaternion.Euler(0, 0, 0),consolePutAwaySpeed * Time.deltaTime);
+            
+            selectedGameObject.localRotation = Quaternion.Lerp(selectedGameObject.localRotation, Quaternion.Euler(0, 90, 0), Time.deltaTime * consolePutAwaySpeed);
+            selectedGameObject.position = Vector3.Lerp(selectedGameObject.position, playerHoldPos, Time.deltaTime * consolePutAwaySpeed);
+            
+            canMoveCam = false;
+            yield return null;
+        }
+
+        if (Vector3.Distance(selectedGameObject.position, playerHoldPos) <= 0.01f)
+        {
+            if (selectedGameObject.TryGetComponent(out ConsoleBehaviour consoleBehaviour))
+            {
+                consoleGameIsPaused = false;
+            }
+            yield return null;
+        }
     }
 }

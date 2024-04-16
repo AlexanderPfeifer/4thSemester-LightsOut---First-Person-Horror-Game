@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class RabbitGame : MonoBehaviour
@@ -16,7 +15,7 @@ public class RabbitGame : MonoBehaviour
             CarrotBounceUp();
         }
 
-        if (!FindObjectOfType<PlayerInputs>().gameIsPaused)
+        if (!FindObjectOfType<PlayerInputs>().consoleGameIsPaused)
         {
             carrotRb.constraints = ~RigidbodyConstraints.FreezePositionY;
             rabbitRb.constraints = ~RigidbodyConstraints.FreezePositionY;
