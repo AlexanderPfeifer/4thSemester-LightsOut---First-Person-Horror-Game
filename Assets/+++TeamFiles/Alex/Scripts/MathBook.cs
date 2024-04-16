@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MathBookBehaviour : MonoBehaviour
+public class MathBook : MonoBehaviour
 {
     [HideInInspector] public Vector3 mathBookPutAwayPos;
 

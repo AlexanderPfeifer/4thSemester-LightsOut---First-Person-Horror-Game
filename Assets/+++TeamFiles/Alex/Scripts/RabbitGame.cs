@@ -15,7 +15,7 @@ public class RabbitGame : MonoBehaviour
             CarrotBounceUp();
         }
 
-        if (!FindObjectOfType<PlayerInputs>().consoleGameIsPaused)
+        if (FindObjectOfType<PlayerInputs>().holdObjectState == PlayerInputs.HoldObjectState.ConsoleInHand)
         {
             carrotRb.constraints = ~RigidbodyConstraints.FreezePositionY;
             rabbitRb.constraints = ~RigidbodyConstraints.FreezePositionY;
