@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
@@ -8,10 +7,9 @@ public class PlayerInputs : MonoBehaviour
     [Header("MouseCamera")]
     [SerializeField] private float sensitivity = .85f;
     [SerializeField] private CinemachineVirtualCamera vCam;
-    [SerializeField] private GameObject console;
     [SerializeField] private float consolePutAwaySpeed = 4;
     [SerializeField] private LayerMask selectableMask;
-
+    
     private const float Acceleration = 10f;
     private float finalAcc;
     private Vector2 turn;
@@ -20,6 +18,7 @@ public class PlayerInputs : MonoBehaviour
     [SerializeField] private Vector3 putAwayPos;
     [SerializeField] private MotherBehaviour motherBehaviour;
     public HoldObjectState holdObjectState;
+    private GameObject consoleGameObject;
 
     public enum HoldObjectState
     {
@@ -33,8 +32,9 @@ public class PlayerInputs : MonoBehaviour
     private void Start()
     {
         holdObjectState = HoldObjectState.ConsoleInHand;
-        putAwayPos = console.GetComponent<Console>().consolePutAwayPos;
-        selectedGameObject = console.transform;
+        consoleGameObject = FindObjectOfType<Console>().gameObject;
+        putAwayPos = consoleGameObject.GetComponent<Console>().consolePutAwayPos;
+        selectedGameObject = consoleGameObject.transform;
         playerHoldPos = selectedGameObject.position;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -50,7 +50,7 @@ public class PlayerInputs : MonoBehaviour
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
     private void MouseRotationForCamera()
     {
-        if (holdObjectState is HoldObjectState.OutOfHand or HoldObjectState.LayingDown)
+        if (holdObjectState is HoldObjectState.OutOfHand or HoldObjectState.LayingDown && motherBehaviour.currentCaughtTime > 0)
         {
             turn.y += Input.GetAxis("Mouse X") * sensitivity;
             turn.x += Input.GetAxis("Mouse Y") * -sensitivity;
@@ -88,7 +88,7 @@ public class PlayerInputs : MonoBehaviour
             {
                 if (selectedGameObject != null)
                 {
-                    StartCoroutine(LiftUpSelectedObjectCoroutine());
+                    StartCoroutine(InteractWithSelectedObjectCoroutine());
                 }
             }
         }
@@ -111,7 +111,7 @@ public class PlayerInputs : MonoBehaviour
         }
     }
 
-    private IEnumerator LiftUpSelectedObjectCoroutine()
+    private IEnumerator InteractWithSelectedObjectCoroutine()
     {
         selectedGameObject.GetChild(0).gameObject.SetActive(false);
 
@@ -127,40 +127,38 @@ public class PlayerInputs : MonoBehaviour
             yield return null;
         }
 
-        if (Vector3.Distance(selectedGameObject.position, playerHoldPos) <= 0.01f)
+        if (selectedGameObject.TryGetComponent(out MathBook mathBook))
         {
-            if (selectedGameObject.TryGetComponent(out MathBook mathBookBehaviour))
-            {
-                holdObjectState = HoldObjectState.InHand;
-                putAwayPos = mathBookBehaviour.mathBookPutAwayPos;
-                motherBehaviour.ResetAttackScore();
-            }
-            else if(selectedGameObject.TryGetComponent(out Console consoleBehaviour))
-            {
-                holdObjectState = HoldObjectState.ConsoleInHand;
-                putAwayPos = consoleBehaviour.consolePutAwayPos;
-            }
-            yield return null;
+            holdObjectState = HoldObjectState.InHand;
+            putAwayPos = mathBook.mathBookPutAwayPos;
+            motherBehaviour.ResetCaughtScore();
         }
+        else if(selectedGameObject.TryGetComponent(out Console console))
+        {
+            holdObjectState = HoldObjectState.ConsoleInHand;
+            putAwayPos = console.consolePutAwayPos;
+        }
+        else if(selectedGameObject.TryGetComponent(out Game game))
+        {
+            
+        }
+        yield return null;
     }
     
     private IEnumerator PutDownHoldingObjectCoroutine()
     {
-        if (holdObjectState is HoldObjectState.InHand or HoldObjectState.ConsoleInHand)
+        if (holdObjectState is not (HoldObjectState.InHand or HoldObjectState.ConsoleInHand)) 
+            yield break;
+        
+        while (Vector3.Distance(selectedGameObject.position, putAwayPos) > 0.01f)
         {
-            while (Vector3.Distance(selectedGameObject.position, putAwayPos) > 0.01f)
-            {
-                holdObjectState = HoldObjectState.LayingDown;
-                selectedGameObject.position = Vector3.Lerp(selectedGameObject.position, putAwayPos, Time.deltaTime * consolePutAwaySpeed);
-                selectedGameObject.localRotation = Quaternion.Lerp(selectedGameObject.localRotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * consolePutAwaySpeed);
-                yield return null;
-            }
-
-            if (Vector3.Distance(selectedGameObject.position, putAwayPos) <= 0.01f)
-            {
-                holdObjectState = HoldObjectState.OutOfHand;
-                yield return null;
-            }
+            holdObjectState = HoldObjectState.LayingDown;
+            selectedGameObject.position = Vector3.Lerp(selectedGameObject.position, putAwayPos, Time.deltaTime * consolePutAwaySpeed);
+            selectedGameObject.localRotation = Quaternion.Lerp(selectedGameObject.localRotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * consolePutAwaySpeed);
+            yield return null;
         }
+
+        holdObjectState = HoldObjectState.OutOfHand;
+        yield return null;
     }
 }
