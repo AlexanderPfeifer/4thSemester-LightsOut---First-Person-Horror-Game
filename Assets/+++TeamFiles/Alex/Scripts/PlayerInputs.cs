@@ -19,6 +19,8 @@ public class PlayerInputs : MonoBehaviour
     [SerializeField] private MotherBehaviour motherBehaviour;
     public HoldObjectState holdObjectState;
     private GameObject consoleGameObject;
+    [HideInInspector] public bool canMove = true;
+    [HideInInspector] public bool canInteract = true;
 
     public enum HoldObjectState
     {
@@ -26,7 +28,7 @@ public class PlayerInputs : MonoBehaviour
         InHand,
         LayingDown,
         LiftingUp,
-        OutOfHand,
+        OutOfHand
     }
     
     private void Start()
@@ -50,7 +52,7 @@ public class PlayerInputs : MonoBehaviour
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
     private void MouseRotationForCamera()
     {
-        if (holdObjectState is HoldObjectState.OutOfHand or HoldObjectState.LayingDown && motherBehaviour.currentCaughtTime > 0)
+        if (holdObjectState is HoldObjectState.OutOfHand or HoldObjectState.LayingDown && canMove)
         {
             turn.y += Input.GetAxis("Mouse X") * sensitivity;
             turn.x += Input.GetAxis("Mouse Y") * -sensitivity;
@@ -81,7 +83,7 @@ public class PlayerInputs : MonoBehaviour
             holdObjectState = HoldObjectState.LayingDown;
         }
 
-        if (holdObjectState == HoldObjectState.OutOfHand)
+        if (holdObjectState == HoldObjectState.OutOfHand && canInteract)
         {
             CheckSelectableObjectInCameraDir();
             if (Input.GetMouseButtonDown(0))
