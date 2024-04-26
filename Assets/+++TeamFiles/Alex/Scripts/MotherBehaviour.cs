@@ -27,8 +27,12 @@ public class MotherBehaviour : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera vCam;
     private CinemachineBasicMultiChannelPerlin vCamShake;
 
+    [Header("Player")] 
+    private PlayerInputs playerInputs;
+    
     private void Start()
     {
+        playerInputs = FindObjectOfType<PlayerInputs>();
         currentDangerScore = UIScoreCounter.Instance.gameScore;
         vCamShake = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         camAmplitudeNormal = vCamShake.m_AmplitudeGain;
@@ -53,11 +57,8 @@ public class MotherBehaviour : MonoBehaviour
             SetDangerVisual(1, camAmplitudeOnCaught, camFrequencyOnCaught);
             
             StartCoroutine(CaughtPlaying(5));
-        }
-        else
-        {
-            currentCaughtTime = timeUntilCaught;
-            SetDangerVisual(0, camAmplitudeNormal, camFrequencyNormal);
+
+            playerInputs.canMove = false;
         }
     }
 
@@ -85,8 +86,6 @@ public class MotherBehaviour : MonoBehaviour
 
     private void PickNewGame(Color panelAlpha)
     {
-        SetDangerVisual(0.3f, camAmplitudeNormal, camFrequencyNormal);
-        panelAlpha.a = 0;
         foreach (var interactableObject in interactableObjects)
         {
             interactableObject.gameObject.SetActive(false);
@@ -96,7 +95,14 @@ public class MotherBehaviour : MonoBehaviour
         {
             choosableObject.gameObject.SetActive(true);
         }
+
+        playerInputs.canInteract = true;
         
+        SetDangerVisual(0.3f, camAmplitudeNormal, camFrequencyNormal);
+        panelAlpha.a = 0;
+
         UIScoreCounter.Instance.caughtPanel.GetComponent<Image>().color = panelAlpha;
+
+        playerInputs.canMove = true;
     }
 }
