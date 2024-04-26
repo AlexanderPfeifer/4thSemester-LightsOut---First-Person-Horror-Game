@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public class RabbitGame : MonoBehaviour
+public class RabbitGame : PlayerInputs
 {
     [SerializeField] private LayerMask starLayer;
     private Transform starGameObject;
     [SerializeField] private Rigidbody carrotRb;
     [SerializeField] private Rigidbody rabbitRb;
     [SerializeField] private float bounceForce = 15f;
+    private PlayerInputs playerInputs;
 
+    private void Start() => playerInputs = FindObjectOfType<PlayerInputs>();
+    
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.W) && starGameObject != null)
@@ -15,7 +18,7 @@ public class RabbitGame : MonoBehaviour
             CarrotBounceUp();
         }
 
-        if (FindObjectOfType<PlayerInputs>().holdObjectState == PlayerInputs.HoldObjectState.ConsoleInHand)
+        if (playerInputs.holdObjectState == HoldObjectState.InHand && playerInputs.interactableObject.TryGetComponent(out Console console))
         {
             carrotRb.constraints = ~RigidbodyConstraints.FreezePositionY;
             rabbitRb.constraints = ~RigidbodyConstraints.FreezePositionY;
@@ -47,5 +50,10 @@ public class RabbitGame : MonoBehaviour
         {
             starGameObject = null;
         }
+    }
+    
+    public void Selected()
+    {
+        //Add Rabbit Game
     }
 }

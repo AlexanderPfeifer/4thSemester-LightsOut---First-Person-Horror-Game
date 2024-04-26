@@ -15,7 +15,7 @@ public class Cooking_Minigame : MonoBehaviour
 
     [SerializeField] private GameObject customer;
 
-    [SerializeField] private bool orderDone = false;
+    //[SerializeField] private bool orderDone = false;
 
     public void Start()
     {

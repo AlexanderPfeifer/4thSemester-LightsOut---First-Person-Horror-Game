@@ -29,6 +29,7 @@ public class MotherBehaviour : MonoBehaviour
 
     [Header("Player")] 
     private PlayerInputs playerInputs;
+    private bool isChoosingGame;
     
     private void Start()
     {
@@ -47,6 +48,9 @@ public class MotherBehaviour : MonoBehaviour
 
     private void TryCatchingPlayer()
     {
+        if (isChoosingGame) 
+            return;
+        
         if (UIScoreCounter.Instance.gameScore > currentDangerScore + scoreUntilDanger && currentCaughtTime > 0)
         {
             SetDangerVisual(0.4f, camAmplitudeOnDanger, camFrequencyOnDanger);
@@ -56,9 +60,9 @@ public class MotherBehaviour : MonoBehaviour
         {
             SetDangerVisual(1, camAmplitudeOnCaught, camFrequencyOnCaught);
             
-            StartCoroutine(CaughtPlaying(5));
+            StartCoroutine(CaughtPlayingVisual(5));
 
-            playerInputs.canMove = false;
+            playerInputs.gotCaught = true;
         }
     }
 
@@ -72,37 +76,61 @@ public class MotherBehaviour : MonoBehaviour
     public void ResetCaughtScore()
     {
         currentDangerScore = UIScoreCounter.Instance.gameScore;
+        
+        SetDangerVisual(0, camAmplitudeNormal, camFrequencyNormal);
+        
+        currentCaughtTime = timeUntilCaught;
     }
 
-    private IEnumerator CaughtPlaying(float time)
+    private IEnumerator CaughtPlayingVisual(float time)
     {
         yield return new WaitForSeconds(time);
-        var panelAlpha = UIScoreCounter.Instance.caughtPanel.GetComponent<Image>().color;
-        panelAlpha.a = 1;
-        UIScoreCounter.Instance.caughtPanel.GetComponent<Image>().color = panelAlpha;
+        BlackScreenFade(1);
         yield return new WaitForSeconds(secondsBeforeBlackScreenFadeOut);
-        PickNewGame(panelAlpha);
+        PickNewGame();
     }
 
-    private void PickNewGame(Color panelAlpha)
+    public IEnumerator NewGameGotPicked(float time)
+    {
+        yield return new WaitForSeconds(time);
+        isChoosingGame = true;
+        BlackScreenFade(1);
+        ChangeVisibleInteractbles(true, false);
+        yield return new WaitForSeconds(secondsBeforeBlackScreenFadeOut);
+        isChoosingGame = false;
+        BlackScreenFade(0);
+    }
+
+    private void BlackScreenFade(int colorAlpha)
+    {
+        var panelAlpha = UIScoreCounter.Instance.caughtPanel.GetComponent<Image>().color;
+        panelAlpha.a = colorAlpha;
+        UIScoreCounter.Instance.caughtPanel.GetComponent<Image>().color = panelAlpha;
+    }
+    
+    private void PickNewGame()
+    {
+        ChangeVisibleInteractbles(false, true);
+        
+        playerInputs.canInteract = true;
+        
+        SetDangerVisual(0.3f, camAmplitudeNormal, camFrequencyNormal);
+        
+        BlackScreenFade(0);
+
+        playerInputs.gotCaught = false;
+    }
+
+    private void ChangeVisibleInteractbles(bool interactableActiveState, bool gamesActiveState)
     {
         foreach (var interactableObject in interactableObjects)
         {
-            interactableObject.gameObject.SetActive(false);
+            interactableObject.gameObject.SetActive(interactableActiveState);
         }
 
         foreach (var choosableObject in choosableObjects)
         {
-            choosableObject.gameObject.SetActive(true);
+            choosableObject.gameObject.SetActive(gamesActiveState);
         }
-
-        playerInputs.canInteract = true;
-        
-        SetDangerVisual(0.3f, camAmplitudeNormal, camFrequencyNormal);
-        panelAlpha.a = 0;
-
-        UIScoreCounter.Instance.caughtPanel.GetComponent<Image>().color = panelAlpha;
-
-        playerInputs.canMove = true;
     }
 }
