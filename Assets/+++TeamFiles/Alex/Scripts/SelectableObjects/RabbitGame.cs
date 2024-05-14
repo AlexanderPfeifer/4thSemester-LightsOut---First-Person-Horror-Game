@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class RabbitGame : PlayerInputs
+public class RabbitGame : Interaction, IGame
 {
     [SerializeField] private LayerMask starLayer;
     private Transform starGameObject;
@@ -9,8 +9,15 @@ public class RabbitGame : PlayerInputs
     [SerializeField] private float bounceForce = 15f;
     private PlayerInputs playerInputs;
 
-    private void Start() => playerInputs = FindObjectOfType<PlayerInputs>();
-    
+    private Vector3 putAwayPos;
+
+    private void Start()
+    {
+        putAwayPos = transform.position;
+
+        playerInputs = FindObjectOfType<PlayerInputs>();
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.W) && starGameObject != null)
@@ -18,7 +25,7 @@ public class RabbitGame : PlayerInputs
             CarrotBounceUp();
         }
 
-        if (playerInputs.holdObjectState == HoldObjectState.InHand && playerInputs.interactableObject.TryGetComponent(out Console console))
+        if (playerInputs.holdObjectState == PlayerInputs.HoldObjectState.InHand && playerInputs.interactableObject.TryGetComponent(out Console console))
         {
             carrotRb.constraints = ~RigidbodyConstraints.FreezePositionY;
             rabbitRb.constraints = ~RigidbodyConstraints.FreezePositionY;
@@ -33,7 +40,7 @@ public class RabbitGame : PlayerInputs
     private void CarrotBounceUp()
     {
         carrotRb.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
-        UIScoreCounter.Instance.gameScore++;
+        UIScoreCounter.instance.gameScore++;
     }
 
     private void OnTriggerEnter(Collider col)
@@ -51,9 +58,28 @@ public class RabbitGame : PlayerInputs
             starGameObject = null;
         }
     }
-    
-    public void Selected()
+
+    public override void TakeInteractableObject(GameObject interactable)
     {
-        //Add Rabbit Game
+        interactable.transform.position = Vector3.Lerp(interactable.transform.position, interactableObjectInHandPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
+        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0, 90, 0), Time.deltaTime * interactableObjectPutAwaySpeed);
+        interactableObjectPutAwayPosition = transform.position;
+        //consoleHoldVolume.weight = 1;
+    }
+    
+    public override void PutDownInteractableObject(GameObject interactable)
+    {
+        interactable.transform.position = Vector3.Lerp(interactable.transform.position, putAwayPos, Time.deltaTime * interactableObjectPutAwaySpeed);
+        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * interactableObjectPutAwaySpeed);
+    }
+
+    public override GameObject GetGameObject()
+    {
+        return gameObject;
+    }
+
+    public void OpenGame()
+    {
+        //Open whatever
     }
 }

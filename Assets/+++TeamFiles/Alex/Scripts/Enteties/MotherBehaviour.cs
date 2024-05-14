@@ -34,7 +34,7 @@ public class MotherBehaviour : MonoBehaviour
     private void Start()
     {
         playerInputs = FindObjectOfType<PlayerInputs>();
-        currentDangerScore = UIScoreCounter.Instance.gameScore;
+        currentDangerScore = UIScoreCounter.instance.gameScore;
         vCamShake = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         camAmplitudeNormal = vCamShake.m_AmplitudeGain;
         camFrequencyNormal = vCamShake.m_FrequencyGain;
@@ -51,7 +51,7 @@ public class MotherBehaviour : MonoBehaviour
         if (isChoosingGame) 
             return;
         
-        if (UIScoreCounter.Instance.gameScore > currentDangerScore + scoreUntilDanger && currentCaughtTime > 0)
+        if (UIScoreCounter.instance.gameScore > currentDangerScore + scoreUntilDanger && currentCaughtTime > 0)
         {
             SetDangerVisual(0.4f, camAmplitudeOnDanger, camFrequencyOnDanger);
             currentCaughtTime -= Time.deltaTime;
@@ -75,7 +75,7 @@ public class MotherBehaviour : MonoBehaviour
 
     public void ResetCaughtScore()
     {
-        currentDangerScore = UIScoreCounter.Instance.gameScore;
+        currentDangerScore = UIScoreCounter.instance.gameScore;
         
         SetDangerVisual(0, camAmplitudeNormal, camFrequencyNormal);
         
@@ -103,16 +103,14 @@ public class MotherBehaviour : MonoBehaviour
 
     private void BlackScreenFade(int colorAlpha)
     {
-        var panelAlpha = UIScoreCounter.Instance.caughtPanel.GetComponent<Image>().color;
+        var panelAlpha = UIScoreCounter.instance.caughtPanel.GetComponent<Image>().color;
         panelAlpha.a = colorAlpha;
-        UIScoreCounter.Instance.caughtPanel.GetComponent<Image>().color = panelAlpha;
+        UIScoreCounter.instance.caughtPanel.GetComponent<Image>().color = panelAlpha;
     }
     
     private void PickNewGame()
     {
         ChangeVisibleInteractbles(false, true);
-        
-        playerInputs.canInteract = true;
         
         SetDangerVisual(0.3f, camAmplitudeNormal, camFrequencyNormal);
         

@@ -3,7 +3,7 @@ using Cinemachine;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class PlayerInputs : AbstractGameManager
+public class PlayerInputs : MonoBehaviour
 {
     [Header("MouseInput")]
     [SerializeField] private float mouseSensitivity = .85f;
@@ -15,19 +15,22 @@ public class PlayerInputs : AbstractGameManager
     private const float CamSensitivity = 10f;
 
     [Header("SelectableObjects")]
-    [HideInInspector] public bool canInteract = true;
-    [SerializeField] private float interactableObjectPutAwaySpeed = 4;
-    [SerializeField] private LayerMask[] selectableMasks;
-    private Vector3 interactableObjectHoldPosition;
-    public Transform interactableObject;
-    protected Volume consoleHoldVolume;
+    private protected Volume consoleHoldVolume;
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
+    public GameObject interactableObject;
 
+    public enum HoldObjectState
+    {
+        InHand,
+        LayingDown,
+        LiftingUp,
+        OutOfHand
+    }
+    
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        ObjectGotSelected();
     }
 
     private void Update()
@@ -38,7 +41,7 @@ public class PlayerInputs : AbstractGameManager
         
         SelectInteractableObject();
         
-        CheckHoldObjectState();
+        Debug.Log(holdObjectState);
     }
 
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
@@ -64,102 +67,43 @@ public class PlayerInputs : AbstractGameManager
             return;
         
         StartCoroutine(PutDownHoldingObjectCoroutine());
-        consoleHoldVolume.weight = 0;
-        holdObjectState = HoldObjectState.LayingDown;
+        //consoleHoldVolume.weight = 0;
     }
 
     private void SelectInteractableObject()
     {
-        if (holdObjectState != HoldObjectState.OutOfHand || !canInteract) 
-            return;
-        
-        CheckSelectableObjectInCameraDirection();
-
-        if (!Input.GetMouseButtonDown(0)) 
-            return;
-        
-        if (interactableObject != null)
+        if (holdObjectState == HoldObjectState.OutOfHand)
         {
-            InteractWithSelectedObject();
+            CheckSelectableObjectInCameraDirection();
+            
+            if (!Input.GetMouseButtonDown(0)) 
+                return;
+        
+            if (interactableObject != null)
+            {
+                InteractWithSelectedObject();
+            }
         }
     }
 
     private void CheckSelectableObjectInCameraDirection()
     {
-        foreach (var selectableMask in selectableMasks)
+        if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue))
         {
-            if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue, selectableMask))
-            {
-                interactableObject = raycastHit.transform;
-                SetIsSelectable(true);
-            }
-            else
-            {
-                if (interactableObject != null)
-                {
-                    SetIsSelectable(false);
-                    interactableObject = null;
-                }
-            }
+            interactableObject = raycastHit.collider.gameObject;
+            if (!interactableObject.TryGetComponent(out Interaction interaction)) 
+                return;
+            
+            interactableObject = interaction.GetGameObject();
+            SetIsSelectable(true);
         }
-    }
-    
-    public enum HoldObjectState
-    {
-        InHand,
-        LayingDown,
-        LiftingUp,
-        OutOfHand
-    }
-    
-    private void CheckHoldObjectState()
-    {
-        switch (holdObjectState)
+        else
         {
-            case HoldObjectState.InHand :
-                
-                break;
-            case HoldObjectState.LayingDown :
-                //consoleHoldingVolume.weight = 0;
-                break;
-            case HoldObjectState.LiftingUp :
-                break;
-            case HoldObjectState.OutOfHand :
-                break;
-        }
-    }
-    
-    protected virtual void ObjectGotSelected()
-    {
-        holdObjectState = HoldObjectState.InHand;
-        
-        //selectableObject order is: Console, MathBook, PizzaGame, MiningGame, RabbitGame, MemorizeGame, 
-        switch (selectableMasks.Rank)
-        {
-            case 0 :
-                if(interactableObject.TryGetComponent(out Console console))
-                    console.Selected();
-                break;
-            case 1 :
-                if(interactableObject.TryGetComponent(out MathBook mathBook))
-                    mathBook.Selected();
-                break;
-            case 2 :
-                if(interactableObject.TryGetComponent(out PizzaGame pizzaGame))
-                    pizzaGame.Selected();
-                break;
-            case 3 :
-                if(interactableObject.TryGetComponent(out MiningGame miningGame))
-                    miningGame.Selected();
-                break;
-            case 4 :
-                if(interactableObject.TryGetComponent(out RabbitGame rabbitGame))
-                    rabbitGame.Selected();
-                break;
-            case 5 :
-                if(interactableObject.TryGetComponent(out MemorizeGame memorizeGame))
-                    memorizeGame.Selected();
-                break;
+            if (interactableObject == null) 
+                return;
+            
+            SetIsSelectable(false);
+            interactableObject = null;
         }
     }
 
@@ -174,31 +118,31 @@ public class PlayerInputs : AbstractGameManager
 
     private void SetIsSelectable(bool selected)
     {
-        interactableObject.GetChild(0).gameObject.SetActive(selected);
+        interactableObject.transform.GetChild(0).gameObject.SetActive(selected);
     }
 
     private IEnumerator CheckSelectedObjectDistance()
     {
-        while (Vector3.Distance(interactableObject.position, interactableObjectHoldPosition) > 0.01f)
+        while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectInHandPosition) > 0.01f)
         {
-            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),interactableObjectPutAwaySpeed * Time.deltaTime);
+            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             
-            interactableObject.localRotation = Quaternion.Lerp(interactableObject.localRotation, Quaternion.Euler(0, 90, 0), Time.deltaTime * interactableObjectPutAwaySpeed);
-            interactableObject.position = Vector3.Lerp(interactableObject.position, interactableObjectHoldPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
+            //Take object
 
             yield return null;
         }
         
-        ObjectGotSelected();
+        holdObjectState = HoldObjectState.InHand;
     }
     
     private IEnumerator PutDownHoldingObjectCoroutine()
     {
-        while (Vector3.Distance(interactableObject.position, putAwayPosition) > 0.01f)
+        while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectPutAwayPosition) > 0.01f)
         {
             holdObjectState = HoldObjectState.LayingDown;
-            interactableObject.position = Vector3.Lerp(interactableObject.position, putAwayPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
-            interactableObject.localRotation = Quaternion.Lerp(interactableObject.localRotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * interactableObjectPutAwaySpeed);
+            
+            interactableObject.GetComponent<Interaction>().PutDownInteractableObject(interactableObject);
+            
             yield return null;
         }
 

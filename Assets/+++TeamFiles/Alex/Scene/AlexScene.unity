@@ -155,14 +155,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8e5351bac20dc47bdfbe2d3d7e59f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSensitivity: 0.85
-  gotCaught: 0
-  vCam: {fileID: 0}
-  canInteract: 1
   interactableObjectPutAwaySpeed: 4
-  selectableMasks: []
-  interactableObject: {fileID: 0}
-  consoleHoldingVolume: {fileID: 0}
+  interactableObjectPutAwayPosition: {x: 0, y: 0, z: 0}
+  interactableObjectInHandPosition: {x: 0, y: 0, z: 0}
   starLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -474,7 +469,7 @@ MonoBehaviour:
   m_IsGlobal: 1
   priority: 1
   blendDistance: 0
-  weight: 1
+  weight: 0
   sharedProfile: {fileID: 11400000, guid: c192c1e0fbdee494da4ccbf171f453d0, type: 2}
 --- !u!4 &119523033
 Transform:
@@ -610,14 +605,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ebd46e4c94828b46b4457c20fc3ba75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSensitivity: 0.85
-  gotCaught: 0
-  vCam: {fileID: 0}
-  canInteract: 1
   interactableObjectPutAwaySpeed: 4
-  selectableMasks: []
-  interactableObject: {fileID: 0}
-  consoleHoldingVolume: {fileID: 0}
+  interactableObjectPutAwayPosition: {x: 0, y: 0, z: 0}
+  interactableObjectInHandPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &181810142
 GameObject:
   m_ObjectHideFlags: 3
@@ -1973,14 +1963,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7aa68e1a17cdb4a45bf36e36d3db035a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSensitivity: 0.85
-  gotCaught: 0
-  vCam: {fileID: 0}
-  canInteract: 1
   interactableObjectPutAwaySpeed: 4
-  selectableMasks: []
-  interactableObject: {fileID: 0}
-  consoleHoldingVolume: {fileID: 0}
+  interactableObjectPutAwayPosition: {x: 0, y: 0, z: 0}
+  interactableObjectInHandPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &1059083618
 GameObject:
   m_ObjectHideFlags: 0
@@ -2010,7 +1995,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a44430aa15d62c642af5cd532fea8539, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scoreUntilDanger: 0
+  scoreUntilDanger: 100
   timeUntilCaught: 7.5
   currentCaughtTime: 0
   interactableObjects:
@@ -2367,14 +2352,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8f3378cfceeea943ad9521d3979e318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSensitivity: 0.85
-  gotCaught: 0
-  vCam: {fileID: 0}
-  canInteract: 1
   interactableObjectPutAwaySpeed: 4
-  selectableMasks: []
-  interactableObject: {fileID: 0}
-  consoleHoldingVolume: {fileID: 0}
+  interactableObjectPutAwayPosition: {x: 0, y: 0, z: 0}
+  interactableObjectInHandPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &1438185638
 GameObject:
   m_ObjectHideFlags: 0
@@ -2726,23 +2706,8 @@ MonoBehaviour:
   mouseSensitivity: 0.85
   gotCaught: 0
   vCam: {fileID: 430335777}
-  canInteract: 1
-  interactableObjectPutAwaySpeed: 4
-  selectableMasks:
-  - serializedVersion: 2
-    m_Bits: 128
-  - serializedVersion: 2
-    m_Bits: 256
-  - serializedVersion: 2
-    m_Bits: 512
-  - serializedVersion: 2
-    m_Bits: 1024
-  - serializedVersion: 2
-    m_Bits: 2048
-  - serializedVersion: 2
-    m_Bits: 4096
-  interactableObject: {fileID: 0}
-  consoleHoldingVolume: {fileID: 119523032}
+  holdObjectState: 0
+  interactableObject: {fileID: 1349694552497527174}
 --- !u!4 &1939642620
 Transform:
   m_ObjectHideFlags: 0
@@ -4665,14 +4630,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7223807fd0304f84691f2eb3f6f5b7ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSensitivity: 0.85
-  gotCaught: 0
-  vCam: {fileID: 430335777}
-  canInteract: 1
   interactableObjectPutAwaySpeed: 4
-  selectableMasks: []
-  interactableObject: {fileID: 0}
-  consoleHoldingVolume: {fileID: 119523032}
+  interactableObjectPutAwayPosition: {x: 0, y: 0, z: 0}
+  interactableObjectInHandPosition: {x: 0, y: 0, z: 0}
 --- !u!33 &8691701545199665657
 MeshFilter:
   m_ObjectHideFlags: 0
