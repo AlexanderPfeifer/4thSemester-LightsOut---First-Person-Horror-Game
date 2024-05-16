@@ -1,23 +1,23 @@
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 
 public class PlayerInputs : MonoBehaviour
 {
     [Header("MouseInput")]
     [SerializeField] private float mouseSensitivity = .85f;
     private Vector2 mousePosition;
-    [HideInInspector] public bool gotCaught;
+    [FormerlySerializedAs("canMove")] [FormerlySerializedAs("gotCaught")] [HideInInspector] public bool isCaught;
 
     [Header("Camera")]
     [SerializeField] private CinemachineVirtualCamera vCam;
     private const float CamSensitivity = 10f;
 
     [Header("SelectableObjects")]
-    private protected Volume consoleHoldVolume;
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
     public GameObject interactableObject;
+    [SerializeField] private LayerMask interactableLayerMask;
 
     public enum HoldObjectState
     {
@@ -37,17 +37,15 @@ public class PlayerInputs : MonoBehaviour
     {
         LookAround();
         
-        PutDownHoldingObject();
+        PutDownInteractable();
         
-        SelectInteractableObject();
-        
-        Debug.Log(holdObjectState);
+        SelectInteractable();
     }
 
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
     private void LookAround()
     {
-        if (holdObjectState is not (HoldObjectState.OutOfHand or HoldObjectState.LayingDown) || gotCaught)
+        if (holdObjectState is not (HoldObjectState.OutOfHand or HoldObjectState.LayingDown) || isCaught)
             return;
         
         mousePosition.y += Input.GetAxis("Mouse X") * mouseSensitivity;
@@ -60,74 +58,69 @@ public class PlayerInputs : MonoBehaviour
         cameraLocalRotation = Quaternion.Lerp(cameraLocalRotation, cameraRotation,CamSensitivity * Time.deltaTime);
         vCam.transform.localRotation = cameraLocalRotation;
     }
-    
-    private void PutDownHoldingObject()
-    {
-        if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand) 
-            return;
-        
-        StartCoroutine(PutDownHoldingObjectCoroutine());
-        //consoleHoldVolume.weight = 0;
-    }
 
-    private void SelectInteractableObject()
+    private void SelectInteractable()
     {
         if (holdObjectState == HoldObjectState.OutOfHand)
         {
-            CheckSelectableObjectInCameraDirection();
+            SelectInteractableInLookDir();
             
             if (!Input.GetMouseButtonDown(0)) 
                 return;
         
             if (interactableObject != null)
             {
-                InteractWithSelectedObject();
+                InteractWithInteractable();
             }
         }
     }
 
-    private void CheckSelectableObjectInCameraDirection()
+    private void SelectInteractableInLookDir()
     {
-        if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue))
+        if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue, interactableLayerMask))
         {
             interactableObject = raycastHit.collider.gameObject;
-            if (!interactableObject.TryGetComponent(out Interaction interaction)) 
-                return;
-            
-            interactableObject = interaction.GetGameObject();
-            SetIsSelectable(true);
+            if (interactableObject.TryGetComponent(out Interaction interaction))
+            {
+                SelectVisual(true);
+            }
         }
         else
         {
-            if (interactableObject == null) 
-                return;
-            
-            SetIsSelectable(false);
-            interactableObject = null;
+            if (interactableObject != null)
+            {
+                SelectVisual(false);
+                interactableObject = null;   
+            }
         }
     }
-
-    private void InteractWithSelectedObject()
+    
+    private void SelectVisual(bool selected)
     {
-        SetIsSelectable(false);
+        interactableObject.GetComponentInParent<Transform>().GetChild(0).gameObject.SetActive(selected);
+    }
+
+    private void InteractWithInteractable()
+    {
+        SelectVisual(false);
 
         holdObjectState = HoldObjectState.LiftingUp;
 
-        StartCoroutine(CheckSelectedObjectDistance());
+        StartCoroutine(TakeInteractable());
     }
 
-    private void SetIsSelectable(bool selected)
-    {
-        interactableObject.transform.GetChild(0).gameObject.SetActive(selected);
-    }
-
-    private IEnumerator CheckSelectedObjectDistance()
+    private IEnumerator TakeInteractable()
     {
         while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectInHandPosition) > 0.01f)
         {
             vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             
-            //Take object
+            interactableObject.GetComponent<Interaction>().TakeInteractableObject(interactableObject);
+
+            if (interactableObject.TryGetComponent(out IChoosableGame iChoosableGame))
+            {
+                iChoosableGame.OpenGame();
+            }
 
             yield return null;
         }
@@ -135,8 +128,18 @@ public class PlayerInputs : MonoBehaviour
         holdObjectState = HoldObjectState.InHand;
     }
     
-    private IEnumerator PutDownHoldingObjectCoroutine()
+    private void PutDownInteractable()
     {
+        if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand) 
+            return;
+        
+        StartCoroutine(PutDownInteractableCoroutine());
+    }
+    
+    private IEnumerator PutDownInteractableCoroutine()
+    {
+        interactableObject.GetComponent<Interaction>().AssignPutDownPos();
+
         while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectPutAwayPosition) > 0.01f)
         {
             holdObjectState = HoldObjectState.LayingDown;

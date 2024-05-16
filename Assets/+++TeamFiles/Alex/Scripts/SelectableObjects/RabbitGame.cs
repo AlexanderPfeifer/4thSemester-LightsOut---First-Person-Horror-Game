@@ -1,30 +1,39 @@
 using UnityEngine;
 
-public class RabbitGame : Interaction, IGame
+public class RabbitGame : Interaction
 {
-    [SerializeField] private LayerMask starLayer;
-    private Transform starGameObject;
+    [SerializeField] private LayerMask carrotLayer;
+    [SerializeField] private LayerMask floorLayer;
+    private Transform carrot;
     [SerializeField] private Rigidbody carrotRb;
     [SerializeField] private Rigidbody rabbitRb;
     [SerializeField] private float bounceForce = 15f;
     private PlayerInputs playerInputs;
-
-    private Vector3 putAwayPos;
-
+    public int combo = 1;
+    public int counterUntilMultiply;
+    
     private void Start()
     {
-        putAwayPos = transform.position;
-
         playerInputs = FindObjectOfType<PlayerInputs>();
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W) && starGameObject != null)
+        CarrotJump();
+        
+        FreezeGame();
+    }
+
+    private void CarrotJump()
+    {
+        if (Input.GetKeyDown(KeyCode.W) && carrot != null)
         {
             CarrotBounceUp();
         }
+    }
 
+    private void FreezeGame()
+    {
         if (playerInputs.holdObjectState == PlayerInputs.HoldObjectState.InHand && playerInputs.interactableObject.TryGetComponent(out Console console))
         {
             carrotRb.constraints = ~RigidbodyConstraints.FreezePositionY;
@@ -40,22 +49,30 @@ public class RabbitGame : Interaction, IGame
     private void CarrotBounceUp()
     {
         carrotRb.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
-        UIScoreCounter.instance.gameScore++;
+        UIScoreCounter.instance.gameScore += combo;
+
+        counterUntilMultiply++;
+
+        if (counterUntilMultiply >= 5)
+        {
+            combo++;
+            counterUntilMultiply = 0;
+        }
     }
 
     private void OnTriggerEnter(Collider col)
     {
-        if ((1 << col.gameObject.layer) == starLayer.value)
+        if ((1 << col.gameObject.layer) == carrotLayer.value)
         {
-            starGameObject = col.gameObject.GetComponent<Transform>();
+            carrot = col.gameObject.GetComponent<Transform>();
         }
     }
 
     private void OnTriggerExit(Collider col)
     {
-        if ((1 << col.gameObject.layer) == starLayer.value)
+        if ((1 << col.gameObject.layer) == carrotLayer.value)
         {
-            starGameObject = null;
+            carrot = null;
         }
     }
 
@@ -64,20 +81,8 @@ public class RabbitGame : Interaction, IGame
         interactable.transform.position = Vector3.Lerp(interactable.transform.position, interactableObjectInHandPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
         interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0, 90, 0), Time.deltaTime * interactableObjectPutAwaySpeed);
         interactableObjectPutAwayPosition = transform.position;
-        //consoleHoldVolume.weight = 1;
     }
     
-    public override void PutDownInteractableObject(GameObject interactable)
-    {
-        interactable.transform.position = Vector3.Lerp(interactable.transform.position, putAwayPos, Time.deltaTime * interactableObjectPutAwaySpeed);
-        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * interactableObjectPutAwaySpeed);
-    }
-
-    public override GameObject GetGameObject()
-    {
-        return gameObject;
-    }
-
     public void OpenGame()
     {
         //Open whatever

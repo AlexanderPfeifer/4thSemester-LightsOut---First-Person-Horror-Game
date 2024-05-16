@@ -7,128 +7,134 @@ using UnityEngine.UI;
 
 public class MotherBehaviour : MonoBehaviour
 {
-    [Header("Time")]
-    private int currentDangerScore;
-    [SerializeField] private int scoreUntilDanger = 3;
-    [SerializeField] private float timeUntilCaught = 7.5f;
-    [HideInInspector] public float currentCaughtTime;
-
     [Header("Camera")]
     private float camAmplitudeNormal;
     private float camFrequencyNormal;
     [SerializeField] private List<GameObject> interactableObjects;
     [SerializeField] private List<GameObject> choosableObjects;
-    [SerializeField] private float secondsBeforeBlackScreenFadeOut;
+    [SerializeField] private float timeUntilBlackScreen;
+    [SerializeField] private float timeInBlackScreen;
     [SerializeField] private float camAmplitudeOnDanger;
     [SerializeField] private float camFrequencyOnDanger;
     [SerializeField] private float camAmplitudeOnCaught;
     [SerializeField] private float camFrequencyOnCaught;
-    [SerializeField] private Volume dangerVolume;
     [SerializeField] private CinemachineVirtualCamera vCam;
     private CinemachineBasicMultiChannelPerlin vCamShake;
+
+    [Header("Volume")] 
+    [SerializeField] private Volume motherCatchVolume;
+    
+    [Header("Score")]
+    private int currentDangerScore;
+    [SerializeField] private int scoreUntilDanger = 3;
+    
+    [Header("CaughtTime")]
+    [SerializeField] private float timeUntilCaught = 7.5f;
+    [HideInInspector] public float currentCaughtTime;
 
     [Header("Player")] 
     private PlayerInputs playerInputs;
     private bool isChoosingGame;
-    
+
     private void Start()
     {
         playerInputs = FindObjectOfType<PlayerInputs>();
-        currentDangerScore = UIScoreCounter.instance.gameScore;
         vCamShake = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
-        camAmplitudeNormal = vCamShake.m_AmplitudeGain;
-        camFrequencyNormal = vCamShake.m_FrequencyGain;
         currentCaughtTime = timeUntilCaught;
     }
 
     private void Update()
     {
-        TryCatchingPlayer();
+        CatchingPlayer();
     }
 
-    private void TryCatchingPlayer()
+    private void CatchingPlayer()
     {
         if (isChoosingGame) 
             return;
         
         if (UIScoreCounter.instance.gameScore > currentDangerScore + scoreUntilDanger && currentCaughtTime > 0)
         {
-            SetDangerVisual(0.4f, camAmplitudeOnDanger, camFrequencyOnDanger);
+            StartCoroutine(SetCamVisual(0.3f, camAmplitudeOnDanger, camFrequencyOnDanger, 3));
             currentCaughtTime -= Time.deltaTime;
         }
         else if(currentCaughtTime <= 0)
         {
-            SetDangerVisual(1, camAmplitudeOnCaught, camFrequencyOnCaught);
-            
-            StartCoroutine(CaughtPlayingVisual(5));
-
-            playerInputs.gotCaught = true;
+            StartCoroutine(CaughtPlayingVisual());
         }
     }
 
-    private void SetDangerVisual(float weight, float camAmplitude, float camFrequency)
+    private IEnumerator CaughtPlayingVisual()
     {
-        dangerVolume.weight = Mathf.Lerp(dangerVolume.weight, weight, Time.deltaTime);
-        vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, camAmplitude, Time.deltaTime);
-        vCamShake.m_FrequencyGain = Mathf.Lerp(vCamShake.m_FrequencyGain, camFrequency, Time.deltaTime);
+        playerInputs.isCaught = true;
+        isChoosingGame = true;
+        StartCoroutine(SetCamVisual(1f, camAmplitudeOnCaught, camFrequencyOnCaught, 3));
+        yield return new WaitForSeconds(timeUntilBlackScreen);
+        BlackScreen(1);
+        yield return new WaitForSeconds(timeInBlackScreen);
+        playerInputs.isCaught = false;
+        PickNewGame();
+    }
+    
+    private void PickNewGame()
+    {
+        ChangeVisibleInteractblesOnTable(false, true);
+        StartCoroutine(SetCamVisual(0.3f, camAmplitudeNormal, camFrequencyNormal, 3));
+        BlackScreen(0);
+    }
+    
+    public IEnumerator NewGameGotPicked(float timeBeforeBlackScreen)
+    {
+        yield return new WaitForSeconds(timeBeforeBlackScreen);
+        BlackScreen(1);
+        ChangeVisibleInteractblesOnTable(true, false);
+        yield return new WaitForSeconds(timeInBlackScreen);
+        isChoosingGame = false;
+        playerInputs.isCaught = false;
+        ResetCaughtScore();
+        BlackScreen(0);
     }
 
     public void ResetCaughtScore()
     {
         currentDangerScore = UIScoreCounter.instance.gameScore;
         
-        SetDangerVisual(0, camAmplitudeNormal, camFrequencyNormal);
+        StartCoroutine(SetCamVisual(0, camAmplitudeNormal, camFrequencyNormal, 1));
         
         currentCaughtTime = timeUntilCaught;
     }
 
-    private IEnumerator CaughtPlayingVisual(float time)
+    private void BlackScreen(int panelAlpha)
     {
-        yield return new WaitForSeconds(time);
-        BlackScreenFade(1);
-        yield return new WaitForSeconds(secondsBeforeBlackScreenFadeOut);
-        PickNewGame();
-    }
-
-    public IEnumerator NewGameGotPicked(float time)
-    {
-        yield return new WaitForSeconds(time);
-        isChoosingGame = true;
-        BlackScreenFade(1);
-        ChangeVisibleInteractbles(true, false);
-        yield return new WaitForSeconds(secondsBeforeBlackScreenFadeOut);
-        isChoosingGame = false;
-        BlackScreenFade(0);
-    }
-
-    private void BlackScreenFade(int colorAlpha)
-    {
-        var panelAlpha = UIScoreCounter.instance.caughtPanel.GetComponent<Image>().color;
-        panelAlpha.a = colorAlpha;
-        UIScoreCounter.instance.caughtPanel.GetComponent<Image>().color = panelAlpha;
+        var wantedAlpha = new Color(0, 0, 0, panelAlpha);
+        
+        UIScoreCounter.instance.caughtPanel.GetComponent<Image>().color = wantedAlpha;
     }
     
-    private void PickNewGame()
+    private IEnumerator SetCamVisual(float weight, float camAmplitude, float camFrequency, float fadeTime)
     {
-        ChangeVisibleInteractbles(false, true);
-        
-        SetDangerVisual(0.3f, camAmplitudeNormal, camFrequencyNormal);
-        
-        BlackScreenFade(0);
+        var elapsedTime = 0f;
 
-        playerInputs.gotCaught = false;
+        while (elapsedTime < fadeTime)
+        {
+            vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, camAmplitude, (elapsedTime / fadeTime));
+            vCamShake.m_FrequencyGain = Mathf.Lerp(vCamShake.m_FrequencyGain, camFrequency, (elapsedTime / fadeTime));
+            motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, weight, (elapsedTime / fadeTime));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
     }
-
-    private void ChangeVisibleInteractbles(bool interactableActiveState, bool gamesActiveState)
+    
+    private void ChangeVisibleInteractblesOnTable(bool interactblesOnTable, bool gamesOnTable)
     {
         foreach (var interactableObject in interactableObjects)
         {
-            interactableObject.gameObject.SetActive(interactableActiveState);
+            interactableObject.gameObject.SetActive(interactblesOnTable);
         }
 
         foreach (var choosableObject in choosableObjects)
         {
-            choosableObject.gameObject.SetActive(gamesActiveState);
+            choosableObject.gameObject.SetActive(gamesOnTable);
         }
     }
 }

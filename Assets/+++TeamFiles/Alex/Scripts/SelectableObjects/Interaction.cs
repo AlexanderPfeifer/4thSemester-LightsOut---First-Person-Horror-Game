@@ -1,10 +1,17 @@
+using System;
 using UnityEngine;
 
-public abstract class Interaction : MonoBehaviour, IInteractable
+public abstract class Interaction : MonoBehaviour
 {
     public float interactableObjectPutAwaySpeed = 4;
     [HideInInspector] public Vector3 interactableObjectPutAwayPosition;
     [HideInInspector] public Vector3 interactableObjectInHandPosition;
+    protected MotherBehaviour motherBehaviour;
+
+    private void Start()
+    {
+        motherBehaviour = FindObjectOfType<MotherBehaviour>();
+    }
 
     public virtual void TakeInteractableObject(GameObject interactable)
     {
@@ -18,7 +25,6 @@ public abstract class Interaction : MonoBehaviour, IInteractable
         interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * interactableObjectPutAwaySpeed);
     }
 
-    //public abstract bool CanInteract(GameObject interactable);
-    
-    public abstract GameObject GetGameObject();
+    public virtual void AssignPutDownPos()
+    { }
 }
