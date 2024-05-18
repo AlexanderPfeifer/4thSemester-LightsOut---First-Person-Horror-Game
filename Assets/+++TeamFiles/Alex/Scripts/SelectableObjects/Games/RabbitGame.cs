@@ -3,15 +3,12 @@ using UnityEngine;
 public class RabbitGame : Interaction
 {
     [SerializeField] private LayerMask carrotLayer;
-    [SerializeField] private LayerMask floorLayer;
     private Transform carrot;
     [SerializeField] private Rigidbody carrotRb;
     [SerializeField] private Rigidbody rabbitRb;
     [SerializeField] private float bounceForce = 15f;
     private PlayerInputs playerInputs;
-    public int combo = 1;
-    public int counterUntilMultiply;
-    
+
     private void Start()
     {
         playerInputs = FindObjectOfType<PlayerInputs>();
@@ -49,15 +46,8 @@ public class RabbitGame : Interaction
     private void CarrotBounceUp()
     {
         carrotRb.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
-        UIScoreCounter.instance.gameScore += combo;
-
-        counterUntilMultiply++;
-
-        if (counterUntilMultiply >= 5)
-        {
-            combo++;
-            counterUntilMultiply = 0;
-        }
+        
+        UIScoreCounter.instance.AddScore();
     }
 
     private void OnTriggerEnter(Collider col)

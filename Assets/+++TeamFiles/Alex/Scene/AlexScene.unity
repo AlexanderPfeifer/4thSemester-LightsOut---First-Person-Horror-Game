@@ -195,14 +195,9 @@ MonoBehaviour:
   carrotLayer:
     serializedVersion: 2
     m_Bits: 64
-  floorLayer:
-    serializedVersion: 2
-    m_Bits: 256
   carrotRb: {fileID: 1183941631}
   rabbitRb: {fileID: 34224974}
   bounceForce: 15
-  combo: 1
-  counterUntilMultiply: 0
 --- !u!54 &34224974
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -608,7 +603,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &119523032
 MonoBehaviour:
@@ -1370,7 +1365,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!108 &410087040
 Light:
@@ -1643,7 +1638,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &676027296
 MonoBehaviour:
@@ -1727,7 +1722,7 @@ GameObject:
   - component: {fileID: 747993135}
   - component: {fileID: 747993136}
   m_Layer: 5
-  m_Name: UIManager
+  m_Name: ScoreManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1740,16 +1735,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 747993134}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.0025196075}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2136752406}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 960.08093, y: 539.99994}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &747993136
@@ -1766,6 +1761,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scoreTextObject: {fileID: 342198641}
   gameScore: 0
+  scoreUntilDanger: 3
+  combo: 1
+  counterUntilMultiply: 0
+  scoreToWin: 50
+  timeUntilCaught: 7.5
+  currentCaughtTime: 0
   caughtPanel: {fileID: 990325264}
 --- !u!1 &832575517
 GameObject:
@@ -1782,7 +1783,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &832575518
 MonoBehaviour:
@@ -1939,6 +1940,7 @@ MonoBehaviour:
   interactableObjectPutAwayPosition: {x: 0, y: 0, z: 0}
   interactableObjectInHandPosition: {x: 0, y: 0, z: 0}
   pizzaGame: {fileID: 83425879}
+  scoreToWin: 0
 --- !u!1 &918601059
 GameObject:
   m_ObjectHideFlags: 0
@@ -2199,7 +2201,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000061035156, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -0.00014561415, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &990325266
@@ -2384,6 +2386,7 @@ MonoBehaviour:
   interactableObjectPutAwayPosition: {x: 0, y: 0, z: 0}
   interactableObjectInHandPosition: {x: 0, y: 0, z: 0}
   memorizeGame: {fileID: 1907991529}
+  scoreToWin: 0
 --- !u!1 &1059083618
 GameObject:
   m_ObjectHideFlags: 0
@@ -2422,15 +2425,15 @@ MonoBehaviour:
   - {fileID: 1037262518}
   timeUntilBlackScreen: 4
   timeInBlackScreen: 3
+  camAmplitudeNormal: 0
+  camFrequencyNormal: 0
   camAmplitudeOnDanger: 4
   camFrequencyOnDanger: 2.5
   camAmplitudeOnCaught: 2
   camFrequencyOnCaught: 7
   vCam: {fileID: 430335777}
   motherCatchVolume: {fileID: 1798350233}
-  scoreUntilDanger: 2
-  timeUntilCaught: 7.5
-  currentCaughtTime: 0
+  lerpSpeed: 50
 --- !u!4 &1059083620
 Transform:
   m_ObjectHideFlags: 0
@@ -2791,6 +2794,7 @@ MonoBehaviour:
   interactableObjectPutAwayPosition: {x: 0, y: 0, z: 0}
   interactableObjectInHandPosition: {x: 0, y: 0, z: 0}
   miningGame: {fileID: 1372236366}
+  scoreToWin: 0
 --- !u!1 &1372236366
 GameObject:
   m_ObjectHideFlags: 0
@@ -3109,7 +3113,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &1798350233
 MonoBehaviour:
@@ -3296,7 +3300,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &1939642619
 MonoBehaviour:
@@ -3318,6 +3322,11 @@ MonoBehaviour:
   interactableLayerMask:
     serializedVersion: 2
     m_Bits: 128
+  games:
+  - {fileID: 1018605}
+  - {fileID: 83425879}
+  - {fileID: 1372236366}
+  - {fileID: 1907991529}
 --- !u!4 &1939642620
 Transform:
   m_ObjectHideFlags: 0
@@ -3552,7 +3561,7 @@ GameObject:
   - component: {fileID: 2136752408}
   - component: {fileID: 2136752407}
   m_Layer: 5
-  m_Name: CanvasGames
+  m_Name: ScoreCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3570,7 +3579,6 @@ RectTransform:
   m_LocalScale: {x: 0.09999998, y: 0.1, z: 0.09999998}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 747993135}
   - {fileID: 342198640}
   m_Father: {fileID: 3334179145585465428}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3773,7 +3781,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!1 &822583613733163343
 GameObject:
@@ -3791,7 +3799,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!1 &919132149369970682
 GameObject:
@@ -3807,7 +3815,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!33 &962814976231321531
 MeshFilter:
@@ -3841,7 +3849,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!23 &1105751137268884608
 MeshRenderer:
@@ -3966,7 +3974,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!1 &1349694552497527174
 GameObject:
@@ -4111,7 +4119,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2042459238934072462
 Transform:
@@ -4145,7 +4153,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!33 &2154045430973738699
 MeshFilter:
@@ -4213,7 +4221,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!1 &2387989389724367809
 GameObject:
@@ -4231,7 +4239,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!33 &2649733880078693073
 MeshFilter:
@@ -4298,7 +4306,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!1 &3227551865443263155
 GameObject:
@@ -4316,7 +4324,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!1 &3239839239072284969
 GameObject:
@@ -4334,7 +4342,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3334179145585465428
 Transform:
@@ -4389,7 +4397,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3880369302290230799
 Transform:
@@ -4590,7 +4598,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5428887392893915398
 Transform:
@@ -4623,7 +4631,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!33 &5622570132256465025
 MeshFilter:
@@ -4813,7 +4821,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!23 &6772523027635200817
 MeshRenderer:
@@ -4889,7 +4897,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!1 &7317195175872822225
 GameObject:
@@ -4907,7 +4915,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!23 &7422041151076211270
 MeshRenderer:
@@ -5215,7 +5223,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &8425451828582158550
 Transform:
@@ -5459,7 +5467,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -5471,6 +5479,7 @@ SceneRoots:
   - {fileID: 1059083620}
   - {fileID: 1939642620}
   - {fileID: 543450653358736704}
+  - {fileID: 747993135}
   - {fileID: 3334179145585465428}
   - {fileID: 148607673}
   - {fileID: 962758553}

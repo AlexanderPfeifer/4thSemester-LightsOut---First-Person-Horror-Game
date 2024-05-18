@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
@@ -8,67 +9,52 @@ using UnityEngine.UI;
 public class MotherBehaviour : MonoBehaviour
 {
     [Header("Camera")]
-    private float camAmplitudeNormal;
-    private float camFrequencyNormal;
     [SerializeField] private List<GameObject> interactableObjects;
     [SerializeField] private List<GameObject> choosableObjects;
     [SerializeField] private float timeUntilBlackScreen;
     [SerializeField] private float timeInBlackScreen;
-    [SerializeField] private float camAmplitudeOnDanger;
-    [SerializeField] private float camFrequencyOnDanger;
+    [HideInInspector] public float camAmplitudeNormal;
+    [HideInInspector] public float camFrequencyNormal;
+    [SerializeField] public float camAmplitudeOnDanger;
+    [SerializeField] public float camFrequencyOnDanger;
     [SerializeField] private float camAmplitudeOnCaught;
     [SerializeField] private float camFrequencyOnCaught;
     [SerializeField] private CinemachineVirtualCamera vCam;
     private CinemachineBasicMultiChannelPerlin vCamShake;
+    private float t;
 
     [Header("Volume")] 
     [SerializeField] private Volume motherCatchVolume;
-    
-    [Header("Score")]
-    private int currentDangerScore;
-    [SerializeField] private int scoreUntilDanger = 3;
-    
-    [Header("CaughtTime")]
-    [SerializeField] private float timeUntilCaught = 7.5f;
-    [HideInInspector] public float currentCaughtTime;
 
     [Header("Player")] 
     private PlayerInputs playerInputs;
-    private bool isChoosingGame;
+    [SerializeField] private float lerpSpeed = 0.5f;
+    private bool canPlayCaughtVisual = true;
 
     private void Start()
     {
         playerInputs = FindObjectOfType<PlayerInputs>();
         vCamShake = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
-        currentCaughtTime = timeUntilCaught;
     }
 
     private void Update()
     {
-        CatchingPlayer();
+        if (UIScoreCounter.instance.currentCaughtTime <= 0 && canPlayCaughtVisual)
+        {
+            PlayCaughtVisual();
+            canPlayCaughtVisual = false;
+        }
     }
 
-    private void CatchingPlayer()
+    private void PlayCaughtVisual()
     {
-        if (isChoosingGame) 
-            return;
-        
-        if (UIScoreCounter.instance.gameScore > currentDangerScore + scoreUntilDanger && currentCaughtTime > 0)
-        {
-            StartCoroutine(SetCamVisual(0.3f, camAmplitudeOnDanger, camFrequencyOnDanger, 3));
-            currentCaughtTime -= Time.deltaTime;
-        }
-        else if(currentCaughtTime <= 0)
-        {
-            StartCoroutine(CaughtPlayingVisual());
-        }
+        StartCoroutine(CaughtPlayingVisual());
     }
 
     private IEnumerator CaughtPlayingVisual()
     {
         playerInputs.isCaught = true;
-        isChoosingGame = true;
-        StartCoroutine(SetCamVisual(1f, camAmplitudeOnCaught, camFrequencyOnCaught, 3));
+        SetCamVisual(1f, camAmplitudeOnCaught, camFrequencyOnCaught);
         yield return new WaitForSeconds(timeUntilBlackScreen);
         BlackScreen(1);
         yield return new WaitForSeconds(timeInBlackScreen);
@@ -78,30 +64,23 @@ public class MotherBehaviour : MonoBehaviour
     
     private void PickNewGame()
     {
-        ChangeVisibleInteractblesOnTable(false, true);
-        StartCoroutine(SetCamVisual(0.3f, camAmplitudeNormal, camFrequencyNormal, 3));
+        SetCamVisual(0.3f, camAmplitudeNormal, camFrequencyNormal);
         BlackScreen(0);
+        ChangeVisibleInteractblesOnTable(false, true);
     }
     
     public IEnumerator NewGameGotPicked(float timeBeforeBlackScreen)
     {
         yield return new WaitForSeconds(timeBeforeBlackScreen);
         BlackScreen(1);
-        ChangeVisibleInteractblesOnTable(true, false);
         yield return new WaitForSeconds(timeInBlackScreen);
-        isChoosingGame = false;
-        playerInputs.isCaught = false;
-        ResetCaughtScore();
         BlackScreen(0);
-    }
-
-    public void ResetCaughtScore()
-    {
-        currentDangerScore = UIScoreCounter.instance.gameScore;
-        
-        StartCoroutine(SetCamVisual(0, camAmplitudeNormal, camFrequencyNormal, 1));
-        
-        currentCaughtTime = timeUntilCaught;
+        SetCamVisual(0f, camAmplitudeNormal, camFrequencyNormal);
+        playerInputs.isCaught = false;
+        playerInputs.holdObjectState = PlayerInputs.HoldObjectState.OutOfHand;
+        ChangeVisibleInteractblesOnTable(true, false);
+        UIScoreCounter.instance.ResetCaughtScore();
+        canPlayCaughtVisual = true;
     }
 
     private void BlackScreen(int panelAlpha)
@@ -110,17 +89,23 @@ public class MotherBehaviour : MonoBehaviour
         
         UIScoreCounter.instance.caughtPanel.GetComponent<Image>().color = wantedAlpha;
     }
-    
-    private IEnumerator SetCamVisual(float weight, float camAmplitude, float camFrequency, float fadeTime)
-    {
-        var elapsedTime = 0f;
 
-        while (elapsedTime < fadeTime)
+    public void SetCamVisual(float weight, float camAmplitude, float camFrequency)
+    {
+        t = 1.1f;
+        StartCoroutine(SetCamVisualCoroutine(weight, camAmplitude, camFrequency));
+    }
+    
+    private IEnumerator SetCamVisualCoroutine(float weight, float camAmplitude, float camFrequency)
+    {
+        t = 0f;
+        
+        while (t < 1f) 
         {
-            vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, camAmplitude, (elapsedTime / fadeTime));
-            vCamShake.m_FrequencyGain = Mathf.Lerp(vCamShake.m_FrequencyGain, camFrequency, (elapsedTime / fadeTime));
-            motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, weight, (elapsedTime / fadeTime));
-            elapsedTime += Time.deltaTime;
+            t += Time.deltaTime * (1f / lerpSpeed);
+            vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, camAmplitude, t);
+            vCamShake.m_FrequencyGain = Mathf.Lerp(vCamShake.m_FrequencyGain, camFrequency, t);
+            motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, weight, t);
             yield return null;
         }
     }

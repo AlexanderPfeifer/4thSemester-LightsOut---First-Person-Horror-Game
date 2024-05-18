@@ -1,9 +1,9 @@
-
 using UnityEngine;
 
-public class MemorizeChoosableGame : Interaction, IChoosableGame
+public class MiningChoosableGame : Interaction, IChoosableGame
 {
-    [SerializeField] private GameObject memorizeGame;
+    [SerializeField] private GameObject miningGame;
+    [SerializeField] private int scoreToWin;
 
     public override void TakeInteractableObject(GameObject interactable)
     {
@@ -14,6 +14,6 @@ public class MemorizeChoosableGame : Interaction, IChoosableGame
     public void OpenGame()
     {
         StartCoroutine(motherBehaviour.NewGameGotPicked(3));
-        memorizeGame.SetActive(true);
+        miningGame.SetActive(true);
     }
 }

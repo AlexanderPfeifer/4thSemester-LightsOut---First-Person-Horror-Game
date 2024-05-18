@@ -1,9 +1,10 @@
 
 using UnityEngine;
 
-public class PizzaChoosableGame : Interaction, IChoosableGame
+public class MemorizeChoosableGame : Interaction, IChoosableGame
 {
-    [SerializeField] private GameObject pizzaGame;
+    [SerializeField] private GameObject memorizeGame;
+    [SerializeField] private int scoreToWin;
 
     public override void TakeInteractableObject(GameObject interactable)
     {
@@ -14,6 +15,6 @@ public class PizzaChoosableGame : Interaction, IChoosableGame
     public void OpenGame()
     {
         StartCoroutine(motherBehaviour.NewGameGotPicked(3));
-        pizzaGame.SetActive(true);
+        memorizeGame.SetActive(true);
     }
 }

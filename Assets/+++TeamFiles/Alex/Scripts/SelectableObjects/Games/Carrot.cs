@@ -8,13 +8,13 @@ public class Carrot : MonoBehaviour
 
     private void Start() => respawnPoint = transform.position;
     
-    private void OnTriggerEnter(Collider col)
+    private void OnTriggerExit(Collider col)
     {
         if ((1 << col.gameObject.layer) == floorLayer.value)
         {
             transform.position = respawnPoint;
-            FindObjectOfType<RabbitGame>().combo = 1;
-            FindObjectOfType<RabbitGame>().counterUntilMultiply = 0;
+            UIScoreCounter.instance.combo = 1;
+            UIScoreCounter.instance.counterUntilMultiply = 0;
         }
     }
 }

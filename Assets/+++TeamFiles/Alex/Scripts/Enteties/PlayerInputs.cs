@@ -1,14 +1,13 @@
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class PlayerInputs : MonoBehaviour
 {
     [Header("MouseInput")]
     [SerializeField] private float mouseSensitivity = .85f;
     private Vector2 mousePosition;
-    [FormerlySerializedAs("canMove")] [FormerlySerializedAs("gotCaught")] [HideInInspector] public bool isCaught;
+    [HideInInspector] public bool isCaught;
 
     [Header("Camera")]
     [SerializeField] private CinemachineVirtualCamera vCam;
@@ -18,6 +17,7 @@ public class PlayerInputs : MonoBehaviour
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
     public GameObject interactableObject;
     [SerializeField] private LayerMask interactableLayerMask;
+    public GameObject[] games;
 
     public enum HoldObjectState
     {
@@ -67,10 +67,17 @@ public class PlayerInputs : MonoBehaviour
             
             if (!Input.GetMouseButtonDown(0)) 
                 return;
-        
+
             if (interactableObject != null)
             {
-                InteractWithInteractable();
+                if (!isCaught)
+                {
+                    InteractWithInteractable();
+                }
+                else
+                {
+                    SelectVisual(false);
+                }
             }
         }
     }
@@ -119,6 +126,11 @@ public class PlayerInputs : MonoBehaviour
 
             if (interactableObject.TryGetComponent(out IChoosableGame iChoosableGame))
             {
+                foreach (var currentGame in games)
+                {
+                    currentGame.SetActive(false);
+                }
+                
                 iChoosableGame.OpenGame();
             }
 
@@ -130,7 +142,7 @@ public class PlayerInputs : MonoBehaviour
     
     private void PutDownInteractable()
     {
-        if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand) 
+        if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand || isCaught) 
             return;
         
         StartCoroutine(PutDownInteractableCoroutine());

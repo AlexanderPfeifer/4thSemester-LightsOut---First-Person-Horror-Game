@@ -13,7 +13,7 @@ public class MathBook : Interaction
     {
         base.TakeInteractableObject(interactable);
         interactableObjectPutAwayPosition = transform.position;
-        FindObjectOfType<MotherBehaviour>().ResetCaughtScore();
+        UIScoreCounter.instance.ResetCaughtScore();
     }
     
     public override void AssignPutDownPos()
