@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
@@ -10,8 +11,11 @@ public class PlayerInputs : MonoBehaviour
     [HideInInspector] public bool isCaught;
 
     [Header("Camera")]
-    [SerializeField] private CinemachineVirtualCamera vCam;
+    public CinemachineVirtualCamera vCam;
     private const float CamSensitivity = 10f;
+    private float currentVisibility;
+    [SerializeField] private float clampVisibilityOutOfHand = 80;
+    [SerializeField] private float clampVisibilityInHand = 20;
 
     [Header("SelectableObjects")]
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
@@ -19,18 +23,18 @@ public class PlayerInputs : MonoBehaviour
     [SerializeField] private LayerMask interactableLayerMask;
     public GameObject[] games;
 
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
     public enum HoldObjectState
     {
         InHand,
         LayingDown,
         LiftingUp,
         OutOfHand
-    }
-    
-    private void Start()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
 
     private void Update()
@@ -45,15 +49,17 @@ public class PlayerInputs : MonoBehaviour
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
     private void LookAround()
     {
-        if (holdObjectState is not (HoldObjectState.OutOfHand or HoldObjectState.LayingDown) || isCaught)
+        if(isCaught || holdObjectState == HoldObjectState.LayingDown || holdObjectState == HoldObjectState.LiftingUp)
             return;
+
+        currentVisibility = holdObjectState == HoldObjectState.OutOfHand ? clampVisibilityOutOfHand : clampVisibilityInHand;
         
         mousePosition.y += Input.GetAxis("Mouse X") * mouseSensitivity;
         mousePosition.x += Input.GetAxis("Mouse Y") * -mouseSensitivity;
             
         var cameraLocalRotation = vCam.transform.localRotation;
-        var clampValueX = Mathf.Clamp(mousePosition.x, -80, 80);
-        var clampValueY = Mathf.Clamp(mousePosition.y, -80, 80);
+        var clampValueX = Mathf.Clamp(mousePosition.x, -currentVisibility, currentVisibility);
+        var clampValueY = Mathf.Clamp(mousePosition.y, -currentVisibility, currentVisibility);
         var cameraRotation = Quaternion.Euler(clampValueX, clampValueY, 0);
         cameraLocalRotation = Quaternion.Lerp(cameraLocalRotation, cameraRotation,CamSensitivity * Time.deltaTime);
         vCam.transform.localRotation = cameraLocalRotation;
@@ -121,6 +127,7 @@ public class PlayerInputs : MonoBehaviour
         while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectInHandPosition) > 0.01f)
         {
             vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
+            mousePosition = new Vector2(0, 0);
             
             interactableObject.GetComponent<Interaction>().TakeInteractableObject(interactableObject);
 
@@ -154,6 +161,15 @@ public class PlayerInputs : MonoBehaviour
 
         while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectPutAwayPosition) > 0.01f)
         {
+            var lookPos = interactableObject.transform.position - vCam.transform.position;
+            lookPos.z = 0;
+            var rotation = Quaternion.LookRotation(lookPos, vCam.transform.up);
+            vCam.transform.rotation = Quaternion.Slerp(vCam.transform.rotation, rotation, Time.deltaTime);
+
+            Transform camTransform;
+            (camTransform = vCam.transform).localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(vCam.transform.position - interactableObject.transform.position),interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
+            mousePosition = camTransform.eulerAngles;
+
             holdObjectState = HoldObjectState.LayingDown;
             
             interactableObject.GetComponent<Interaction>().PutDownInteractableObject(interactableObject);
