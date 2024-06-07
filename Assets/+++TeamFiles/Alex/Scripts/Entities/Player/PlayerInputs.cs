@@ -13,15 +13,19 @@ public class PlayerInputs : MonoBehaviour
     [Header("Camera")]
     public CinemachineVirtualCamera vCam;
     private const float CamSensitivity = 10f;
-    private float currentVisibility;
+    private float currentVisibilityAngle;
     [SerializeField] private float clampVisibilityOutOfHand = 80;
-    [SerializeField] private float clampVisibilityInHand = 20;
+    [SerializeField] private float clampVisibilityInHand = 25;
 
     [Header("SelectableObjects")]
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
     public GameObject interactableObject;
     [SerializeField] private LayerMask interactableLayerMask;
     public GameObject[] games;
+
+    public static PlayerInputs instance;
+
+    private void Awake() => instance = this;
 
     private void Start()
     {
@@ -49,20 +53,18 @@ public class PlayerInputs : MonoBehaviour
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
     private void LookAround()
     {
-        if(isCaught || holdObjectState == HoldObjectState.LayingDown || holdObjectState == HoldObjectState.LiftingUp)
+        if (isCaught || holdObjectState == HoldObjectState.LayingDown || holdObjectState == HoldObjectState.LiftingUp)
             return;
 
-        currentVisibility = holdObjectState == HoldObjectState.OutOfHand ? clampVisibilityOutOfHand : clampVisibilityInHand;
+        currentVisibilityAngle = holdObjectState == HoldObjectState.OutOfHand ? clampVisibilityOutOfHand : clampVisibilityInHand;
         
         mousePosition.y += Input.GetAxis("Mouse X") * mouseSensitivity;
         mousePosition.x += Input.GetAxis("Mouse Y") * -mouseSensitivity;
             
-        var cameraLocalRotation = vCam.transform.localRotation;
-        var clampValueX = Mathf.Clamp(mousePosition.x, -currentVisibility, currentVisibility);
-        var clampValueY = Mathf.Clamp(mousePosition.y, -currentVisibility, currentVisibility);
+        var clampValueX = Mathf.Clamp(mousePosition.x, -currentVisibilityAngle, currentVisibilityAngle);
+        var clampValueY = Mathf.Clamp(mousePosition.y, -currentVisibilityAngle, currentVisibilityAngle);
         var cameraRotation = Quaternion.Euler(clampValueX, clampValueY, 0);
-        cameraLocalRotation = Quaternion.Lerp(cameraLocalRotation, cameraRotation,CamSensitivity * Time.deltaTime);
-        vCam.transform.localRotation = cameraLocalRotation;
+        vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, cameraRotation, CamSensitivity * Time.deltaTime);;
     }
 
     private void SelectInteractable()
@@ -90,7 +92,7 @@ public class PlayerInputs : MonoBehaviour
 
     private void SelectInteractableInLookDir()
     {
-        if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue, interactableLayerMask))
+        if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue, interactableLayerMask) && !isCaught)
         {
             interactableObject = raycastHit.collider.gameObject;
             if (interactableObject.TryGetComponent(out Interaction interaction))
@@ -103,7 +105,7 @@ public class PlayerInputs : MonoBehaviour
             if (interactableObject != null)
             {
                 SelectVisual(false);
-                interactableObject = null;   
+                PutDownInteractable();
             }
         }
     }
@@ -131,6 +133,8 @@ public class PlayerInputs : MonoBehaviour
             
             interactableObject.GetComponent<Interaction>().TakeInteractableObject(interactableObject);
 
+            interactableObject.GetComponent<Collider>().enabled = false;
+
             if (interactableObject.TryGetComponent(out IChoosableGame iChoosableGame))
             {
                 foreach (var currentGame in games)
@@ -152,32 +156,51 @@ public class PlayerInputs : MonoBehaviour
         if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand || isCaught) 
             return;
         
+        holdObjectState = HoldObjectState.LayingDown;
+
         StartCoroutine(PutDownInteractableCoroutine());
     }
     
-    private IEnumerator PutDownInteractableCoroutine()
+    public IEnumerator PutDownInteractableCoroutine()
     {
         interactableObject.GetComponent<Interaction>().AssignPutDownPos();
 
         while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectPutAwayPosition) > 0.01f)
         {
-            var lookPos = interactableObject.transform.position - vCam.transform.position;
-            lookPos.z = 0;
-            var rotation = Quaternion.LookRotation(lookPos, vCam.transform.up);
-            vCam.transform.rotation = Quaternion.Slerp(vCam.transform.rotation, rotation, Time.deltaTime);
-
-            Transform camTransform;
-            (camTransform = vCam.transform).localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(vCam.transform.position - interactableObject.transform.position),interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
-            mousePosition = camTransform.eulerAngles;
-
-            holdObjectState = HoldObjectState.LayingDown;
+            Vector3 direction = interactableObject.GetComponent<Interaction>().interactableObjectPutAwayPosition - vCam.transform.position;
+            Quaternion toRotation = Quaternion.LookRotation(direction, transform.up);
+            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.rotation, toRotation, interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             
             interactableObject.GetComponent<Interaction>().PutDownInteractableObject(interactableObject);
             
             yield return null;
         }
+        mousePosition.x = GetCamInspectorRotationX();
+        mousePosition.y = GetCamInspectorRotationY();
+        
+        interactableObject.GetComponent<Collider>().enabled = true;
 
         holdObjectState = HoldObjectState.OutOfHand;
         yield return null;
+    }
+    
+    private float GetCamInspectorRotationX()
+    {
+        if(vCam.transform.eulerAngles.x > 180)
+        {
+            return vCam.transform.eulerAngles.x - 360;
+        }
+        
+        return vCam.transform.eulerAngles.x;
+    }
+    
+    private float GetCamInspectorRotationY()
+    {
+        if(vCam.transform.eulerAngles.y > 180)
+        {
+            return vCam.transform.eulerAngles.y - 360;
+        }
+        
+        return vCam.transform.eulerAngles.y;
     }
 }

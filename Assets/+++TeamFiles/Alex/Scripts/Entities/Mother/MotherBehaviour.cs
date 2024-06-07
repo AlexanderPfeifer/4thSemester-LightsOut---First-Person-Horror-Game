@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
@@ -19,22 +18,23 @@ public class MotherBehaviour : MonoBehaviour
     [SerializeField] public float camFrequencyOnDanger;
     [SerializeField] private float camAmplitudeOnCaught;
     [SerializeField] private float camFrequencyOnCaught;
-    [SerializeField] private CinemachineVirtualCamera vCam;
+    private float targetWeight;
+    private float targetFrequency;
+    private float targetAmplitude;
     private CinemachineBasicMultiChannelPerlin vCamShake;
-    private float t;
 
     [Header("Volume")] 
     [SerializeField] private Volume motherCatchVolume;
 
     [Header("Player")] 
     private PlayerInputs playerInputs;
-    [SerializeField] private float lerpSpeed = 0.5f;
-    private bool canPlayCaughtVisual = true;
+    public bool canPlayCaughtVisual = true;
 
     private void Start()
     {
         playerInputs = FindObjectOfType<PlayerInputs>();
-        vCamShake = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+
+        vCamShake = playerInputs.vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
     }
 
     private void Update()
@@ -44,6 +44,8 @@ public class MotherBehaviour : MonoBehaviour
             PlayCaughtVisual();
             canPlayCaughtVisual = false;
         }
+        
+        CamVisualUpdate();
     }
 
     private void PlayCaughtVisual()
@@ -54,21 +56,18 @@ public class MotherBehaviour : MonoBehaviour
     private IEnumerator CaughtPlayingVisual()
     {
         playerInputs.isCaught = true;
+        playerInputs.holdObjectState = PlayerInputs.HoldObjectState.LayingDown;
+        StartCoroutine(playerInputs.PutDownInteractableCoroutine());
         SetCamVisual(1f, camAmplitudeOnCaught, camFrequencyOnCaught);
         yield return new WaitForSeconds(timeUntilBlackScreen);
         BlackScreen(1);
         yield return new WaitForSeconds(timeInBlackScreen);
         playerInputs.isCaught = false;
-        PickNewGame();
-    }
-    
-    private void PickNewGame()
-    {
         SetCamVisual(0.3f, camAmplitudeNormal, camFrequencyNormal);
         BlackScreen(0);
         ChangeVisibleInteractblesOnTable(false, true);
     }
-    
+
     public IEnumerator NewGameGotPicked(float timeBeforeBlackScreen)
     {
         yield return new WaitForSeconds(timeBeforeBlackScreen);
@@ -90,26 +89,20 @@ public class MotherBehaviour : MonoBehaviour
         UIScoreCounter.instance.caughtPanel.GetComponent<Image>().color = wantedAlpha;
     }
 
+    private void CamVisualUpdate()
+    {
+        vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, targetAmplitude, Time.deltaTime);
+        vCamShake.m_FrequencyGain = Mathf.Lerp(vCamShake.m_FrequencyGain, targetFrequency, Time.deltaTime);
+        motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, targetWeight, Time.deltaTime);
+    }
+    
     public void SetCamVisual(float weight, float camAmplitude, float camFrequency)
     {
-        t = 1.1f;
-        StartCoroutine(SetCamVisualCoroutine(weight, camAmplitude, camFrequency));
+        targetWeight = weight;
+        targetAmplitude = camAmplitude;
+        targetFrequency = camFrequency;
     }
-    
-    private IEnumerator SetCamVisualCoroutine(float weight, float camAmplitude, float camFrequency)
-    {
-        t = 0f;
-        
-        while (t < 1f) 
-        {
-            t += Time.deltaTime * (1f / lerpSpeed);
-            vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, camAmplitude, t);
-            vCamShake.m_FrequencyGain = Mathf.Lerp(vCamShake.m_FrequencyGain, camFrequency, t);
-            motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, weight, t);
-            yield return null;
-        }
-    }
-    
+
     private void ChangeVisibleInteractblesOnTable(bool interactblesOnTable, bool gamesOnTable)
     {
         foreach (var interactableObject in interactableObjects)

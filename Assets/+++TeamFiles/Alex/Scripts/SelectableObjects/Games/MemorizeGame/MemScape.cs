@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,54 +7,66 @@ using Random = UnityEngine.Random;
 public class MemScape : MonoBehaviour
 {
     private int randomNewImage;
-    [SerializeField] private List<Image> clickableButtons;
+    [SerializeField] private List<Button> clickableButtons;
     [SerializeField] private List<int> memorizeOrder;
-    private PlayerInputs playerInputs;
-    [SerializeField] private Camera mainCam;
+    [SerializeField] private List<Button> goThroughList;
 
     private void Start()
     {
-        StartMemorizeGame();
-        playerInputs = FindObjectOfType<PlayerInputs>();
+        StartCoroutine(AddMemorizeObjects());
     }
 
-    private void Update()
-    {
-        CheckClickedObject();
-    }
-
-    private void StartMemorizeGame()
+    private IEnumerator AddMemorizeObjects()
     {
         randomNewImage = Random.Range(0, clickableButtons.Count);
         memorizeOrder.Add(randomNewImage);
         
-        var originalButtonColor = new Color(0, 0, 0);
-        var redButtonColor = new Color(1, 0, 0);
-
-        for (int i = 0; i < memorizeOrder.Count; i++)
+        for (int i = 0; i < memorizeOrder.Count; i++) 
         {
-            while (clickableButtons[i].color.r <= 0.9f)
+            goThroughList.Add(clickableButtons[memorizeOrder[i]]);
+
+            while (clickableButtons[memorizeOrder[i]].colors.normalColor.g > 0.1f)
             {
-                clickableButtons[i].color = Color.Lerp(clickableButtons[i].color,redButtonColor, Time.deltaTime);
+                ButtonInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1,Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 0, Time.deltaTime * 2), 
+                    Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 0, Time.deltaTime * 2),1);
+
+                yield return null;
             }
             
-            clickableButtons[i].color = Color.Lerp(clickableButtons[i].color,originalButtonColor, Time.deltaTime);
+            while (clickableButtons[memorizeOrder[i]].colors.normalColor.g < 0.9f)
+            {
+                ButtonInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1,Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 1, Time.deltaTime * 2), 
+                    Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 1, Time.deltaTime * 2),1);
+
+                yield return null;
+            }
+            
+            ButtonInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1,1, 1,1);
         }
+
+        ButtonInteraction.instance.canInteract = true;
     }
 
-    private void CheckClickedObject()
+    public void CheckWinState()
     {
-        Vector3 mousePos = Input.mousePosition;
-        var worldPosition = mainCam.ScreenToWorldPoint(mousePos);
-        
-        if (Physics.Raycast(playerInputs.vCam.transform.position, worldPosition, out var raycastHit, float.MaxValue))
+        if (goThroughList[0].gameObject.GetComponent<Button>() == ButtonInteraction.instance.currentSelectedButton)
         {
-            Debug.Log("ah3");
-
-            if (raycastHit.transform.TryGetComponent(out Button button))
+            goThroughList.RemoveAt(0);
+            
+            if (goThroughList.Count == 0)
             {
-                Debug.Log("ah2");
+                ButtonInteraction.instance.canInteract = false;
+                StartCoroutine(AddMemorizeObjects());
+                UIScoreCounter.instance.AddScore();
             }
+        }
+        else
+        {
+            memorizeOrder.Clear();
+            goThroughList.Clear();
+            UIScoreCounter.instance.ResetCombo();
+            ButtonInteraction.instance.canInteract = false;
+            StartCoroutine(AddMemorizeObjects());
         }
     }
 }

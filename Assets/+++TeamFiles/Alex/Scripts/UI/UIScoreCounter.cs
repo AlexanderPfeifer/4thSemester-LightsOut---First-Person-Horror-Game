@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ public class UIScoreCounter : MonoBehaviour
     [Header("Score")]
     [SerializeField] private TextMeshProUGUI scoreTextObject;
     [HideInInspector] public int gameScore;
-    private int currentDangerScore;
+    private int lastGameScore;
     [SerializeField] private int scoreUntilDanger = 3;
     public int combo = 1;
     public int counterUntilMultiply;
@@ -60,19 +59,32 @@ public class UIScoreCounter : MonoBehaviour
             Debug.Log("Won");
         }
         
-        if (gameScore > currentDangerScore + scoreUntilDanger && currentCaughtTime > 0)
+        if (gameScore > lastGameScore + scoreUntilDanger && currentCaughtTime > 0)
         {
             motherBehaviour.SetCamVisual(0.3f, motherBehaviour.camAmplitudeOnDanger, motherBehaviour.camFrequencyOnDanger);
             danger = true;
         }
     }
+
+    public void ResetCombo()
+    {
+        combo = 1;
+        counterUntilMultiply = 0;
+    }
     
     public void ResetCaughtScore()
     {
-        currentDangerScore = gameScore;
+        if (danger)
+        {
+            lastGameScore = gameScore;
+            
+            currentCaughtTime = timeUntilCaught;
         
-        motherBehaviour.SetCamVisual(0, motherBehaviour.camAmplitudeNormal, motherBehaviour.camFrequencyNormal);
-        
-        currentCaughtTime = timeUntilCaught;
+            FindObjectOfType<PlayerInputs>().isCaught = false;
+            
+            danger = false;
+            
+            motherBehaviour.SetCamVisual(0f, motherBehaviour.camAmplitudeNormal, motherBehaviour.camFrequencyNormal);
+        }
     }
 }
