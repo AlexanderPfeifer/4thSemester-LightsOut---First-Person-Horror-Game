@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
@@ -27,12 +26,14 @@ public class PlayerInputs : MonoBehaviour
 
     private void Awake() => instance = this;
 
+    //Locks the cursor and makes it invisible
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
+    //An enum of all the states holding there are
     public enum HoldObjectState
     {
         InHand,
@@ -47,7 +48,7 @@ public class PlayerInputs : MonoBehaviour
         
         PutDownInteractable();
         
-        SelectInteractable();
+        SelectInteractableInLookDir();
     }
 
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
@@ -67,63 +68,61 @@ public class PlayerInputs : MonoBehaviour
         vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, cameraRotation, CamSensitivity * Time.deltaTime);;
     }
 
-    private void SelectInteractable()
-    {
-        if (holdObjectState == HoldObjectState.OutOfHand)
-        {
-            SelectInteractableInLookDir();
-            
-            if (!Input.GetMouseButtonDown(0)) 
-                return;
-
-            if (interactableObject != null)
-            {
-                if (!isCaught)
-                {
-                    InteractWithInteractable();
-                }
-                else
-                {
-                    SelectVisual(false);
-                }
-            }
-        }
-    }
-
+    //When hovering over an object, it activates another object that indicates, that it is selected
     private void SelectInteractableInLookDir()
     {
-        if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue, interactableLayerMask) && !isCaught)
+        if (isCaught)
         {
-            interactableObject = raycastHit.collider.gameObject;
-            if (interactableObject.TryGetComponent(out Interaction interaction))
-            {
-                SelectVisual(true);
-            }
+            SelectVisual(false);
+            return;   
         }
-        else
+
+        if (holdObjectState == HoldObjectState.OutOfHand)
         {
-            if (interactableObject != null)
+            if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue, interactableLayerMask))
+            {
+                interactableObject = raycastHit.collider.gameObject;
+            
+                if (interactableObject.TryGetComponent(out Interaction interaction))
+                {
+                    SelectVisual(true);
+                }
+                
+                InteractWithInteractable();
+            }
+            else
             {
                 SelectVisual(false);
-                PutDownInteractable();
             }
         }
     }
     
+    //Shortcut to set the selected visual to the bool parameter
     private void SelectVisual(bool selected)
     {
-        interactableObject.GetComponentInParent<Transform>().GetChild(0).gameObject.SetActive(selected);
+        if (interactableObject.activeSelf)
+        {
+            interactableObject.GetComponentInParent<Transform>().GetChild(0).gameObject.SetActive(selected);
+        }
     }
 
+    //Interacts with object when clicked on it(takes it to hold position)
     private void InteractWithInteractable()
     {
-        SelectVisual(false);
+        if (!Input.GetMouseButtonDown(0) || interactableObject == null) 
+            return;
+        
+        if (!isCaught)
+        {
+            SelectVisual(false);
 
-        holdObjectState = HoldObjectState.LiftingUp;
+            holdObjectState = HoldObjectState.LiftingUp;
 
-        StartCoroutine(TakeInteractable());
+            StartCoroutine(TakeInteractable());
+        }
     }
 
+    //Picks up the interactable object
     private IEnumerator TakeInteractable()
     {
         while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectInHandPosition) > 0.01f)
@@ -135,7 +134,7 @@ public class PlayerInputs : MonoBehaviour
 
             interactableObject.GetComponent<Collider>().enabled = false;
 
-            if (interactableObject.TryGetComponent(out IChoosableGame iChoosableGame))
+            if (interactableObject.TryGetComponent(out IInteractableGame iChoosableGame))
             {
                 foreach (var currentGame in games)
                 {
@@ -151,18 +150,19 @@ public class PlayerInputs : MonoBehaviour
         holdObjectState = HoldObjectState.InHand;
     }
     
+    //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
     private void PutDownInteractable()
     {
         if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand || isCaught) 
             return;
         
-        holdObjectState = HoldObjectState.LayingDown;
-
         StartCoroutine(PutDownInteractableCoroutine());
     }
     
     public IEnumerator PutDownInteractableCoroutine()
     {
+        holdObjectState = HoldObjectState.LayingDown;
+
         interactableObject.GetComponent<Interaction>().AssignPutDownPos();
 
         while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectPutAwayPosition) > 0.01f)
@@ -184,6 +184,8 @@ public class PlayerInputs : MonoBehaviour
         yield return null;
     }
     
+    //The methods below are for a calculation of the camera where angle resets in script to 360 degrees instead of going to negative
+    //I need that for calculate when the camera is facing when putting down an object
     private float GetCamInspectorRotationX()
     {
         if(vCam.transform.eulerAngles.x > 180)

@@ -8,7 +8,9 @@ public class ButtonInteraction : MonoBehaviour
     public bool canInteract = true;
 
     public Button currentSelectedButton;
+    private Button lastSelectedButton;
 
+    //Singleton
     private void Awake()
     {
         instance = this;
@@ -16,20 +18,27 @@ public class ButtonInteraction : MonoBehaviour
 
     private void Update()
     {
-        CheckClickedObject();
+        CheckIfClickedObjectsMatch();
     }
     
-    private void CheckClickedObject()
+    //Checks if the objects that were displayed match with the objects that were pressed
+    private void CheckIfClickedObjectsMatch()
     {
         if (Physics.Raycast(PlayerInputs.instance.vCam.transform.position, PlayerInputs.instance.vCam.transform.forward, out var raycastHit, float.MaxValue) && canInteract)
         {
             if (raycastHit.transform.TryGetComponent(out Button button))
             {
+                if (lastSelectedButton != null)
+                {
+                    SetSelectedButtonColor(lastSelectedButton, 1,1,1,1);
+                }
                 currentSelectedButton = button;
+                lastSelectedButton = currentSelectedButton;
                 SetSelectedButtonColor(currentSelectedButton, 1,1,1,0.5f);
 
                 if (Input.GetMouseButtonDown(0))
                 {
+                    SetSelectedButtonColor(currentSelectedButton, 1,1,1,0.2f);
                     currentSelectedButton.onClick.Invoke();
                 }
             }
@@ -44,6 +53,7 @@ public class ButtonInteraction : MonoBehaviour
         }
     }
 
+    //A shortcut to set the color of a button to the color I need
     public void SetSelectedButtonColor(Button selectedButton, float r, float b, float g, float a)
     {
         var selectedButtonColors = selectedButton.colors;

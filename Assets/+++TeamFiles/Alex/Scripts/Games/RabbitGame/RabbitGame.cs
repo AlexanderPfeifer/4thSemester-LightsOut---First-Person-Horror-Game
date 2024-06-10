@@ -16,19 +16,23 @@ public class RabbitGame : Interaction
 
     private void Update()
     {
-        CarrotJump();
+        CarrotBounceUp();
         
         FreezeGame();
     }
 
-    private void CarrotJump()
+    //When W is pressed and the carrot is in range of the rabbit, it bounces up and adds points to the score
+    private void CarrotBounceUp()
     {
         if (Input.GetKeyDown(KeyCode.W) && carrot != null)
         {
-            CarrotBounceUp();
+            carrotRb.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
+        
+            UIScoreCounter.instance.AddPointsToScore();   
         }
     }
-
+    
+    //Because the game works with gravity, when it is put away, the objects need to freeze, so they do not fall through the console
     private void FreezeGame()
     {
         if (playerInputs.holdObjectState == PlayerInputs.HoldObjectState.InHand && playerInputs.interactableObject.TryGetComponent(out Console console))
@@ -42,14 +46,8 @@ public class RabbitGame : Interaction
             rabbitRb.constraints = RigidbodyConstraints.FreezeAll;
         }
     }
-    
-    private void CarrotBounceUp()
-    {
-        carrotRb.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
-        
-        UIScoreCounter.instance.AddScore();
-    }
 
+    //Assigns the carrot so it can jump up
     private void OnTriggerEnter(Collider col)
     {
         if ((1 << col.gameObject.layer) == carrotLayer.value)
@@ -58,23 +56,12 @@ public class RabbitGame : Interaction
         }
     }
 
+    //Sets carrot to null, so it cannot jump the whole time
     private void OnTriggerExit(Collider col)
     {
         if ((1 << col.gameObject.layer) == carrotLayer.value)
         {
             carrot = null;
         }
-    }
-
-    public override void TakeInteractableObject(GameObject interactable)
-    {
-        interactable.transform.position = Vector3.Lerp(interactable.transform.position, interactableObjectInHandPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
-        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0, 90, 0), Time.deltaTime * interactableObjectPutAwaySpeed);
-        interactableObjectPutAwayPosition = transform.position;
-    }
-    
-    public void OpenGame()
-    {
-        //Open whatever
     }
 }

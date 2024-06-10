@@ -39,21 +39,29 @@ public class MotherBehaviour : MonoBehaviour
 
     private void Update()
     {
-        if (UIScoreCounter.instance.currentCaughtTime <= 0 && canPlayCaughtVisual)
-        {
-            PlayCaughtVisual();
-            canPlayCaughtVisual = false;
-        }
+        CheckCatchTime();
         
         CamVisualUpdate();
     }
 
-    private void PlayCaughtVisual()
+    //Checks if the time has expired, if yes, catches the player and lets the player choose new game
+    private void CheckCatchTime()
     {
-        StartCoroutine(CaughtPlayingVisual());
+        if (UIScoreCounter.instance.currentCatchTime <= 0 && canPlayCaughtVisual)
+        {
+            CaughtPlayer();
+            canPlayCaughtVisual = false;
+        }
+    }
+    
+    //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
+    private void CaughtPlayer()
+    {
+        StartCoroutine(CaughtPlayerCoroutine());
     }
 
-    private IEnumerator CaughtPlayingVisual()
+    //starts visualization of player being caught
+    private IEnumerator CaughtPlayerCoroutine()
     {
         playerInputs.isCaught = true;
         playerInputs.holdObjectState = PlayerInputs.HoldObjectState.LayingDown;
@@ -68,20 +76,22 @@ public class MotherBehaviour : MonoBehaviour
         ChangeVisibleInteractblesOnTable(false, true);
     }
 
-    public IEnumerator NewGameGotPicked(float timeBeforeBlackScreen)
+    //When player picked a new game, the objects reset from the game on the table to console and mathbook
+    public IEnumerator PickedNewGame(float timeBeforeBlackScreen)
     {
         yield return new WaitForSeconds(timeBeforeBlackScreen);
         BlackScreen(1);
         yield return new WaitForSeconds(timeInBlackScreen);
         BlackScreen(0);
         SetCamVisual(0f, camAmplitudeNormal, camFrequencyNormal);
-        playerInputs.isCaught = false;
         playerInputs.holdObjectState = PlayerInputs.HoldObjectState.OutOfHand;
         ChangeVisibleInteractblesOnTable(true, false);
-        UIScoreCounter.instance.ResetCaughtScore();
+        UIScoreCounter.instance.ResetNeededCatchScore();
+        UIScoreCounter.instance.scoreTextObject.gameObject.SetActive(false);
         canPlayCaughtVisual = true;
     }
 
+    //Shortcut to fade blackscreen
     private void BlackScreen(int panelAlpha)
     {
         var wantedAlpha = new Color(0, 0, 0, panelAlpha);
@@ -89,6 +99,7 @@ public class MotherBehaviour : MonoBehaviour
         UIScoreCounter.instance.caughtPanel.GetComponent<Image>().color = wantedAlpha;
     }
 
+    //Lerps the camera constantly to the target values
     private void CamVisualUpdate()
     {
         vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, targetAmplitude, Time.deltaTime);
@@ -96,6 +107,7 @@ public class MotherBehaviour : MonoBehaviour
         motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, targetWeight, Time.deltaTime);
     }
     
+    //shortcut to apply visuals to the cam
     public void SetCamVisual(float weight, float camAmplitude, float camFrequency)
     {
         targetWeight = weight;
@@ -103,6 +115,7 @@ public class MotherBehaviour : MonoBehaviour
         targetFrequency = camFrequency;
     }
 
+    //A shortcut to loop through every object on the table and activate or deactivating it
     private void ChangeVisibleInteractblesOnTable(bool interactblesOnTable, bool gamesOnTable)
     {
         foreach (var interactableObject in interactableObjects)

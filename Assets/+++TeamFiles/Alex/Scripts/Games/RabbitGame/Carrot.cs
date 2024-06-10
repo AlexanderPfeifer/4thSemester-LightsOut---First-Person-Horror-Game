@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class Carrot : MonoBehaviour
@@ -8,6 +7,7 @@ public class Carrot : MonoBehaviour
 
     private void Start() => respawnPoint = transform.position;
     
+    //Resets the combo streak when the carrot hits the floor
     private void OnTriggerExit(Collider col)
     {
         if ((1 << col.gameObject.layer) == floorLayer.value)

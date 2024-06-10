@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -57,7 +58,7 @@ public class MemScape : MonoBehaviour
             {
                 ButtonInteraction.instance.canInteract = false;
                 StartCoroutine(AddMemorizeObjects());
-                UIScoreCounter.instance.AddScore();
+                UIScoreCounter.instance.AddPointsToScore();
             }
         }
         else
