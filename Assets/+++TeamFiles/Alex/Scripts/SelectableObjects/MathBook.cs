@@ -16,7 +16,7 @@ public class MathBook : Interaction
     {
         base.TakeInteractableObject(interactable);
         interactableObjectPutAwayPosition = transform.position;
-        UIScoreCounter.instance.ResetNeededCatchScore();
+        UIScoreCounter.instance.PickedUpBook();
     }
     
     //Assigns a new put away position

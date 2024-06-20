@@ -7,7 +7,6 @@ using Random = UnityEngine.Random;
 
 public class MemScape : MonoBehaviour
 {
-    private int randomNewImage;
     [SerializeField] private List<Button> clickableButtons;
     [SerializeField] private List<int> memorizeOrder;
     [SerializeField] private List<Button> goThroughList;
@@ -19,8 +18,10 @@ public class MemScape : MonoBehaviour
 
     private IEnumerator AddMemorizeObjects()
     {
-        randomNewImage = Random.Range(0, clickableButtons.Count);
-        memorizeOrder.Add(randomNewImage);
+        UIInteraction.instance.canInteract = false;
+        UIInteraction.instance.SetSelectedButtonColor(UIInteraction.instance.lastSelectedButton, 1, 1, 1, 1, .2f, .2f, .2f);
+
+        memorizeOrder.Add(Random.Range(0, clickableButtons.Count));
         
         for (int i = 0; i < memorizeOrder.Count; i++) 
         {
@@ -28,35 +29,34 @@ public class MemScape : MonoBehaviour
 
             while (clickableButtons[memorizeOrder[i]].colors.normalColor.g > 0.1f)
             {
-                ButtonInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1,Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 0, Time.deltaTime * 2), 
-                    Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 0, Time.deltaTime * 2),1);
+                UIInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1, Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 0, 
+                    Time.deltaTime * 2), Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 0, Time.deltaTime * 2),1, 0.2f, 0.2f, 0.2f);
 
                 yield return null;
             }
             
             while (clickableButtons[memorizeOrder[i]].colors.normalColor.g < 0.9f)
             {
-                ButtonInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1,Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 1, Time.deltaTime * 2), 
-                    Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 1, Time.deltaTime * 2),1);
+                UIInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1,Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 
+                    1, Time.deltaTime * 2), Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 1, Time.deltaTime * 2),1, 0.2f, 0.2f, 0.2f);
 
                 yield return null;
             }
             
-            ButtonInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1,1, 1,1);
+            UIInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1, 1, 1, 1, 0.2f, 0.2f, 0.2f);
         }
 
-        ButtonInteraction.instance.canInteract = true;
+        UIInteraction.instance.canInteract = true;
     }
 
     public void CheckWinState()
     {
-        if (goThroughList[0].gameObject.GetComponent<Button>() == ButtonInteraction.instance.currentSelectedButton)
+        if (goThroughList[0].gameObject.GetComponent<Button>() == UIInteraction.instance.currentSelectedButton)
         {
             goThroughList.RemoveAt(0);
             
             if (goThroughList.Count == 0)
             {
-                ButtonInteraction.instance.canInteract = false;
                 StartCoroutine(AddMemorizeObjects());
                 UIScoreCounter.instance.AddPointsToScore();
             }
@@ -66,7 +66,6 @@ public class MemScape : MonoBehaviour
             memorizeOrder.Clear();
             goThroughList.Clear();
             UIScoreCounter.instance.ResetCombo();
-            ButtonInteraction.instance.canInteract = false;
             StartCoroutine(AddMemorizeObjects());
         }
     }

@@ -1,9 +1,12 @@
+using System.Collections;
 using UnityEngine;
 
 public class MemScapeInteractable : Interaction, IInteractableGame
 {
     [SerializeField] private GameObject memorizeGame;
     [SerializeField] private int scoreToWin;
+    [SerializeField] private int achievablePoints;
+    [SerializeField] private int pointsUntilCombo;
 
     //Takes the game to hold position
     public override void TakeInteractableObject(GameObject interactable)
@@ -17,5 +20,15 @@ public class MemScapeInteractable : Interaction, IInteractableGame
     {
         StartCoroutine(motherBehaviour.PickedNewGame(3));
         memorizeGame.SetActive(true);
+        UIScoreCounter.instance.scoreToWin = scoreToWin;
+        UIScoreCounter.instance.achievablePoints = achievablePoints;
+        UIScoreCounter.instance.winGameUntilCombo = pointsUntilCombo;
+    }
+    
+    public IEnumerator HideInteractable()
+    {
+        yield return new WaitForSeconds(3);
+        
+        gameObject.GetComponent<Transform>().GetChild(2).gameObject.SetActive(false);
     }
 }

@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 325364477773098553}
   - component: {fileID: 8046979997223690820}
   - component: {fileID: 2717296532820969659}
-  m_Layer: 11
+  - component: {fileID: 8314750394461337274}
+  m_Layer: 9
   m_Name: Block
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 1091299929277876724}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.495956, y: 6, z: -9.428348}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.4, y: 0.4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -107,3 +108,15 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.0000006, y: 1.0000001, z: 0.20000009}
   m_Center: {x: -0.0000022351742, y: 0.00000047683716, z: -0.00000166893}
+--- !u!114 &8314750394461337274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1091299929277876724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d9daea0b476ed34083a60ac76fa6c9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

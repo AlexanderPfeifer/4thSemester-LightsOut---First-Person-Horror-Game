@@ -35,6 +35,9 @@ public class PizzaGame : MonoBehaviour
         
         GenerateNewOrder();
         StartCoroutine(StartTimerCoroutine());
+
+        if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand)
+            StopAllCoroutines();
     }
     
     //Starts the timer and gives out new order when timer runs out and also resets combo streak

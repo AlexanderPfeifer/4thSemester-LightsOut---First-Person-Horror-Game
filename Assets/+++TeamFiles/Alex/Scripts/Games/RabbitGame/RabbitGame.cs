@@ -7,12 +7,6 @@ public class RabbitGame : Interaction
     [SerializeField] private Rigidbody carrotRb;
     [SerializeField] private Rigidbody rabbitRb;
     [SerializeField] private float bounceForce = 15f;
-    private PlayerInputs playerInputs;
-
-    private void Start()
-    {
-        playerInputs = FindObjectOfType<PlayerInputs>();
-    }
 
     private void Update()
     {
@@ -24,7 +18,7 @@ public class RabbitGame : Interaction
     //When W is pressed and the carrot is in range of the rabbit, it bounces up and adds points to the score
     private void CarrotBounceUp()
     {
-        if (Input.GetKeyDown(KeyCode.W) && carrot != null)
+        if (Input.GetKeyDown(KeyCode.Space) && carrot != null && PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.InHand)
         {
             carrotRb.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
         
@@ -35,7 +29,7 @@ public class RabbitGame : Interaction
     //Because the game works with gravity, when it is put away, the objects need to freeze, so they do not fall through the console
     private void FreezeGame()
     {
-        if (playerInputs.holdObjectState == PlayerInputs.HoldObjectState.InHand && playerInputs.interactableObject.TryGetComponent(out Console console))
+        if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.InHand && PlayerInputs.instance.interactableObject.TryGetComponent(out Console console))
         {
             carrotRb.constraints = ~RigidbodyConstraints.FreezePositionY;
             rabbitRb.constraints = ~RigidbodyConstraints.FreezePositionY;

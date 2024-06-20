@@ -6,7 +6,8 @@ public class Block : MonoBehaviour
     {
         if ((1 << col.gameObject.layer) == FindObjectOfType<MiningGame>().deleteZone)
         {
-            Destroy(this);
+            FindAnyObjectByType<MiningGame>().allBlocks.Remove(transform);
+            Destroy(gameObject);
         }
     }
 }

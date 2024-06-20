@@ -8,7 +8,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Carrot
@@ -17,7 +17,7 @@ TagManager:
   - Block
   - PointBlock
   - DestroyZone
-  - 
+  - Border
   - 
   - 
   - 

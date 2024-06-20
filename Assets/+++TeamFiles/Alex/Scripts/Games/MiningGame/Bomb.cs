@@ -15,5 +15,11 @@ public class Bomb : MonoBehaviour
             Destroy(pointHit.transform.gameObject);
             UIScoreCounter.instance.AddPointsToScore();
         }
+        else if(Physics.Raycast(transform.position, -transform.up, out var playerHit, .1f, FindObjectOfType<MiningGame>().playerLayer))
+        {
+            //Does not work rn & still need to implement a wall that comes down and a reset of all blocks
+            UIScoreCounter.instance.ResetCombo();
+            FindObjectOfType<MiningGame>().ResetGame();
+        }
     }
 }

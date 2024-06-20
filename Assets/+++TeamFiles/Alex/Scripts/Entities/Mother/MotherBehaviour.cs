@@ -8,8 +8,6 @@ using UnityEngine.UI;
 public class MotherBehaviour : MonoBehaviour
 {
     [Header("Camera")]
-    [SerializeField] private List<GameObject> interactableObjects;
-    [SerializeField] private List<GameObject> choosableObjects;
     [SerializeField] private float timeUntilBlackScreen;
     [SerializeField] private float timeInBlackScreen;
     [HideInInspector] public float camAmplitudeNormal;
@@ -26,51 +24,44 @@ public class MotherBehaviour : MonoBehaviour
     [Header("Volume")] 
     [SerializeField] private Volume motherCatchVolume;
 
-    [Header("Player")] 
-    private PlayerInputs playerInputs;
-    public bool canPlayCaughtVisual = true;
+    [Header("Interactbles")]
+    [SerializeField] private List<GameObject> interactableObjects;
+    [SerializeField] private List<GameObject> choosableObjects;
+    [SerializeField] private List<GameObject> mathbookScribbles;
+    private int currentMathbookScribble;
 
     private void Start()
     {
-        playerInputs = FindObjectOfType<PlayerInputs>();
-
-        vCamShake = playerInputs.vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        vCamShake = PlayerInputs.instance.vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
     }
 
     private void Update()
     {
-        CheckCatchTime();
-        
         CamVisualUpdate();
     }
 
-    //Checks if the time has expired, if yes, catches the player and lets the player choose new game
-    private void CheckCatchTime()
-    {
-        if (UIScoreCounter.instance.currentCatchTime <= 0 && canPlayCaughtVisual)
-        {
-            CaughtPlayer();
-            canPlayCaughtVisual = false;
-        }
-    }
-    
     //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
-    private void CaughtPlayer()
+    public void PlayerWon()
     {
-        StartCoroutine(CaughtPlayerCoroutine());
+        StartCoroutine(PlayerWonCoroutine());
     }
 
-    //starts visualization of player being caught
-    private IEnumerator CaughtPlayerCoroutine()
+    public void CaughtPlayer()
     {
-        playerInputs.isCaught = true;
-        playerInputs.holdObjectState = PlayerInputs.HoldObjectState.LayingDown;
-        StartCoroutine(playerInputs.PutDownInteractableCoroutine());
+        SetCamVisual(1f, camAmplitudeOnCaught, camFrequencyOnCaught);
+    }
+    
+    //starts visualization of player being caught
+    private IEnumerator PlayerWonCoroutine()
+    {
+        PlayerInputs.instance.isCaught = true;
+        PlayerInputs.instance.holdObjectState = PlayerInputs.HoldObjectState.LayingDown;
+        StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());
         SetCamVisual(1f, camAmplitudeOnCaught, camFrequencyOnCaught);
         yield return new WaitForSeconds(timeUntilBlackScreen);
         BlackScreen(1);
         yield return new WaitForSeconds(timeInBlackScreen);
-        playerInputs.isCaught = false;
+        PlayerInputs.instance.isCaught = false;
         SetCamVisual(0.3f, camAmplitudeNormal, camFrequencyNormal);
         BlackScreen(0);
         ChangeVisibleInteractblesOnTable(false, true);
@@ -84,11 +75,13 @@ public class MotherBehaviour : MonoBehaviour
         yield return new WaitForSeconds(timeInBlackScreen);
         BlackScreen(0);
         SetCamVisual(0f, camAmplitudeNormal, camFrequencyNormal);
-        playerInputs.holdObjectState = PlayerInputs.HoldObjectState.OutOfHand;
+        PlayerInputs.instance.holdObjectState = PlayerInputs.HoldObjectState.OutOfHand;
         ChangeVisibleInteractblesOnTable(true, false);
-        UIScoreCounter.instance.ResetNeededCatchScore();
+        UIScoreCounter.instance.PickedUpBook();
+        mathbookScribbles[currentMathbookScribble].SetActive(false);
+        currentMathbookScribble++;
+        mathbookScribbles[currentMathbookScribble].SetActive(true);
         UIScoreCounter.instance.scoreTextObject.gameObject.SetActive(false);
-        canPlayCaughtVisual = true;
     }
 
     //Shortcut to fade blackscreen
@@ -125,6 +118,11 @@ public class MotherBehaviour : MonoBehaviour
 
         foreach (var choosableObject in choosableObjects)
         {
+            if(choosableObject.transform.localPosition.y > 0)
+            {
+                choosableObject.gameObject.GetComponent<Transform>().GetChild(1).gameObject.SetActive(false);
+            }
+
             choosableObject.gameObject.SetActive(gamesOnTable);
         }
     }

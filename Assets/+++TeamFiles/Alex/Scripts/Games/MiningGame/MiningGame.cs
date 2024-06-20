@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class MiningGame : MonoBehaviour
 {
@@ -7,28 +9,50 @@ public class MiningGame : MonoBehaviour
     [SerializeField] public LayerMask wallLayer;
     [SerializeField] public LayerMask pointWallLayer;
     [SerializeField] public LayerMask deleteZone;
-    
+    [SerializeField] private LayerMask borderLayer;
+    [SerializeField] public LayerMask playerLayer;
+
     [Header("Prefabs")]
     [SerializeField] private Transform bomb;
     [SerializeField] private Transform block;
-    
-    [SerializeField] private Transform miner;
+    [SerializeField] private Transform pointBlock;
+
+    [Header("BlockSpawning")]
+    [SerializeField] private Transform blockParent;
     [SerializeField] private List<Vector3> blockSpawnPoints;
     [SerializeField] public List<Transform> allBlocks;
-    [SerializeField] private float dropTime;
     private bool wallCanGoUp;
+    private bool canSpawnNewWall;
+
+    [Header("Miner")]
+    [SerializeField] private Transform miner;
+    [SerializeField] private float dropTime;
+    public Vector3 spawnPoint;
     private bool isFalling;
-    private float timer;
-    
+    private float currentDropTimer;
+
+    private void Start() => spawnPoint = miner.transform.position;
+
     void Update()
     {
         SpawnBomb();
         
         MoveByBlock();
+        
+        SpawnNewBlocks();
     }
 
+    public void ResetGame()
+    {
+        miner.localPosition = spawnPoint;
+    }
+
+    //Spawns a bomb for destroying walls
     private void SpawnBomb()
     {
+        if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand)
+            return;
+
         if (Input.GetMouseButtonDown(0) && !isFalling)
         {
             var spawnedBomb = Instantiate(bomb, miner.transform.position, Quaternion.identity, miner.parent);
@@ -36,18 +60,22 @@ public class MiningGame : MonoBehaviour
         }
     }
 
+    //Moves miner and blocks in block metric
     private void MoveByBlock()
     {
+        if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand)
+            return;
+
         if (Input.GetKeyDown(KeyCode.A))
         {
-            if(!RaycastInDirection(-miner.right, wallLayer) && !isFalling)
+            if(!RaycastInDirection(-miner.right, borderLayer) && !isFalling)
             {
                 MoveObject(miner, 0, block.transform.localScale.x);
             }
         }
         else if(Input.GetKeyDown(KeyCode.D))
         {
-            if(!RaycastInDirection(miner.right, wallLayer) && !isFalling)
+            if(!RaycastInDirection(miner.right, borderLayer) && !isFalling)
             {
                 MoveObject(miner, 0, -block.transform.localScale.x);
             }
@@ -57,36 +85,57 @@ public class MiningGame : MonoBehaviour
         {
             isFalling = true;
             
-            timer += Time.deltaTime;
+            currentDropTimer += Time.deltaTime;
             
-            if(timer >= dropTime && !wallCanGoUp)
+            if(currentDropTimer >= dropTime && !wallCanGoUp)
             {
                 MoveObject(miner, block.transform.localScale.y, 0);
-                timer = 0;
+                currentDropTimer = 0;
             }
-            else if(timer >= dropTime && wallCanGoUp)
+            else if(currentDropTimer >= dropTime && wallCanGoUp)
             {
                 foreach (var b in allBlocks)
                 {
                     MoveObject(b, -block.transform.localScale.y, 0);
-                    timer = 0;
+                    currentDropTimer = 0;
                 }
             }
         }
         else
         {
             isFalling = false;
+            canSpawnNewWall = true;
             wallCanGoUp = true;
         }
-        
-        if(RaycastInDirection(miner.right, wallLayer) || RaycastInDirection(miner.right, pointWallLayer))
+    }
+
+    //Checks when the miner has dropped by a wall and spawns new walls 
+    private void SpawnNewBlocks()
+    {
+        if(RaycastInDirection(miner.right, wallLayer) || RaycastInDirection(miner.right, pointWallLayer) || RaycastInDirection(-miner.right, pointWallLayer) || RaycastInDirection(-miner.right, wallLayer))
         {
-            for (int i = 0; i < blockSpawnPoints.Count; i++)
+            if (canSpawnNewWall)
             {
-                var spawnedBlock = Instantiate(block, blockSpawnPoints[i], Quaternion.identity);
-                allBlocks.Add(spawnedBlock);
+                int randomPointBlock = Random.Range(0, 4);
+                
+                for (int i = 0; i < blockSpawnPoints.Count; i++)
+                {
+                    if (randomPointBlock == i)
+                    {
+                        var spawnedPointBlock = Instantiate(pointBlock, blockSpawnPoints[i], Quaternion.identity, blockParent);
+                        spawnedPointBlock.localPosition = blockSpawnPoints[i];
+                        allBlocks.Add(spawnedPointBlock);
+                    }
+                    else
+                    {
+                        var spawnedBlock = Instantiate(block, blockSpawnPoints[i], Quaternion.identity, blockParent);
+                        spawnedBlock.localPosition = blockSpawnPoints[i];
+                        allBlocks.Add(spawnedBlock);
+                    }
+                }
+
+                canSpawnNewWall = false;
             }
-            //Walls are getting spawned too often, need to spawn once
         }
     }
 

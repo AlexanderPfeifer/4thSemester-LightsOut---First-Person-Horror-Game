@@ -102,7 +102,7 @@ public class PlayerInputs : MonoBehaviour
     {
         if (interactableObject.activeSelf)
         {
-            interactableObject.GetComponentInParent<Transform>().GetChild(0).gameObject.SetActive(selected);
+            interactableObject.GetComponent<Transform>().GetChild(0).gameObject.SetActive(selected);
         }
     }
 
@@ -175,6 +175,7 @@ public class PlayerInputs : MonoBehaviour
             
             yield return null;
         }
+        
         mousePosition.x = GetCamInspectorRotationX();
         mousePosition.y = GetCamInspectorRotationY();
         
