@@ -10,18 +10,46 @@ public class MemScape : MonoBehaviour
     [SerializeField] private List<Button> clickableButtons;
     [SerializeField] private List<int> memorizeOrder;
     [SerializeField] private List<Button> goThroughList;
+    private bool selectedConsole;
 
     private void Start()
     {
-        StartCoroutine(AddMemorizeObjects());
+        AddMemorizeObject();
+        //StartCoroutine(SetButtonColors());
     }
 
-    private IEnumerator AddMemorizeObjects()
+    private void Update()
     {
+        CheckConsoleState();
+    }
+
+    private void CheckConsoleState()
+    {
+        if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.InHand && PlayerInputs.instance.interactableObject.TryGetComponent(out Console console))
+        {
+            if (selectedConsole)
+            {
+                StartCoroutine(SetButtonColors());
+                selectedConsole = false;
+            }
+        }
+        else
+        {
+            selectedConsole = true;
+        }
+    }
+    
+    private void AddMemorizeObject()
+    {
+        memorizeOrder.Add(Random.Range(0, clickableButtons.Count));
+    }
+    
+    private IEnumerator SetButtonColors()
+    {
+        goThroughList.Clear();
+
         UIInteraction.instance.canInteract = false;
         UIInteraction.instance.SetSelectedButtonColor(UIInteraction.instance.lastSelectedButton, 1, 1, 1, 1, .2f, .2f, .2f);
-
-        memorizeOrder.Add(Random.Range(0, clickableButtons.Count));
         
         for (int i = 0; i < memorizeOrder.Count; i++) 
         {
@@ -34,7 +62,7 @@ public class MemScape : MonoBehaviour
 
                 yield return null;
             }
-            
+        
             while (clickableButtons[memorizeOrder[i]].colors.normalColor.g < 0.9f)
             {
                 UIInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1,Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 
@@ -42,7 +70,7 @@ public class MemScape : MonoBehaviour
 
                 yield return null;
             }
-            
+        
             UIInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1, 1, 1, 1, 0.2f, 0.2f, 0.2f);
         }
 
@@ -55,9 +83,10 @@ public class MemScape : MonoBehaviour
         {
             goThroughList.RemoveAt(0);
             
-            if (goThroughList.Count == 0)
+            if (goThroughList.Count == 0) 
             {
-                StartCoroutine(AddMemorizeObjects());
+                AddMemorizeObject();
+                StartCoroutine(SetButtonColors());
                 UIScoreCounter.instance.AddPointsToScore();
             }
         }
@@ -66,7 +95,8 @@ public class MemScape : MonoBehaviour
             memorizeOrder.Clear();
             goThroughList.Clear();
             UIScoreCounter.instance.ResetCombo();
-            StartCoroutine(AddMemorizeObjects());
+            AddMemorizeObject();
+            StartCoroutine(SetButtonColors());
         }
     }
 }

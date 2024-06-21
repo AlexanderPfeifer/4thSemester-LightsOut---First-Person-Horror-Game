@@ -81,7 +81,6 @@ public class MotherBehaviour : MonoBehaviour
         mathbookScribbles[currentMathbookScribble].SetActive(false);
         currentMathbookScribble++;
         mathbookScribbles[currentMathbookScribble].SetActive(true);
-        UIScoreCounter.instance.scoreTextObject.gameObject.SetActive(false);
     }
 
     //Shortcut to fade blackscreen

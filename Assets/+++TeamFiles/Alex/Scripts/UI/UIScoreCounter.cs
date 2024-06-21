@@ -1,10 +1,8 @@
-using TMPro;
 using UnityEngine;
 
 public class UIScoreCounter : MonoBehaviour
 {
     [Header("Score")]
-    [SerializeField] public TextMeshProUGUI scoreTextObject;
     [HideInInspector] public int currentGameScore;
     [SerializeField] public int achievablePoints;
     [SerializeField] public int winGameUntilCombo;
@@ -36,14 +34,11 @@ public class UIScoreCounter : MonoBehaviour
     private void Start()
     {
         currentTerrorRadius = 0;
-        motherBehaviour = FindObjectOfType<MotherBehaviour>();
     }
 
     //displays the score as string for the in-game ui on the console. Also counts down time when player reaches a certain score
     private void Update()
     {
-        scoreTextObject.text = currentGameScore.ToString();
-        
         if (danger)
         {
             currentTerrorRadius += Time.deltaTime;
@@ -59,7 +54,7 @@ public class UIScoreCounter : MonoBehaviour
             
             currentTerrorRadius = 0;
         
-            FindObjectOfType<PlayerInputs>().isCaught = false;
+            PlayerInputs.instance.isCaught = false;
             
             danger = false;
             

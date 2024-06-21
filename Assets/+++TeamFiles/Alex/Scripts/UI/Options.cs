@@ -12,8 +12,8 @@ public class Options : MonoBehaviour
     [Header("Audio")] 
     public AudioMixer audioMixer;
     
-    [SerializeField] private List<GameObject> volumePoints;
     [SerializeField] private List<GameObject> masterPoints;
+    [SerializeField] private List<GameObject> musicPoints;
     [SerializeField] private List<GameObject> sfxPoints;
     private int currentVolumePointMusic = 4; 
     private int currentVolumePointMaster = 4; 
@@ -80,7 +80,7 @@ public class Options : MonoBehaviour
         if (!(currentVolumePointMusic <= 0.2f))
         {
             currentVolumePointMusic--;
-            volumePoints[currentVolumePointMusic].GetComponent<Image>().color = new Color(0.39f, 0.39f, 0.39f);
+            musicPoints[currentVolumePointMusic].GetComponent<Image>().color = new Color(0.39f, 0.39f, 0.39f);
             ChangeMusicVolume(-.1f);
         }
     }
@@ -102,7 +102,7 @@ public class Options : MonoBehaviour
         if (!(musicVolume > 0.99f))
         {
             currentVolumePointMusic++;
-            volumePoints[currentVolumePointMusic].GetComponent<Image>().color = new Color(1f, 1f, 1f);
+            musicPoints[currentVolumePointMusic].GetComponent<Image>().color = new Color(1f, 1f, 1f);
             ChangeMusicVolume(.1f);
         }
     }

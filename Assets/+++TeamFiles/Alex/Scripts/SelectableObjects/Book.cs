@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MathBook : Interaction
+public class Book : Interaction
 {
     private Vector3 putAwayPos;
 
