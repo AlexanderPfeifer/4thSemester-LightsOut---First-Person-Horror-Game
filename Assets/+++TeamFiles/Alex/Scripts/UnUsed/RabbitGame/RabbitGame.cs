@@ -22,7 +22,7 @@ public class RabbitGame : Interaction
         {
             carrotRb.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
         
-            UIScoreCounter.instance.AddPointsToScore();   
+            UIScoreCounter.instance.TimeBonus();   
         }
     }
     

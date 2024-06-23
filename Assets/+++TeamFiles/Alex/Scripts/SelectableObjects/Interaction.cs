@@ -3,8 +3,10 @@ using UnityEngine;
 public abstract class Interaction : MonoBehaviour
 {
     public float interactableObjectPutAwaySpeed = 4;
-    [HideInInspector] public Vector3 interactableObjectPutAwayPosition;
-    [HideInInspector] public Vector3 interactableObjectInHandPosition;
+    [HideInInspector] public float interactablePutAwayRotationY;
+    [HideInInspector] public Quaternion interactableInHandRotation;
+    [HideInInspector] public Vector3 interactablePutAwayPosition;
+    [HideInInspector] public Vector3 interactableInHandPosition;
     protected MotherBehaviour motherBehaviour;
     
     private void Start()
@@ -15,18 +17,22 @@ public abstract class Interaction : MonoBehaviour
     //Lerps the rotation and position of the object to the position of where the player holds the console
     public virtual void TakeInteractableObject(GameObject interactable)
     {
-        interactable.transform.position = Vector3.Lerp(interactable.transform.position, interactableObjectInHandPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
-        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0, 90, 0), Time.deltaTime * interactableObjectPutAwaySpeed);
+        interactable.transform.position = Vector3.Lerp(interactable.transform.position, interactableInHandPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
+        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, interactableInHandRotation, Time.deltaTime * interactableObjectPutAwaySpeed);
     }
 
     //Lerps the rotation and position of the object to the position where it is put away
     public virtual void PutDownInteractableObject(GameObject interactable)
     {
-        interactable.transform.position = Vector3.Lerp(interactable.transform.position, interactableObjectPutAwayPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
-        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * interactableObjectPutAwaySpeed);
+        interactable.transform.position = Vector3.Lerp(interactable.transform.position, interactablePutAwayPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
+        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(90, interactablePutAwayRotationY, 0), Time.deltaTime * interactableObjectPutAwaySpeed);
     }
 
     //Assigns a put away position according to where it was before it got taken
     public virtual void AssignPutDownPos()
+    { }
+    
+    //Assigns a put away rotation according to where it was before it got taken
+    public virtual void AssignPutDownRot()
     { }
 }

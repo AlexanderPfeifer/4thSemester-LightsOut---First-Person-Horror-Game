@@ -1,34 +1,23 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class MemScapeInteractable : Interaction, IInteractableGame
 {
-    [SerializeField] private GameObject memorizeGame;
+    [SerializeField] private GameObject memScapeMainMenu;
     [SerializeField] private int scoreToWin;
-    [SerializeField] private int achievablePoints;
-    [SerializeField] private int pointsUntilCombo;
 
     //Takes the game to hold position
     public override void TakeInteractableObject(GameObject interactable)
     {
         base.TakeInteractableObject(interactable);
-        interactableObjectPutAwayPosition = transform.position;
+        interactablePutAwayPosition = transform.position;
     }
 
     //Opens the new game assigned to the object
     public void OpenGame()
     {
-        StartCoroutine(motherBehaviour.PickedNewGame(3));
-        memorizeGame.SetActive(true);
+        memScapeMainMenu.SetActive(true);
         UIScoreCounter.instance.scoreToWin = scoreToWin;
-        UIScoreCounter.instance.achievablePoints = achievablePoints;
-        UIScoreCounter.instance.winGameUntilCombo = pointsUntilCombo;
-    }
-    
-    public IEnumerator HideInteractable()
-    {
-        yield return new WaitForSeconds(3);
-        
-        gameObject.GetComponent<Transform>().GetChild(2).gameObject.SetActive(false);
     }
 }

@@ -18,7 +18,7 @@ public class PlayerInputs : MonoBehaviour
 
     [Header("SelectableObjects")]
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
-    public GameObject interactableObject;
+    [HideInInspector] public GameObject interactableObject;
     [SerializeField] private LayerMask interactableLayerMask;
     public GameObject[] games;
 
@@ -29,6 +29,7 @@ public class PlayerInputs : MonoBehaviour
     //Locks the cursor and makes it invisible
     private void Start()
     {
+        interactableObject = FindObjectOfType<Console>().gameObject;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -82,13 +83,28 @@ public class PlayerInputs : MonoBehaviour
             if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue, interactableLayerMask))
             {
                 interactableObject = raycastHit.collider.gameObject;
-            
-                if (interactableObject.TryGetComponent(out Interaction interaction))
+
+                if (FindObjectOfType<TutorialManager>() != null && !FindObjectOfType<TutorialManager>().canInteractWithConsole)
                 {
-                    SelectVisual(true);
-                }
+                    if (!interactableObject.TryGetComponent(out Console console))
+                    {
+                        if (interactableObject.TryGetComponent(out Interaction interaction)) 
+                        {
+                            SelectVisual(true);
+                        }
                 
-                InteractWithInteractable();
+                        InteractWithInteractable();
+                    }   
+                }
+                else
+                {
+                    if (interactableObject.TryGetComponent(out Interaction interaction)) 
+                    {
+                        SelectVisual(true);
+                    }
+                
+                    InteractWithInteractable();
+                }
             }
             else
             {
@@ -114,6 +130,14 @@ public class PlayerInputs : MonoBehaviour
         
         if (!isCaught)
         {
+            if (FindObjectOfType<TutorialManager>() != null && !FindObjectOfType<TutorialManager>().canInteractWithConsole)
+            {
+                if (!interactableObject.TryGetComponent(out Console console))
+                {
+                    FindObjectOfType<TutorialManager>().OpenFirstGame();
+                }   
+            }
+            
             SelectVisual(false);
 
             holdObjectState = HoldObjectState.LiftingUp;
@@ -125,7 +149,7 @@ public class PlayerInputs : MonoBehaviour
     //Picks up the interactable object
     private IEnumerator TakeInteractable()
     {
-        while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectInHandPosition) > 0.01f)
+        while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableInHandPosition) > 0.01f)
         {
             vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             mousePosition = new Vector2(0, 0);
@@ -164,10 +188,11 @@ public class PlayerInputs : MonoBehaviour
         holdObjectState = HoldObjectState.LayingDown;
 
         interactableObject.GetComponent<Interaction>().AssignPutDownPos();
+        interactableObject.GetComponent<Interaction>().AssignPutDownRot();
 
-        while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableObjectPutAwayPosition) > 0.01f)
+        while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactablePutAwayPosition) > 0.01f)
         {
-            Vector3 direction = interactableObject.GetComponent<Interaction>().interactableObjectPutAwayPosition - vCam.transform.position;
+            Vector3 direction = interactableObject.GetComponent<Interaction>().interactablePutAwayPosition - vCam.transform.position;
             Quaternion toRotation = Quaternion.LookRotation(direction, transform.up);
             vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.rotation, toRotation, interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             

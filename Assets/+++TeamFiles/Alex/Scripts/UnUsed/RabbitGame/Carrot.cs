@@ -13,7 +13,6 @@ public class Carrot : MonoBehaviour
         if ((1 << col.gameObject.layer) == floorLayer.value)
         {
             transform.position = respawnPoint;
-            UIScoreCounter.instance.ResetCombo();
         }
     }
 }

@@ -4,22 +4,21 @@ public class Bomb : MonoBehaviour
 {
     private void OnDestroy()
     {
-        if (Physics.Raycast(transform.position, -transform.up, out var blockHit, .5f, FindObjectOfType<MiningGame>().wallLayer))
+        if (Physics.Raycast(transform.position, -transform.up, out var blockHit, .5f, FindObjectOfType<SparkleSpelunk>().wallLayer))
         {
-            FindObjectOfType<MiningGame>().allBlocks.Remove(blockHit.transform);
+            FindObjectOfType<SparkleSpelunk>().allBlocks.Remove(blockHit.transform);
             Destroy(blockHit.transform.gameObject);
         }
-        else if (Physics.Raycast(transform.position, -transform.up, out var pointHit, .5f, FindObjectOfType<MiningGame>().pointWallLayer))
+        else if (Physics.Raycast(transform.position, -transform.up, out var pointHit, .5f, FindObjectOfType<SparkleSpelunk>().pointWallLayer))
         {
-            FindObjectOfType<MiningGame>().allBlocks.Remove(pointHit.transform);
+            FindObjectOfType<SparkleSpelunk>().allBlocks.Remove(pointHit.transform);
             Destroy(pointHit.transform.gameObject);
-            UIScoreCounter.instance.AddPointsToScore();
+            UIScoreCounter.instance.TimeBonus();
         }
-        else if(Physics.Raycast(transform.position, -transform.up, out var playerHit, .1f, FindObjectOfType<MiningGame>().playerLayer))
+        else if(Physics.Raycast(transform.position, -transform.up, out var playerHit, .1f, FindObjectOfType<SparkleSpelunk>().playerLayer))
         {
             //Does not work rn & still need to implement a wall that comes down and a reset of all blocks
-            UIScoreCounter.instance.ResetCombo();
-            FindObjectOfType<MiningGame>().ResetGame();
+            FindObjectOfType<SparkleSpelunk>().ResetGame();
         }
     }
 }

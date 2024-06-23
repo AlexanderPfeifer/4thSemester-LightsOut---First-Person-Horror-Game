@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -8,6 +9,7 @@ public class Options : MonoBehaviour
     [Header("Fullscreen")] 
     private string fullScreenPlayerPrefs = "Fullscreen";
     private int fullScreenInt = 1;
+    [SerializeField] private GameObject fullScreenCheck;
 
     [Header("Audio")] 
     public AudioMixer audioMixer;
@@ -41,15 +43,38 @@ public class Options : MonoBehaviour
     {
         SetPlayerPrefs();
     }
-
+    
     private void SetPlayerPrefs()
     {
         fullScreenInt = PlayerPrefs.GetInt(fullScreenPlayerPrefs, fullScreenInt);
 
         PlayerPrefs.GetFloat(masterVolumePlayerPrefs, masterVolume);
-        PlayerPrefs.GetFloat(musicVolumePlayerPrefs, musicVolume);
-        PlayerPrefs.GetFloat(sfxVolumePlayerPrefs, sfxVolume);
+        for (int i = 0; i < masterPoints.Count; i++)
+        {
+            if (masterVolume * 10 - 2 < i)
+            {
+                masterPoints[i].SetActive(true);
+            }
+        }
         
+        PlayerPrefs.GetFloat(musicVolumePlayerPrefs, musicVolume);
+        for (int i = 0; i < musicPoints.Count; i++)
+        {
+            if (musicVolume * 10 - 2 < i)
+            {
+                musicPoints[i].SetActive(true);
+            }
+        }
+        
+        PlayerPrefs.GetFloat(sfxVolumePlayerPrefs, sfxVolume);
+        for (int i = 0; i < sfxPoints.Count; i++)
+        {
+            if (sfxVolume * 10 - 2 < i)
+            {
+                sfxPoints[i].SetActive(true);
+            }
+        }
+
         ChangeFullScreenMode(fullScreenInt == 1);
     }
 
@@ -57,8 +82,17 @@ public class Options : MonoBehaviour
     public void ChangeFullScreenMode(bool isFullScreenOn)
     {
         Screen.fullScreen = isFullScreenOn;
-
+        
         fullScreenInt = isFullScreenOn ? 1 : 0;
+
+        if (isFullScreenOn)
+        {
+            fullScreenCheck.SetActive(true);
+        }
+        else
+        {
+            fullScreenCheck.SetActive(false);
+        }
         
         PlayerPrefs.SetInt(fullScreenPlayerPrefs, fullScreenInt);
     }

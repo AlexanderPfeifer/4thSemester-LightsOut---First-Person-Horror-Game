@@ -3,11 +3,13 @@ using UnityEngine;
 public class Book : Interaction
 {
     private Vector3 putAwayPos;
+    private float putAwayRotY;
 
     //hold the position of where the book is put away
     private void Start()
     {
         putAwayPos = transform.position;
+        putAwayRotY = -25;
     }
 
     //overrides the new put away position, because new object is taken
@@ -15,13 +17,19 @@ public class Book : Interaction
     public override void TakeInteractableObject(GameObject interactable)
     {
         base.TakeInteractableObject(interactable);
-        interactableObjectPutAwayPosition = transform.position;
-        UIScoreCounter.instance.PickedUpBook();
+        interactablePutAwayPosition = transform.position;
+        interactableInHandRotation = Quaternion.Euler(0, 0, 0);
+    }
+    
+    //Assigns the put down position of the console
+    public override void AssignPutDownRot()
+    {
+        interactablePutAwayRotationY = putAwayRotY;
     }
     
     //Assigns a new put away position
     public override void AssignPutDownPos()
     {
-        interactableObjectPutAwayPosition = putAwayPos;
+        interactablePutAwayPosition = putAwayPos;
     }
 }

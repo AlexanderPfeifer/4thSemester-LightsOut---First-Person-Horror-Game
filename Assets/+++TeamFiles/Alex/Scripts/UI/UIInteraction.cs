@@ -1,4 +1,3 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,13 +5,11 @@ using UnityEngine.UI;
 public class UIInteraction : MonoBehaviour
 {
     public static UIInteraction instance;
-
     public bool canInteract = true;
 
-    public Button currentSelectedButton;
-    public Button lastSelectedButton;
-    
-    public Toggle currentSelectedToggle;
+    [HideInInspector] public Button currentSelectedButton;
+    [HideInInspector] public Button lastSelectedButton;
+    [HideInInspector] public Toggle currentSelectedToggle;
 
     //Singleton
     private void Awake()
@@ -25,6 +22,15 @@ public class UIInteraction : MonoBehaviour
         CheckIfButtonInLookDirection();
         
         CheckIfToggleInLookDirection();
+
+        if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.LiftingUp)
+        {
+            canInteract = true;
+        }
+        else if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.LayingDown)
+        {
+            canInteract = false;
+        }
     }
 
     private void CheckIfToggleInLookDirection()

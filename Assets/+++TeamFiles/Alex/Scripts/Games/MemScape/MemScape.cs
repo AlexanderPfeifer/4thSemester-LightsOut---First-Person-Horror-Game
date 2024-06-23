@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,7 +14,7 @@ public class MemScape : MonoBehaviour
     private void Start()
     {
         AddMemorizeObject();
-        //StartCoroutine(SetButtonColors());
+        StartCoroutine(SetButtonColors());
     }
 
     private void Update()
@@ -87,14 +86,13 @@ public class MemScape : MonoBehaviour
             {
                 AddMemorizeObject();
                 StartCoroutine(SetButtonColors());
-                UIScoreCounter.instance.AddPointsToScore();
+                UIScoreCounter.instance.TimeBonus();
             }
         }
         else
         {
             memorizeOrder.Clear();
             goThroughList.Clear();
-            UIScoreCounter.instance.ResetCombo();
             AddMemorizeObject();
             StartCoroutine(SetButtonColors());
         }
