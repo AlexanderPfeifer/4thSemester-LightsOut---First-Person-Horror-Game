@@ -4,21 +4,13 @@ public abstract class Interaction : MonoBehaviour
 {
     public float interactableObjectPutAwaySpeed = 4;
     [HideInInspector] public float interactablePutAwayRotationY;
-    [HideInInspector] public Quaternion interactableInHandRotation;
     [HideInInspector] public Vector3 interactablePutAwayPosition;
-    [HideInInspector] public Vector3 interactableInHandPosition;
-    protected MotherBehaviour motherBehaviour;
-    
-    private void Start()
-    {
-        motherBehaviour = FindObjectOfType<MotherBehaviour>();
-    }
 
     //Lerps the rotation and position of the object to the position of where the player holds the console
     public virtual void TakeInteractableObject(GameObject interactable)
     {
-        interactable.transform.position = Vector3.Lerp(interactable.transform.position, interactableInHandPosition, Time.deltaTime * interactableObjectPutAwaySpeed);
-        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, interactableInHandRotation, Time.deltaTime * interactableObjectPutAwaySpeed);
+        interactable.transform.position = Vector3.Lerp(interactable.transform.position, Vector3.zero, Time.deltaTime * interactableObjectPutAwaySpeed);
+        interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0,0,0), Time.deltaTime * interactableObjectPutAwaySpeed);
     }
 
     //Lerps the rotation and position of the object to the position where it is put away

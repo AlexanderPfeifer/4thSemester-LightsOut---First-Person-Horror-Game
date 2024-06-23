@@ -10,6 +10,7 @@ public class MemScape : MonoBehaviour
     [SerializeField] private List<int> memorizeOrder;
     [SerializeField] private List<Button> goThroughList;
     private bool selectedConsole;
+    [SerializeField] private int winningCount;
 
     private void Start()
     {
@@ -24,7 +25,7 @@ public class MemScape : MonoBehaviour
 
     private void CheckConsoleState()
     {
-        if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.InHand && PlayerInputs.instance.interactableObject.TryGetComponent(out Console console))
+        if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.InHand && PlayerInputs.instance.currentInteractableObject.TryGetComponent(out Console console))
         {
             if (selectedConsole)
             {
@@ -85,15 +86,21 @@ public class MemScape : MonoBehaviour
             if (goThroughList.Count == 0) 
             {
                 AddMemorizeObject();
-                StartCoroutine(SetButtonColors());
-                UIScoreCounter.instance.TimeBonus();
+                if (!(memorizeOrder.Count >= winningCount))
+                {
+                    StartCoroutine(SetButtonColors());
+                    MotherTimerManager.instance.TimeBonus();
+                }
+                else
+                {
+                    MotherBehaviour.instance.PlayerWon();
+                }
             }
         }
         else
         {
-            memorizeOrder.Clear();
             goThroughList.Clear();
-            AddMemorizeObject();
+            MotherTimerManager.instance.TimePenalty();
             StartCoroutine(SetButtonColors());
         }
     }

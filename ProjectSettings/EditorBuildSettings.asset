@@ -8,4 +8,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/+++TeamFiles/Alex/Scene/StartScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/+++TeamFiles/Alex/Scene/PapanicePizzaScene.unity
+    guid: ded66858d7b41e446af9c1366d3d753f
+  - enabled: 1
+    path: Assets/+++TeamFiles/Alex/Scene/SparkleSpelunk.unity
+    guid: edb4f97d79bfb2049853304a55505075
+  - enabled: 1
+    path: Assets/+++TeamFiles/Alex/Scene/EndScene.unity
+    guid: 3447d8796f906fe46b95d7f84525cb35
   m_configObjects: {}

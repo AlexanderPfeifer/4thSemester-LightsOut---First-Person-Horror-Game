@@ -1,8 +1,10 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class PapanicePizzaInteractable : Interaction, IInteractableGame
+public class SparkleSpelunkInteractable : Interaction, IInteractableGame
 {
-    [SerializeField] private GameObject papanicePizzaMainMenu;
+    [SerializeField] private GameObject sparkleSpelunkMainMenu;
     [SerializeField] private int scoreToWin;
 
     //Takes the game to hold position
@@ -15,7 +17,6 @@ public class PapanicePizzaInteractable : Interaction, IInteractableGame
     //Opens the new game assigned to the object
     public void OpenGame()
     {
-        papanicePizzaMainMenu.SetActive(true);
-        UIScoreCounter.instance.scoreToWin = scoreToWin;
+        sparkleSpelunkMainMenu.SetActive(true);
     }
 }

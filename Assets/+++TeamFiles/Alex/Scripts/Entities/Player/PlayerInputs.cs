@@ -1,6 +1,7 @@
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PlayerInputs : MonoBehaviour
 {
@@ -18,10 +19,9 @@ public class PlayerInputs : MonoBehaviour
 
     [Header("SelectableObjects")]
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
-    [HideInInspector] public GameObject interactableObject;
+    public GameObject currentInteractableObject;
     [SerializeField] private LayerMask interactableLayerMask;
-    public GameObject[] games;
-
+    
     public static PlayerInputs instance;
 
     private void Awake() => instance = this;
@@ -29,7 +29,6 @@ public class PlayerInputs : MonoBehaviour
     //Locks the cursor and makes it invisible
     private void Start()
     {
-        interactableObject = FindObjectOfType<Console>().gameObject;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -82,13 +81,13 @@ public class PlayerInputs : MonoBehaviour
         {
             if (Physics.Raycast(vCam.transform.position, vCam.transform.forward, out var raycastHit, float.MaxValue, interactableLayerMask))
             {
-                interactableObject = raycastHit.collider.gameObject;
+                currentInteractableObject = raycastHit.collider.gameObject;
 
                 if (FindObjectOfType<TutorialManager>() != null && !FindObjectOfType<TutorialManager>().canInteractWithConsole)
                 {
-                    if (!interactableObject.TryGetComponent(out Console console))
+                    if (!currentInteractableObject.TryGetComponent(out Console console))
                     {
-                        if (interactableObject.TryGetComponent(out Interaction interaction)) 
+                        if (currentInteractableObject.TryGetComponent(out Interaction interaction)) 
                         {
                             SelectVisual(true);
                         }
@@ -98,7 +97,7 @@ public class PlayerInputs : MonoBehaviour
                 }
                 else
                 {
-                    if (interactableObject.TryGetComponent(out Interaction interaction)) 
+                    if (currentInteractableObject.TryGetComponent(out Interaction interaction)) 
                     {
                         SelectVisual(true);
                     }
@@ -116,23 +115,26 @@ public class PlayerInputs : MonoBehaviour
     //Shortcut to set the selected visual to the bool parameter
     private void SelectVisual(bool selected)
     {
-        if (interactableObject.activeSelf)
+        if(currentInteractableObject == null)
+            return;
+        
+        if (currentInteractableObject.activeSelf)
         {
-            interactableObject.GetComponent<Transform>().GetChild(0).gameObject.SetActive(selected);
+            currentInteractableObject.GetComponent<Transform>().GetChild(0).gameObject.SetActive(selected);
         }
     }
 
     //Interacts with object when clicked on it(takes it to hold position)
     private void InteractWithInteractable()
     {
-        if (!Input.GetMouseButtonDown(0) || interactableObject == null) 
+        if (!Input.GetMouseButtonDown(0) || currentInteractableObject == null) 
             return;
         
         if (!isCaught)
         {
             if (FindObjectOfType<TutorialManager>() != null && !FindObjectOfType<TutorialManager>().canInteractWithConsole)
             {
-                if (!interactableObject.TryGetComponent(out Console console))
+                if (!currentInteractableObject.TryGetComponent(out Console console))
                 {
                     FindObjectOfType<TutorialManager>().OpenFirstGame();
                 }   
@@ -149,24 +151,14 @@ public class PlayerInputs : MonoBehaviour
     //Picks up the interactable object
     private IEnumerator TakeInteractable()
     {
-        while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactableInHandPosition) > 0.01f)
+        while (Vector3.Distance(currentInteractableObject.transform.position, Vector3.zero) > 0.01f)
         {
-            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
+            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             mousePosition = new Vector2(0, 0);
             
-            interactableObject.GetComponent<Interaction>().TakeInteractableObject(interactableObject);
+            currentInteractableObject.GetComponent<Interaction>().TakeInteractableObject(currentInteractableObject);
 
-            interactableObject.GetComponent<Collider>().enabled = false;
-
-            if (interactableObject.TryGetComponent(out IInteractableGame iChoosableGame))
-            {
-                foreach (var currentGame in games)
-                {
-                    currentGame.SetActive(false);
-                }
-                
-                iChoosableGame.OpenGame();
-            }
+            currentInteractableObject.GetComponent<Collider>().enabled = false;
 
             yield return null;
         }
@@ -177,7 +169,7 @@ public class PlayerInputs : MonoBehaviour
     //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
     private void PutDownInteractable()
     {
-        if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand || isCaught) 
+        if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand || isCaught || currentInteractableObject == null) 
             return;
         
         StartCoroutine(PutDownInteractableCoroutine());
@@ -187,16 +179,16 @@ public class PlayerInputs : MonoBehaviour
     {
         holdObjectState = HoldObjectState.LayingDown;
 
-        interactableObject.GetComponent<Interaction>().AssignPutDownPos();
-        interactableObject.GetComponent<Interaction>().AssignPutDownRot();
+        currentInteractableObject.GetComponent<Interaction>().AssignPutDownPos();
+        currentInteractableObject.GetComponent<Interaction>().AssignPutDownRot();
 
-        while (Vector3.Distance(interactableObject.transform.position, interactableObject.GetComponent<Interaction>().interactablePutAwayPosition) > 0.01f)
+        while (Vector3.Distance(currentInteractableObject.transform.position, currentInteractableObject.GetComponent<Interaction>().interactablePutAwayPosition) > 0.01f)
         {
-            Vector3 direction = interactableObject.GetComponent<Interaction>().interactablePutAwayPosition - vCam.transform.position;
+            Vector3 direction = currentInteractableObject.GetComponent<Interaction>().interactablePutAwayPosition - vCam.transform.position;
             Quaternion toRotation = Quaternion.LookRotation(direction, transform.up);
-            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.rotation, toRotation, interactableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
+            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.rotation, toRotation, currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             
-            interactableObject.GetComponent<Interaction>().PutDownInteractableObject(interactableObject);
+            currentInteractableObject.GetComponent<Interaction>().PutDownInteractableObject(currentInteractableObject);
             
             yield return null;
         }
@@ -204,7 +196,7 @@ public class PlayerInputs : MonoBehaviour
         mousePosition.x = GetCamInspectorRotationX();
         mousePosition.y = GetCamInspectorRotationY();
         
-        interactableObject.GetComponent<Collider>().enabled = true;
+        currentInteractableObject.GetComponent<Collider>().enabled = true;
 
         holdObjectState = HoldObjectState.OutOfHand;
         yield return null;

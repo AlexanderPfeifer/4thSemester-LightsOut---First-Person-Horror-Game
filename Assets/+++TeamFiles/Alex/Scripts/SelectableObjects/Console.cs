@@ -6,15 +6,11 @@ public class Console : Interaction
     private Vector3 putAwayPos;
     private float putAwayRotY;
     [SerializeField] private Volume consoleHoldVolume;
+    [SerializeField] private int startingVolume;
 
     //assigns the position of where the objects are held in front of the player and the put away position and activates a blur effect
     private void Start()
     {
-        interactableInHandPosition = transform.position;
-        interactableInHandRotation = transform.localRotation;
-
-        consoleHoldVolume.weight = 1;
-        
         putAwayPos = new Vector3(5, -3, 3);
         putAwayRotY = 25;
     }

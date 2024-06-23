@@ -8,6 +8,8 @@ public class MotherTextManager : MonoBehaviour
 
     public void StartMotherText()
     {
+        MotherTimerManager.instance.currentTime = 50f;
+
         TextManager.Instance.DisplayText(sentences[0],.05f);
         
         StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());

@@ -1,6 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class MemScapeInteractable : Interaction, IInteractableGame
 {
@@ -18,6 +16,5 @@ public class MemScapeInteractable : Interaction, IInteractableGame
     public void OpenGame()
     {
         memScapeMainMenu.SetActive(true);
-        UIScoreCounter.instance.scoreToWin = scoreToWin;
     }
 }

@@ -2,6 +2,21 @@ using UnityEngine;
 
 public class Bomb : MonoBehaviour
 {
+    [HideInInspector] public bool bombDropped;
+    
+    private void Update()
+    {
+        if (!bombDropped)
+        {
+            transform.position = FindObjectOfType<SparkleSpelunk>().transform.GetChild(0).transform.position;
+        }
+    }
+
+    public void DropBomb()
+    {
+        bombDropped = true;
+    }
+    
     private void OnDestroy()
     {
         if (Physics.Raycast(transform.position, -transform.up, out var blockHit, .5f, FindObjectOfType<SparkleSpelunk>().wallLayer))
@@ -13,12 +28,11 @@ public class Bomb : MonoBehaviour
         {
             FindObjectOfType<SparkleSpelunk>().allBlocks.Remove(pointHit.transform);
             Destroy(pointHit.transform.gameObject);
-            UIScoreCounter.instance.TimeBonus();
+            MotherTimerManager.instance.TimeBonus();
         }
         else if(Physics.Raycast(transform.position, -transform.up, out var playerHit, .1f, FindObjectOfType<SparkleSpelunk>().playerLayer))
         {
-            //Does not work rn & still need to implement a wall that comes down and a reset of all blocks
-            FindObjectOfType<SparkleSpelunk>().ResetGame();
+            MotherTimerManager.instance.TimePenalty();
         }
     }
 }

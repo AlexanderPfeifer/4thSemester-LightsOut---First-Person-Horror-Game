@@ -29,6 +29,7 @@ public class SparkleSpelunk : MonoBehaviour
     public Vector3 spawnPoint;
     private bool isFalling;
     private float currentDropTimer;
+    private Transform spawnedBomb;
 
     private void Start() => spawnPoint = miner.transform.position;
 
@@ -41,21 +42,20 @@ public class SparkleSpelunk : MonoBehaviour
         SpawnNewBlocks();
     }
 
-    public void ResetGame()
-    {
-        miner.localPosition = spawnPoint;
-    }
-
     //Spawns a bomb for destroying walls
     private void SpawnBomb()
     {
         if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand)
             return;
 
-        if (Input.GetMouseButtonDown(0) && !isFalling)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            var spawnedBomb = Instantiate(bomb, miner.transform.position, Quaternion.identity, miner.parent);
-            Destroy(spawnedBomb.gameObject, 1.5f);
+            spawnedBomb = Instantiate(bomb, miner.transform.position, Quaternion.identity, miner.parent);
+            Destroy(spawnedBomb.gameObject, 3f);
+        }
+        else if(Input.GetKeyUp(KeyCode.Space) && !isFalling)
+        {
+            spawnedBomb.GetComponent<Bomb>().DropBomb();
         }
     }
 

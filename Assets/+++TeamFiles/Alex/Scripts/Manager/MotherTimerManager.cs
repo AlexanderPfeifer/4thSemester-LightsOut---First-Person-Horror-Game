@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class UIScoreCounter : MonoBehaviour
+public class MotherTimerManager : MonoBehaviour
 {
     [Header("PlayerTries")] 
     [SerializeField] private int maxPlayerTries;
@@ -15,16 +15,12 @@ public class UIScoreCounter : MonoBehaviour
     [SerializeField] private AnimationCurve motherVisualCurve;
     [SerializeField] private AnimationCurve camAmplitudeVisualCurve;
     [SerializeField] private AnimationCurve camFrequencyVisualCurve;
-    
-    [Header("Score")]
-    [SerializeField] private int currentScore;
-    [SerializeField] public int scoreToWin;
 
     [Header("Mother")]
     public GameObject caughtPanel;
     
     [Header("Singleton")]
-    public static UIScoreCounter instance;
+    public static MotherTimerManager instance;
 
     /*
     private float t;
@@ -60,17 +56,6 @@ public class UIScoreCounter : MonoBehaviour
         CheckPlayerLooseState();
     }
 
-    //Adds points to the score of the game. Game is won at a certain score
-    public void AddPointToScore()
-    {
-        currentScore++;
-
-        if (currentScore >= scoreToWin)
-        {
-            //Player wins
-        }
-    }
-    
     //Adds Time before mother catches you.
     public void TimeBonus()
     {
@@ -78,7 +63,7 @@ public class UIScoreCounter : MonoBehaviour
     }
     
     //Removes Time that is needed for mother to catch you. Game ends at a certain time
-    private void TimePenalty()
+    public void TimePenalty()
     {
         currentTime += timePenalty;
     }
@@ -99,14 +84,14 @@ public class UIScoreCounter : MonoBehaviour
             
             currentPlayerTries--;
             
-            currentScore = 0;
-
             gameStarted = false;
         }
 
         if (currentPlayerTries <= 0)
         {
-            //Restart whole game
+            MotherBehaviour.instance.PlayerLost();
+
+            currentPlayerTries = maxPlayerTries;
         }
     }
 

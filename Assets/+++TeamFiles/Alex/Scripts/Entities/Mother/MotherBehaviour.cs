@@ -21,10 +21,6 @@ public class MotherBehaviour : MonoBehaviour
     [Header("Volume")] 
     [SerializeField] public Volume motherCatchVolume;
 
-    [Header("Interactbles")]
-    [SerializeField] private List<GameObject> bookScribbles;
-    private int currentMathbookScribble;
-
     public static MotherBehaviour instance;
 
     private void Awake() => instance = this;
@@ -49,6 +45,11 @@ public class MotherBehaviour : MonoBehaviour
     {
         StartCoroutine(PlayerCaughtCoroutine());
     }
+
+    public void PlayerLost()
+    {
+        StartCoroutine(PlayerCaughtThreeTimesCoroutine());
+    }
     
     //starts visualization of player being caught
     private IEnumerator PlayerWonCoroutine()
@@ -58,9 +59,6 @@ public class MotherBehaviour : MonoBehaviour
         //Make screen beautiful
         yield return new WaitForSeconds(timeUntilBlackScreen);
         WhiteOrBlackScreen(1, 1);
-        bookScribbles[currentMathbookScribble].SetActive(false);
-        currentMathbookScribble++;
-        bookScribbles[currentMathbookScribble].SetActive(true);
         yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
         WhiteOrBlackScreen(1,0);
         PlayerInputs.instance.isCaught = false;
@@ -68,22 +66,22 @@ public class MotherBehaviour : MonoBehaviour
     }
 
     //When player picked a new game, the objects reset from the game on the table to console and mathbook
-    public IEnumerator PlayerCaughtCoroutine()
+    private IEnumerator PlayerCaughtCoroutine()
     {
         PlayerInputs.instance.isCaught = true;
         yield return new WaitForSeconds(timeUntilBlackScreen);
         WhiteOrBlackScreen(0, 1);
-        UIScoreCounter.instance.currentTime = 0;
+        MotherTimerManager.instance.currentTime = 0;
         yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     
-    public IEnumerator PlayerCaughtThreeTimesCoroutine()
+    private IEnumerator PlayerCaughtThreeTimesCoroutine()
     {
         PlayerInputs.instance.isCaught = true;
         yield return new WaitForSeconds(timeUntilBlackScreen);
         WhiteOrBlackScreen(0, 1);
-        UIScoreCounter.instance.currentTime = 0;
+        MotherTimerManager.instance.currentTime = 0;
         yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
         SceneManager.LoadScene(0);
     }
@@ -93,7 +91,7 @@ public class MotherBehaviour : MonoBehaviour
     {
         var wantedAlpha = new Color(color, color, color, panelAlpha);
         
-        UIScoreCounter.instance.caughtPanel.GetComponent<Image>().color = wantedAlpha;
+        MotherTimerManager.instance.caughtPanel.GetComponent<Image>().color = wantedAlpha;
     }
 
     //Lerps the camera constantly to the target values

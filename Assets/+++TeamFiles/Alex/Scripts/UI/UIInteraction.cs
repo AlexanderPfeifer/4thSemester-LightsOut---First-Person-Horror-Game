@@ -79,11 +79,14 @@ public class UIInteraction : MonoBehaviour
                 
                 SetSelectedButtonColor(currentSelectedButton, currentSelectedButton.colors.highlightedColor.r,
                     currentSelectedButton.colors.highlightedColor.b,currentSelectedButton.colors.highlightedColor.g, currentSelectedButton.colors.highlightedColor.a, 1f, 1f, 1f);
-
-                if (Input.GetMouseButtonDown(0))
+                
+                if (Input.GetMouseButton(0))
                 {
                     SetSelectedButtonColor(currentSelectedButton, currentSelectedButton.colors.pressedColor.r, 
                         currentSelectedButton.colors.pressedColor.b,currentSelectedButton.colors.pressedColor.g, currentSelectedButton.colors.pressedColor.a, 1, 1, 1);
+                }
+                else if(Input.GetMouseButtonUp(0))
+                {
                     currentSelectedButton.onClick.Invoke();
                 }
             }

@@ -18,7 +18,6 @@ public class Book : Interaction
     {
         base.TakeInteractableObject(interactable);
         interactablePutAwayPosition = transform.position;
-        interactableInHandRotation = Quaternion.Euler(0, 0, 0);
     }
     
     //Assigns the put down position of the console

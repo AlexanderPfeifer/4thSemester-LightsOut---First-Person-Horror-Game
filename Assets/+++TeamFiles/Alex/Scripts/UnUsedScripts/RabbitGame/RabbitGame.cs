@@ -22,14 +22,14 @@ public class RabbitGame : Interaction
         {
             carrotRb.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
         
-            UIScoreCounter.instance.TimeBonus();   
+            MotherTimerManager.instance.TimeBonus();   
         }
     }
     
     //Because the game works with gravity, when it is put away, the objects need to freeze, so they do not fall through the console
     private void FreezeGame()
     {
-        if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.InHand && PlayerInputs.instance.interactableObject.TryGetComponent(out Console console))
+        if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.InHand && PlayerInputs.instance.currentInteractableObject.TryGetComponent(out Console console))
         {
             carrotRb.constraints = ~RigidbodyConstraints.FreezePositionY;
             rabbitRb.constraints = ~RigidbodyConstraints.FreezePositionY;

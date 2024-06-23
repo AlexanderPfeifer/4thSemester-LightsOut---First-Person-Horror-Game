@@ -1,6 +1,3 @@
-
-using System.Collections;
-
 public interface IInteractableGame
 {
     //Shows a new game on the console
