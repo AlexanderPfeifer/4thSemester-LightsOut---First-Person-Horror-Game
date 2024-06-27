@@ -15,10 +15,10 @@ TagManager:
   - Interactable
   - Floor
   - Block
-  - PointBlock
+  - Gold
   - DestroyZone
+  - Diamond
   - Border
-  - 
   - 
   - 
   - 

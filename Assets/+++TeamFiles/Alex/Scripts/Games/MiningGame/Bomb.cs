@@ -3,12 +3,15 @@ using UnityEngine;
 public class Bomb : MonoBehaviour
 {
     [HideInInspector] public bool bombDropped;
+    private SparkleSpelunk sparkleSpelunk;
+
+    private void Start() => sparkleSpelunk = FindObjectOfType<SparkleSpelunk>();
     
     private void Update()
     {
         if (!bombDropped)
         {
-            transform.position = FindObjectOfType<SparkleSpelunk>().transform.GetChild(0).transform.position;
+            transform.position = sparkleSpelunk.transform.GetChild(0).transform.position;
         }
     }
 
@@ -19,20 +22,27 @@ public class Bomb : MonoBehaviour
     
     private void OnDestroy()
     {
-        if (Physics.Raycast(transform.position, -transform.up, out var blockHit, .5f, FindObjectOfType<SparkleSpelunk>().wallLayer))
+        if (Physics.Raycast(transform.position, -transform.up, out var blockHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.blockLayer))
         {
-            FindObjectOfType<SparkleSpelunk>().allBlocks.Remove(blockHit.transform);
+            sparkleSpelunk.allBlocks.Remove(blockHit.transform);
             Destroy(blockHit.transform.gameObject);
         }
-        else if (Physics.Raycast(transform.position, -transform.up, out var pointHit, .5f, FindObjectOfType<SparkleSpelunk>().pointWallLayer))
+        else if (Physics.Raycast(transform.position, -transform.up, out var goldHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.goldLayer))
         {
-            FindObjectOfType<SparkleSpelunk>().allBlocks.Remove(pointHit.transform);
-            Destroy(pointHit.transform.gameObject);
-            MotherTimerManager.instance.TimeBonus();
+            sparkleSpelunk.allBlocks.Remove(goldHit.transform);
+            Destroy(goldHit.transform.gameObject);
+            MotherTimerManager.instance.TimeBonus(sparkleSpelunk.timeBonusGold);
         }
-        else if(Physics.Raycast(transform.position, -transform.up, out var playerHit, .1f, FindObjectOfType<SparkleSpelunk>().playerLayer))
+        else if (Physics.Raycast(transform.position, -transform.up, out var diamondHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.diamondLayer))
         {
-            MotherTimerManager.instance.TimePenalty();
+            sparkleSpelunk.allBlocks.Remove(diamondHit.transform);
+            Destroy(diamondHit.transform.gameObject);
+            MotherTimerManager.instance.TimeBonus(sparkleSpelunk.timeBonusDiamond);
+        }
+        
+        if(Physics.Raycast(transform.position, -transform.up, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, -transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer))
+        {
+            MotherTimerManager.instance.TimePenalty(sparkleSpelunk.timePenalty);
         }
     }
 }

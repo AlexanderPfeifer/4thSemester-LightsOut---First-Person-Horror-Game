@@ -5,8 +5,7 @@ public class Console : Interaction
 {
     private Vector3 putAwayPos;
     private float putAwayRotY;
-    [SerializeField] private Volume consoleHoldVolume;
-    [SerializeField] private int startingVolume;
+    [SerializeField] public Volume holdVolume;
 
     //assigns the position of where the objects are held in front of the player and the put away position and activates a blur effect
     private void Start()
@@ -19,7 +18,14 @@ public class Console : Interaction
     public override void TakeInteractableObject(GameObject interactable)
     {
         base.TakeInteractableObject(interactable);
-        consoleHoldVolume.weight = 1;
+        holdVolume.weight = 1;
+    }
+    
+    //Puts down console to put down position and deactivates blur effect
+    public override void PutDownInteractableObject(GameObject interactable)
+    {
+        base.PutDownInteractableObject(interactable);
+        holdVolume.weight = 0;
     }
     
     //Assigns the put down position of the console
@@ -32,12 +38,5 @@ public class Console : Interaction
     public override void AssignPutDownPos()
     {
         interactablePutAwayPosition = putAwayPos;
-    }
-
-    //Puts down console to put down position and deactivates blur effect
-    public override void PutDownInteractableObject(GameObject interactable)
-    {
-        base.PutDownInteractableObject(interactable);
-        consoleHoldVolume.weight = 0;
     }
 }

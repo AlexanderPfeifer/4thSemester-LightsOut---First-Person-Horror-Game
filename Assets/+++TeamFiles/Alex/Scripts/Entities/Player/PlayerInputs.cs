@@ -1,7 +1,6 @@
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class PlayerInputs : MonoBehaviour
 {
@@ -14,8 +13,8 @@ public class PlayerInputs : MonoBehaviour
     public CinemachineVirtualCamera vCam;
     private const float CamSensitivity = 10f;
     private float currentVisibilityAngle;
-    [SerializeField] private float clampVisibilityOutOfHand = 80;
-    [SerializeField] private float clampVisibilityInHand = 25;
+    private const float ClampVisibilityOutOfHand = 50;
+    private const float ClampVisibilityInHand = 30;
 
     [Header("SelectableObjects")]
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
@@ -56,15 +55,16 @@ public class PlayerInputs : MonoBehaviour
     {
         if (isCaught || holdObjectState == HoldObjectState.LayingDown || holdObjectState == HoldObjectState.LiftingUp)
             return;
-
-        currentVisibilityAngle = holdObjectState == HoldObjectState.OutOfHand ? clampVisibilityOutOfHand : clampVisibilityInHand;
+        
+        currentVisibilityAngle = holdObjectState == HoldObjectState.OutOfHand ? ClampVisibilityOutOfHand : ClampVisibilityInHand;
         
         mousePosition.y += Input.GetAxis("Mouse X") * mouseSensitivity;
         mousePosition.x += Input.GetAxis("Mouse Y") * -mouseSensitivity;
-            
-        var clampValueX = Mathf.Clamp(mousePosition.x, -currentVisibilityAngle, currentVisibilityAngle);
-        var clampValueY = Mathf.Clamp(mousePosition.y, -currentVisibilityAngle, currentVisibilityAngle);
-        var cameraRotation = Quaternion.Euler(clampValueX, clampValueY, 0);
+
+        mousePosition.y = Mathf.Clamp(mousePosition.y, -currentVisibilityAngle, currentVisibilityAngle);
+        mousePosition.x = Mathf.Clamp(mousePosition.x, -currentVisibilityAngle, currentVisibilityAngle);
+
+        var cameraRotation = Quaternion.Euler(mousePosition.x, mousePosition.y, 0);
         vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, cameraRotation, CamSensitivity * Time.deltaTime);;
     }
 
@@ -132,14 +132,6 @@ public class PlayerInputs : MonoBehaviour
         
         if (!isCaught)
         {
-            if (FindObjectOfType<TutorialManager>() != null && !FindObjectOfType<TutorialManager>().canInteractWithConsole)
-            {
-                if (!currentInteractableObject.TryGetComponent(out Console console))
-                {
-                    FindObjectOfType<TutorialManager>().OpenFirstGame();
-                }   
-            }
-            
             SelectVisual(false);
 
             holdObjectState = HoldObjectState.LiftingUp;
@@ -169,7 +161,7 @@ public class PlayerInputs : MonoBehaviour
     //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
     private void PutDownInteractable()
     {
-        if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand || isCaught || currentInteractableObject == null) 
+        if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand || isCaught || currentInteractableObject == null || MotherTimerManager.instance.gameStarted) 
             return;
         
         StartCoroutine(PutDownInteractableCoroutine());
@@ -191,6 +183,19 @@ public class PlayerInputs : MonoBehaviour
             currentInteractableObject.GetComponent<Interaction>().PutDownInteractableObject(currentInteractableObject);
             
             yield return null;
+        }
+
+        if (currentInteractableObject.TryGetComponent(out Book bookEnd) && FindObjectOfType<EndManager>())
+        {
+            FindObjectOfType<EndManager>().CloseGame();
+        }
+        
+        if (FindObjectOfType<TutorialManager>() != null && !FindObjectOfType<TutorialManager>().canInteractWithConsole)
+        {
+            if (!currentInteractableObject.TryGetComponent(out Console console))
+            {
+                FindObjectOfType<TutorialManager>().OpenFirstGame();
+            }   
         }
         
         mousePosition.x = GetCamInspectorRotationX();

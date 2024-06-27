@@ -1,25 +1,27 @@
 using System.Collections;
-using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class MotherBehaviour : MonoBehaviour
 {
+    [FormerlySerializedAs("timeUntilBlackScreen")]
     [Header("Camera")]
-    [SerializeField] private float timeUntilBlackScreen;
+    [SerializeField] private float timeUntilBlackOrWhiteScreen;
     [SerializeField] private float timeInBlackOrWhiteScreen;
-    [SerializeField] public float maxCamAmplitude;
-    [SerializeField] public float maxCamFrequency;
-    private float targetWeight;
+    private float targetWeightMother;
+    private float targetWeightWin;
     private float targetFrequency;
     private float targetAmplitude;
     private CinemachineBasicMultiChannelPerlin vCamShake;
 
     [Header("Volume")] 
     [SerializeField] public Volume motherCatchVolume;
+    [SerializeField] public Volume winVolume;
+    public GameObject caughtPanel;
 
     public static MotherBehaviour instance;
 
@@ -32,7 +34,9 @@ public class MotherBehaviour : MonoBehaviour
 
     private void Update()
     {
-        CamVisualUpdate();
+        CamVisualMotherUpdate();
+        
+        CamVisualWinUpdate();
     }
 
     //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
@@ -56,20 +60,21 @@ public class MotherBehaviour : MonoBehaviour
     {
         PlayerInputs.instance.isCaught = true;
         StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());
-        //Make screen beautiful
-        yield return new WaitForSeconds(timeUntilBlackScreen);
+        MotherTimerManager.instance.currentTime = 0;
+        MotherTimerManager.instance.pauseGameTime = false;
+        targetWeightWin = 1;
+        yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
+        MotherTimerManager.instance.gameStarted = false;
         WhiteOrBlackScreen(1, 1);
         yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
-        WhiteOrBlackScreen(1,0);
-        PlayerInputs.instance.isCaught = false;
-        //Make screen normal again
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     //When player picked a new game, the objects reset from the game on the table to console and mathbook
     private IEnumerator PlayerCaughtCoroutine()
     {
         PlayerInputs.instance.isCaught = true;
-        yield return new WaitForSeconds(timeUntilBlackScreen);
+        yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
         WhiteOrBlackScreen(0, 1);
         MotherTimerManager.instance.currentTime = 0;
         yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
@@ -79,7 +84,7 @@ public class MotherBehaviour : MonoBehaviour
     private IEnumerator PlayerCaughtThreeTimesCoroutine()
     {
         PlayerInputs.instance.isCaught = true;
-        yield return new WaitForSeconds(timeUntilBlackScreen);
+        yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
         WhiteOrBlackScreen(0, 1);
         MotherTimerManager.instance.currentTime = 0;
         yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
@@ -91,21 +96,27 @@ public class MotherBehaviour : MonoBehaviour
     {
         var wantedAlpha = new Color(color, color, color, panelAlpha);
         
-        MotherTimerManager.instance.caughtPanel.GetComponent<Image>().color = wantedAlpha;
+        caughtPanel.GetComponent<Image>().color = wantedAlpha;
     }
 
     //Lerps the camera constantly to the target values
-    private void CamVisualUpdate()
+    private void CamVisualMotherUpdate()
     {
         vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, targetAmplitude, Time.deltaTime);
         vCamShake.m_FrequencyGain = Mathf.Lerp(vCamShake.m_FrequencyGain, targetFrequency, Time.deltaTime);
-        motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, targetWeight, Time.deltaTime);
+        motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, targetWeightMother, Time.deltaTime);
     }
     
+    //Lerps the camera constantly to the target values
+    private void CamVisualWinUpdate()
+    {
+        winVolume.weight = Mathf.Lerp(winVolume.weight, targetWeightWin, Time.deltaTime);
+    }
+
     //shortcut to apply visuals to the cam
     public void SetCamVisualCaught(float weight, float camAmplitude, float camFrequency)
     {
-        targetWeight = weight;
+        targetWeightMother = weight;
         targetAmplitude = camAmplitude;
         targetFrequency = camFrequency;
     }

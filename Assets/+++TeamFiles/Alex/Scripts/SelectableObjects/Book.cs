@@ -1,14 +1,16 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Book : Interaction
 {
     private Vector3 putAwayPos;
     private float putAwayRotY;
+    [SerializeField] public Volume holdVolume;
 
     //hold the position of where the book is put away
     private void Start()
     {
-        putAwayPos = transform.position;
+        putAwayPos = new Vector3(-5, -3, 3);
         putAwayRotY = -25;
     }
 
@@ -17,7 +19,14 @@ public class Book : Interaction
     public override void TakeInteractableObject(GameObject interactable)
     {
         base.TakeInteractableObject(interactable);
-        interactablePutAwayPosition = transform.position;
+        holdVolume.weight = 1;
+    }
+    
+    //Puts down book to put down position and deactivates blur effect
+    public override void PutDownInteractableObject(GameObject interactable)
+    {
+        base.PutDownInteractableObject(interactable);
+        holdVolume.weight = 0;
     }
     
     //Assigns the put down position of the console

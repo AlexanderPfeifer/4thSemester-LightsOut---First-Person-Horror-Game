@@ -10,15 +10,11 @@ public class MotherTimerManager : MonoBehaviour
     [HideInInspector] public bool gameStarted;
     [SerializeField] public float currentTime;
     [SerializeField] private float timeWhenMotherCatchesPlayer;
-    [SerializeField] private float timeBonus;
-    [SerializeField] private float timePenalty;
     [SerializeField] private AnimationCurve motherVisualCurve;
-    [SerializeField] private AnimationCurve camAmplitudeVisualCurve;
     [SerializeField] private AnimationCurve camFrequencyVisualCurve;
+    [HideInInspector] public bool pauseGameTime;
+    [SerializeField] private int minimalTime = -5;
 
-    [Header("Mother")]
-    public GameObject caughtPanel;
-    
     [Header("Singleton")]
     public static MotherTimerManager instance;
 
@@ -49,7 +45,7 @@ public class MotherTimerManager : MonoBehaviour
 
     private void Update()
     {
-        CheckIfGameHasStarted();
+        CurrentTimeUpdate();
 
         MotherVisualOverTime();
 
@@ -57,14 +53,17 @@ public class MotherTimerManager : MonoBehaviour
     }
 
     //Adds Time before mother catches you.
-    public void TimeBonus()
+    public void TimeBonus(float timeBonus)
     {
         currentTime -= timeBonus;
     }
     
     //Removes Time that is needed for mother to catch you. Game ends at a certain time
-    public void TimePenalty()
+    public void TimePenalty(float timePenalty)
     {
+        if (currentTime <= minimalTime)
+            return;
+        
         currentTime += timePenalty;
     }
     
@@ -72,7 +71,7 @@ public class MotherTimerManager : MonoBehaviour
     private void MotherVisualOverTime()
     {
         MotherBehaviour.instance.SetCamVisualCaught(motherVisualCurve.Evaluate(currentTime / timeWhenMotherCatchesPlayer), 
-            camAmplitudeVisualCurve.Evaluate(currentTime / timeWhenMotherCatchesPlayer), 
+            1, 
             camFrequencyVisualCurve.Evaluate(currentTime / timeWhenMotherCatchesPlayer));
     }
     
@@ -95,9 +94,9 @@ public class MotherTimerManager : MonoBehaviour
         }
     }
 
-    private void CheckIfGameHasStarted()
+    private void CurrentTimeUpdate()
     {
-        if (gameStarted)
+        if (gameStarted && !pauseGameTime)
         {
             currentTime += Time.deltaTime;
         }

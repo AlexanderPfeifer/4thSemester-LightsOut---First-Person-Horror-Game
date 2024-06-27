@@ -12,6 +12,16 @@ public class PapanicePizza : MonoBehaviour
     [Header("OrderCorrectness")]
     [SerializeField] private GameObject rightOrderReact;
     [SerializeField] private GameObject wrongOrderReact;
+    
+    [SerializeField] private int timeBonus;
+    [SerializeField] private int timePenalty;
+
+    [SerializeField] private int winScore;
+    private int currentScore;
+    
+    bool gotDough;
+    bool gotSauce;
+    bool gotCheese;
 
     //Deactivates sprites and resets the timers and starts the game with a new order
     public void Start()
@@ -37,35 +47,74 @@ public class PapanicePizza : MonoBehaviour
         }
         
         orderList[0].SetActive(true);
-        orderList[1].SetActive(true);
     }
 
     //With every new ingredient added, checks if the ingredients of the pizza and the order match
     public void CheckIfMatch()
     {
-        //if has wrong ingredient or order: StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
+        if (ingredientsList[0].activeSelf && !gotDough)
+        {
+            gotDough = true;
+            CheckWin();
+            return;
+        }
         
-        var activeOrder = orderList.Count(orderElement => orderElement.activeSelf);
+        if (orderList[1].activeSelf && ingredientsList[1].activeSelf && gotDough && !gotSauce)
+        {
+            gotSauce = true;
+            CheckWin();
+            return;
+        }
         
-        var correctIngredients = 0;
+        if(!ingredientsList[0].activeSelf)
+        {
+            StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
+            MotherTimerManager.instance.TimePenalty(timePenalty);
+            return;  
+        }
+        
+        if (orderList[1].activeSelf && !gotSauce && gotDough)
+        {
+            StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
+            MotherTimerManager.instance.TimePenalty(timePenalty);
+            return;
+        }
 
-        var activeIngredients = 0;
+        for (int i = 1; i < ingredientsList.Count; i++)
+        {
+            if (!orderList[i].activeSelf && ingredientsList[i].activeSelf)
+            {
+                StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
+                MotherTimerManager.instance.TimePenalty(timePenalty);
+                return;
+            }
+        }
+        
+        CheckWin();
+    }
+
+    private void CheckWin()
+    {
+        var activeOrder = orderList.Count(orderElement => orderElement.activeSelf);
+
+        var correctIngredients = 0;
 
         for (var i = 0; i < ingredientsList.Count; i++)
         {
-            if (ingredientsList[i].activeSelf)
-            {
-                activeIngredients++;
-            }
-            
             if (orderList[i].activeSelf && ingredientsList[i].activeSelf)
             {
                 correctIngredients++;
 
-                if (correctIngredients == activeOrder && activeIngredients == activeOrder)
+                if (correctIngredients == activeOrder)
                 {
                     StartCoroutine(SetOrderStateCoroutine(rightOrderReact));
-                    MotherTimerManager.instance.TimeBonus();
+                    MotherTimerManager.instance.TimeBonus(timeBonus);
+                    currentScore++;
+                    
+                    if (currentScore >= winScore)
+                    {
+                        MotherBehaviour.instance.PlayerWon();
+                    }
                 }
             }
         }
@@ -74,6 +123,8 @@ public class PapanicePizza : MonoBehaviour
     //Shows if the order was right or wrong and gets a new order
     private IEnumerator SetOrderStateCoroutine(GameObject orderReactSprite)
     {
+        gotDough = false;
+
         orderList[0].SetActive(false);
         orderList[1].SetActive(false);
         SetActivationListObject(orderList, false);
