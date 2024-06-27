@@ -4,8 +4,15 @@ public class Bomb : MonoBehaviour
 {
     [HideInInspector] public bool bombDropped;
     private SparkleSpelunk sparkleSpelunk;
+    private Animator anim;
+    private Animator bombAnim;
 
-    private void Start() => sparkleSpelunk = FindObjectOfType<SparkleSpelunk>();
+    private void Start()
+    {
+        sparkleSpelunk = FindObjectOfType<SparkleSpelunk>();
+        
+        GetComponent<Animator>().SetFloat("speedMultiplier", sparkleSpelunk.bombSpeedMultiplier);
+    }
     
     private void Update()
     {
@@ -15,11 +22,20 @@ public class Bomb : MonoBehaviour
         }
     }
 
-    public void DropBomb()
+    private void DestroyBomb()
     {
-        bombDropped = true;
+        if (sparkleSpelunk.firstBombSpawned)
+        {
+            sparkleSpelunk.firstBombSpawned = false;
+        }
+        else if(sparkleSpelunk.secondBombSpawned)
+        {
+            sparkleSpelunk.secondBombSpawned = false;
+        }
+        
+        Destroy(gameObject);
     }
-    
+
     private void OnDestroy()
     {
         if (Physics.Raycast(transform.position, -transform.up, out var blockHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.blockLayer))
@@ -29,12 +45,14 @@ public class Bomb : MonoBehaviour
         }
         else if (Physics.Raycast(transform.position, -transform.up, out var goldHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.goldLayer))
         {
+            sparkleSpelunk.MinerEarned(sparkleSpelunk.minerEarnedSpriteHandGold);
             sparkleSpelunk.allBlocks.Remove(goldHit.transform);
             Destroy(goldHit.transform.gameObject);
             MotherTimerManager.instance.TimeBonus(sparkleSpelunk.timeBonusGold);
         }
         else if (Physics.Raycast(transform.position, -transform.up, out var diamondHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.diamondLayer))
         {
+            sparkleSpelunk.MinerEarned(sparkleSpelunk.minerEarnedSpriteHandDiamond);
             sparkleSpelunk.allBlocks.Remove(diamondHit.transform);
             Destroy(diamondHit.transform.gameObject);
             MotherTimerManager.instance.TimeBonus(sparkleSpelunk.timeBonusDiamond);
@@ -42,6 +60,7 @@ public class Bomb : MonoBehaviour
         
         if(Physics.Raycast(transform.position, -transform.up, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, -transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer))
         {
+            sparkleSpelunk.MinerHit();
             MotherTimerManager.instance.TimePenalty(sparkleSpelunk.timePenalty);
         }
     }

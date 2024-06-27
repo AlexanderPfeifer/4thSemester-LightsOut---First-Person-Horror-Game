@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class SparkleSpelunk : MonoBehaviour
@@ -21,7 +23,8 @@ public class SparkleSpelunk : MonoBehaviour
     [Header("BlockSpawning")]
     [SerializeField] private Transform blockParent;
     [SerializeField] private List<Vector3> blockSpawnPoints;
-    [SerializeField] public List<Transform> allBlocks;
+    [HideInInspector] public List<Transform> allBlocks;
+    [SerializeField] private Transform blocksElement;
     private bool wallCanGoUp;
     private bool canSpawnNewWall;
     private int diamondSpawnProbability = 2;
@@ -30,24 +33,49 @@ public class SparkleSpelunk : MonoBehaviour
     [Header("Miner")]
     [SerializeField] private Transform miner;
     [SerializeField] private float dropTime;
-    [SerializeField] private SpriteRenderer minerHead;
+    [SerializeField] public SpriteRenderer minerHead;
+    [SerializeField] private SpriteRenderer minerHands;
     [SerializeField] private Sprite minerHoldSpriteHead;
     [SerializeField] private Sprite minerIdleSpriteHead;
-    [SerializeField] private GameObject minerHands;
+    [SerializeField] private Sprite minerHitSpriteHead;
+    [SerializeField] private Sprite minerEarnedSpriteHead;
     [SerializeField] private Sprite minerHoldSpriteHands;
+    [SerializeField] public Sprite minerEarnedSpriteHandDiamond;
+    [SerializeField] public Sprite minerEarnedSpriteHandGold;
     [SerializeField] private Sprite minerIdleSpriteHands;
     private bool isFalling;
     private float currentDropTimer;
     private Transform spawnedBomb;
-    
+    private Transform firstBomb;
+    private Transform secondBomb;
+    public bool firstBombSpawned;
+    public bool secondBombSpawned;
+
     [Header("Score")] 
     [SerializeField] private int winScore;
     public int currentScore;
-    
+    private float bombSpeedMultiplierAdd = 3;
+    private float fallSpeedSubtraction = .2f;
+    [HideInInspector] public float bombSpeedMultiplier = 1;
+
     [Header("Time")]
     [SerializeField] public int timeBonusGold;
     [SerializeField] public int timeBonusDiamond;
     [SerializeField] public int timePenalty;
+
+    private void Start()
+    {
+        bombSpeedMultiplierAdd /= winScore;
+
+        fallSpeedSubtraction /= winScore;
+        
+        allBlocks = new List<Transform>();
+        
+        for (int i = 0; i < blocksElement.childCount; i++)
+        {
+            allBlocks.Add(blocksElement.GetChild(i));
+        }
+    }
 
     void Update()
     {
@@ -58,29 +86,75 @@ public class SparkleSpelunk : MonoBehaviour
         SpawnNewBlocks();
     }
 
+    public void MinerHit()
+    {
+        StartCoroutine(MinerHitCoroutine());
+    }
+    
+    public void MinerEarned(Sprite hands)
+    {
+        StartCoroutine(MinerEarnedCoroutine(hands));
+    }
+    
+    private IEnumerator MinerEarnedCoroutine(Sprite hands)
+    {
+        var currentSpriteHead = minerHead.sprite;
+        var currentSpriteHands = minerHands.sprite;
+        minerHead.sprite = minerEarnedSpriteHead;
+        minerHands.sprite = hands;
+
+        yield return new WaitForSeconds(1f);
+        
+        minerHead.sprite = currentSpriteHead;
+        minerHands.sprite = currentSpriteHands;
+    }
+    
+    private IEnumerator MinerHitCoroutine()
+    {
+        var currentSprite = minerHead.sprite;
+        minerHead.sprite = minerHitSpriteHead;
+        minerHead.color = Color.red;
+        minerHands.color = Color.red;
+
+        yield return new WaitForSeconds(0.25f);
+        
+        minerHead.sprite = currentSprite;
+        minerHead.color = Color.white;
+        minerHands.color = Color.white;
+    }
+
     //Spawns a bomb for destroying walls
     private void SpawnBomb()
     {
-        if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand)
+        if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand || secondBombSpawned)
             return;
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
             minerHead.sprite = minerHoldSpriteHead;
-            minerHands.GetComponent<SpriteRenderer>().sprite = minerHoldSpriteHands;
+            minerHands.sprite = minerHoldSpriteHands;
             minerHands.transform.localPosition = new Vector3(minerHands.transform.localPosition.x, 0.064f, minerHands.transform.localPosition.z);
             spawnedBomb = Instantiate(bomb, new Vector3(0.089f, 0.323f, 0f), Quaternion.identity, miner);
-            Destroy(spawnedBomb.gameObject, 3f);
         }
         else if(Input.GetKeyUp(KeyCode.Space) && !isFalling)
         {
             minerHead.sprite = minerIdleSpriteHead;
-            minerHands.GetComponent<SpriteRenderer>().sprite = minerIdleSpriteHands;
+            minerHands.sprite = minerIdleSpriteHands;
             minerHands.transform.localPosition = new Vector3(minerHands.transform.localPosition.x, -0.709f, minerHands.transform.localPosition.z);
-            spawnedBomb.transform.localPosition = new Vector3(spawnedBomb.transform.localPosition.x, -0.636f,
-                spawnedBomb.transform.localPosition.z);
-            spawnedBomb.parent = miner.parent;
-            spawnedBomb.GetComponent<Bomb>().DropBomb();
+            spawnedBomb.transform.localPosition = new Vector3(spawnedBomb.transform.localPosition.x, -0.636f, spawnedBomb.transform.localPosition.z);
+            spawnedBomb.GetComponent<Bomb>().bombDropped = true;
+            spawnedBomb.SetParent(miner.parent);
+            
+            if (!firstBombSpawned)
+            {
+                firstBomb = spawnedBomb;
+                firstBombSpawned = true;
+            }
+            else if(!secondBombSpawned)
+            {
+                secondBomb = spawnedBomb;
+                secondBombSpawned = true;
+            }
         }
     }
 
@@ -111,24 +185,37 @@ public class SparkleSpelunk : MonoBehaviour
             isFalling = true;
             
             currentDropTimer += Time.deltaTime;
-            
+
             if(currentDropTimer >= dropTime && !wallCanGoUp)
             {
-                currentScore++;
-                if (currentScore >= winScore)
-                {
-                    MotherBehaviour.instance.PlayerWon();
-                }
-                
                 MoveObject(miner, block.transform.localScale.y, 0);
                 currentDropTimer = 0;
             }
             else if(currentDropTimer >= dropTime && wallCanGoUp)
             {
+                currentScore++;
+                dropTime -= fallSpeedSubtraction;
+                bombSpeedMultiplier += bombSpeedMultiplierAdd;
+                if (currentScore >= winScore)
+                {
+                    MotherBehaviour.instance.PlayerWon();
+                }
+                
                 foreach (var blockTransform in allBlocks)
                 {
-                    MoveObject(blockTransform, -blockTransform.transform.localScale.y, 0);
-                    currentDropTimer = 0;
+                    MoveObject(blockTransform, -block.transform.localScale.y, 0);
+                }
+                
+                currentDropTimer = 0;
+
+                if (firstBombSpawned)
+                {
+                    MoveObject(firstBomb, -block.transform.localScale.y, 0);
+                }
+                
+                if (secondBombSpawned)
+                {
+                    MoveObject(secondBomb, -block.transform.localScale.y, 0);
                 }
             }
         }
