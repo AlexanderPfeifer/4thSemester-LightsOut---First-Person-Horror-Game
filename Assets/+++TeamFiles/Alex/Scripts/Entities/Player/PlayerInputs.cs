@@ -1,6 +1,7 @@
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PlayerInputs : MonoBehaviour
 {
@@ -15,12 +16,14 @@ public class PlayerInputs : MonoBehaviour
     private float currentVisibilityAngle;
     private const float ClampVisibilityOutOfHand = 50;
     private const float ClampVisibilityInHand = 30;
+    [SerializeField] private GameObject hudCanvas;
 
     [Header("SelectableObjects")]
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
     public GameObject currentInteractableObject;
     [SerializeField] private LayerMask interactableLayerMask;
-    
+    [SerializeField] public AnimationCurve takeOrPutAwayInteractable;
+
     public static PlayerInputs instance;
 
     private void Awake() => instance = this;
@@ -30,6 +33,8 @@ public class PlayerInputs : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        hudCanvas.SetActive(false);
+        hudCanvas.SetActive(true);
     }
 
     //An enum of all the states holding there are
@@ -127,9 +132,9 @@ public class PlayerInputs : MonoBehaviour
     //Interacts with object when clicked on it(takes it to hold position)
     private void InteractWithInteractable()
     {
-        if (!Input.GetMouseButtonDown(0) || currentInteractableObject == null) 
+        if ((!Input.GetMouseButtonDown(0) && !Input.GetKeyDown(KeyCode.E)) || currentInteractableObject == null) 
             return;
-        
+
         if (!isCaught)
         {
             SelectVisual(false);
@@ -146,22 +151,23 @@ public class PlayerInputs : MonoBehaviour
         while (Vector3.Distance(currentInteractableObject.transform.position, Vector3.zero) > 0.01f)
         {
             vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
-            mousePosition = new Vector2(0, 0);
-            
-            currentInteractableObject.GetComponent<Interaction>().TakeInteractableObject(currentInteractableObject);
+
+            currentInteractableObject.GetComponent<Interaction>().TakeInteractableObject(currentInteractableObject, takeOrPutAwayInteractable);
 
             currentInteractableObject.GetComponent<Collider>().enabled = false;
-
+            
             yield return null;
         }
         
+        mousePosition = new Vector2(0, 0);
+
         holdObjectState = HoldObjectState.InHand;
     }
     
     //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
     private void PutDownInteractable()
     {
-        if (!Input.GetKeyDown(KeyCode.Tab) || holdObjectState is not HoldObjectState.InHand || isCaught || currentInteractableObject == null || MotherTimerManager.instance.gameStarted) 
+        if (!Input.GetKeyDown(KeyCode.E) || holdObjectState is not HoldObjectState.InHand || isCaught || currentInteractableObject == null || MotherTimerManager.instance.gameStarted) 
             return;
         
         StartCoroutine(PutDownInteractableCoroutine());
@@ -173,15 +179,15 @@ public class PlayerInputs : MonoBehaviour
 
         currentInteractableObject.GetComponent<Interaction>().AssignPutDownPos();
         currentInteractableObject.GetComponent<Interaction>().AssignPutDownRot();
-
+        
         while (Vector3.Distance(currentInteractableObject.transform.position, currentInteractableObject.GetComponent<Interaction>().interactablePutAwayPosition) > 0.01f)
         {
             Vector3 direction = currentInteractableObject.GetComponent<Interaction>().interactablePutAwayPosition - vCam.transform.position;
             Quaternion toRotation = Quaternion.LookRotation(direction, transform.up);
             vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.rotation, toRotation, currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             
-            currentInteractableObject.GetComponent<Interaction>().PutDownInteractableObject(currentInteractableObject);
-            
+            currentInteractableObject.GetComponent<Interaction>().PutDownInteractableObject(currentInteractableObject, takeOrPutAwayInteractable);
+        
             yield return null;
         }
 
@@ -202,8 +208,9 @@ public class PlayerInputs : MonoBehaviour
         mousePosition.y = GetCamInspectorRotationY();
         
         currentInteractableObject.GetComponent<Collider>().enabled = true;
-
+                
         holdObjectState = HoldObjectState.OutOfHand;
+        
         yield return null;
     }
     

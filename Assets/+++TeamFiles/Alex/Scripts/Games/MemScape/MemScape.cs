@@ -9,13 +9,14 @@ public class MemScape : MonoBehaviour
     [SerializeField] private List<Button> clickableButtons;
     [SerializeField] private List<int> memorizeOrder;
     [SerializeField] private List<Button> goThroughList;
+    private int firstFourObjects;
     private bool selectedConsole;
     [SerializeField] private int winningCount;
     [SerializeField] private int timeBonus;
 
     private void Start()
     {
-        AddMemorizeObject();
+        memorizeOrder.Add(1);
         StartCoroutine(SetButtonColors());
     }
 
@@ -56,21 +57,21 @@ public class MemScape : MonoBehaviour
         {
             goThroughList.Add(clickableButtons[memorizeOrder[i]]);
             
-            while (clickableButtons[memorizeOrder[i]].colors.normalColor.g > 0.1f)
+            while (clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a < 0.9f)
             {
-                UIInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.r, 0, Time.deltaTime * 2), Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.b, 0, Time.deltaTime * 2), Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 0, Time.deltaTime * 2), 1, 0,0,0);
+                clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, Mathf.Lerp(clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a, 1, Time.deltaTime * 2));
 
                 yield return null;
             }
         
-            while (clickableButtons[memorizeOrder[i]].colors.normalColor.g < 0.9f)
+            while (clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a  > 0.1f)
             {
-                UIInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.r, 1, Time.deltaTime * 2), Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.b, 1, Time.deltaTime * 2), Mathf.Lerp(clickableButtons[memorizeOrder[i]].colors.normalColor.g, 1, Time.deltaTime * 2), 1, 0,0,0);
+                clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, Mathf.Lerp(clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a, 0, Time.deltaTime * 2));
                 
                 yield return null;
             }
         
-            UIInteraction.instance.SetSelectedButtonColor(clickableButtons[memorizeOrder[i]], 1, 1, 1, 1, 0.2f, 0.2f, 0.2f);
+            clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, 0);
         }
 
         MotherTimerManager.instance.pauseGameTime = false;
@@ -89,9 +90,27 @@ public class MemScape : MonoBehaviour
             if (goThroughList.Count == 0)
             {
                 MotherTimerManager.instance.pauseGameTime = true;
-                
-                AddMemorizeObject();
-                
+
+                if (firstFourObjects >= 3)
+                {
+                    AddMemorizeObject();
+                }
+                else if(firstFourObjects == 0)
+                {
+                    memorizeOrder.Add(3);
+                    firstFourObjects = 1;
+                }
+                else if(firstFourObjects == 1)
+                {
+                    memorizeOrder.Add(2);
+                    firstFourObjects = 2;
+                }
+                else if(firstFourObjects == 2)
+                {
+                    memorizeOrder.Add(0);
+                    firstFourObjects = 3;
+                }
+
                 if (!(memorizeOrder.Count >= winningCount))
                 {
                     StartCoroutine(SetButtonColors());
