@@ -24,11 +24,17 @@ public class TextManager : MonoBehaviour
     // Clears the text of the TMP component.
     private void ClearText()
     {
-        if (FindObjectOfType<TutorialManager>() != null && !FindObjectOfType<TutorialManager>().canInteractWithConsole)
+        if (FindObjectOfType<StartMemScape>() != null && !FindObjectOfType<StartMemScape>().canInteractWithConsole)
         {
             MotherTimerManager.instance.currentTime = 0f;
         }
         
+        
+        if (FindObjectOfType<EndManager>() != null)
+        {
+            FindObjectOfType<EndManager>().CloseGame();
+        }
+
         StartCoroutine(ClearTextLetterForLetter(0.007f));
     }
 

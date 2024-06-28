@@ -7,6 +7,7 @@ public class MenuUI : MonoBehaviour
     [SerializeField] private GameObject audioMenu;
     [SerializeField] private GameObject graphicsMenu;
     [SerializeField] private GameObject creditsMenu;
+    [SerializeField] private GameObject loadingScreen;
      
     //Starts the first console game
     public void StartGame()
@@ -19,6 +20,11 @@ public class MenuUI : MonoBehaviour
     {
         optionsMenu.SetActive(true);
         mainMenu.SetActive(false);
+    }
+
+    public void LoadingScreen(bool state)
+    {
+        loadingScreen.SetActive(state);
     }
 
     public void MainMenu()

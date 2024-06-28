@@ -47,7 +47,7 @@ public class UIInteraction : MonoBehaviour
                 if (Input.GetMouseButton(0))
                 {
                     SetSelectedToggleColor(toggle, currentSelectedToggle.colors.pressedColor.r, 
-                        currentSelectedToggle.colors.pressedColor.b,currentSelectedToggle.colors.pressedColor.g, currentSelectedToggle.colors.pressedColor.a, 1, 1, 1);
+                        currentSelectedToggle.colors.pressedColor.b,currentSelectedToggle.colors.pressedColor.g, 1, 1, 1, 1);
                 }
                 else if(Input.GetMouseButtonUp(0))
                 {

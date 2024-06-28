@@ -3,12 +3,10 @@ using Cinemachine;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class MotherBehaviour : MonoBehaviour
 {
-    [FormerlySerializedAs("timeUntilBlackScreen")]
     [Header("Camera")]
     [SerializeField] private float timeUntilBlackOrWhiteScreen;
     [SerializeField] private float timeInBlackOrWhiteScreen;
@@ -17,6 +15,7 @@ public class MotherBehaviour : MonoBehaviour
     private float targetFrequency;
     private float targetAmplitude;
     private CinemachineBasicMultiChannelPerlin vCamShake;
+    private const float TargetCamFov = 20;
 
     [Header("Volume")] 
     [SerializeField] public Volume motherCatchVolume;
@@ -58,15 +57,19 @@ public class MotherBehaviour : MonoBehaviour
     //starts visualization of player being caught
     private IEnumerator PlayerWonCoroutine()
     {
+        
         PlayerInputs.instance.isCaught = true;
-        StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());
         MotherTimerManager.instance.currentTime = 0;
         MotherTimerManager.instance.pauseGameTime = false;
         targetWeightWin = 1;
-        yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
         MotherTimerManager.instance.gameStarted = false;
-        WhiteOrBlackScreen(1, 1);
-        yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
+        FindObjectOfType<MenuUI>().LoadingScreen(true);
+        while (PlayerInputs.instance.vCam.m_Lens.FieldOfView > TargetCamFov)
+        {
+            PlayerInputs.instance.vCam.m_Lens.FieldOfView = Mathf.Lerp(PlayerInputs.instance.vCam.m_Lens.FieldOfView, TargetCamFov, Time.deltaTime);
+            yield return null;
+        }
+        
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
@@ -75,7 +78,7 @@ public class MotherBehaviour : MonoBehaviour
     {
         PlayerInputs.instance.isCaught = true;
         yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
-        WhiteOrBlackScreen(0, 1);
+        BlackScreen(0, 1);
         MotherTimerManager.instance.currentTime = 0;
         yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -85,21 +88,21 @@ public class MotherBehaviour : MonoBehaviour
     {
         PlayerInputs.instance.isCaught = true;
         yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
-        WhiteOrBlackScreen(0, 1);
+        BlackScreen(0, 1);
         MotherTimerManager.instance.currentTime = 0;
         yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
         SceneManager.LoadScene(0);
     }
 
-    //Shortcut to fade blackscreen
-    private void WhiteOrBlackScreen(float color, int panelAlpha)
+    //Shortcut to fade black screen
+    private void BlackScreen(float color, int panelAlpha)
     {
         var wantedAlpha = new Color(color, color, color, panelAlpha);
         
         caughtPanel.GetComponent<Image>().color = wantedAlpha;
     }
 
-    //Lerps the camera constantly to the target values
+    //Lerp the camera constantly to the target values
     private void CamVisualMotherUpdate()
     {
         vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, targetAmplitude, Time.deltaTime);
@@ -107,7 +110,7 @@ public class MotherBehaviour : MonoBehaviour
         motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, targetWeightMother, Time.deltaTime);
     }
     
-    //Lerps the camera constantly to the target values
+    //Lerp the camera constantly to the target values
     private void CamVisualWinUpdate()
     {
         winVolume.weight = Mathf.Lerp(winVolume.weight, targetWeightWin, Time.deltaTime);

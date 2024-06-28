@@ -57,7 +57,7 @@ public class MemScape : MonoBehaviour
         {
             goThroughList.Add(clickableButtons[memorizeOrder[i]]);
             
-            while (clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a < 0.9f)
+            while (clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a < 0.7f)
             {
                 clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, Mathf.Lerp(clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a, 1, Time.deltaTime * 2));
 
@@ -124,7 +124,14 @@ public class MemScape : MonoBehaviour
         else
         {
             goThroughList.Clear();
-            StartCoroutine(SetButtonColors());
+            PlayerInputs.instance.PlayChildAggressiveAnimation();
         }
+    }
+
+    private IEnumerator DelayedRestart()
+    {
+        yield return new WaitForSeconds(.5f);
+        
+        StartCoroutine(SetButtonColors());
     }
 }

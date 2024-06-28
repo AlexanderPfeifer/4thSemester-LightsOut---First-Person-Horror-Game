@@ -15,16 +15,16 @@ public class Console : Interaction
     }
     
     //Takes the object and activates blur effect
-    public override void TakeInteractableObject(GameObject interactable, AnimationCurve animationCurve)
+    public override void TakeInteractableObject(GameObject interactable)
     {
-        base.TakeInteractableObject(interactable, PlayerInputs.instance.takeOrPutAwayInteractable);
+        base.TakeInteractableObject(interactable);
         holdVolume.weight = 1;
     }
     
     //Puts down console to put down position and deactivates blur effect
-    public override void PutDownInteractableObject(GameObject interactable, AnimationCurve animationCurve)
+    public override void PutDownInteractableObject(GameObject interactable)
     {
-        base.PutDownInteractableObject(interactable, PlayerInputs.instance.takeOrPutAwayInteractable);
+        base.PutDownInteractableObject(interactable);
         holdVolume.weight = 0;
     }
     

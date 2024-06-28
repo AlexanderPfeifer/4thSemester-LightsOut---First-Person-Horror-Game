@@ -1,7 +1,6 @@
 using System.Collections;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class PlayerInputs : MonoBehaviour
 {
@@ -22,7 +21,7 @@ public class PlayerInputs : MonoBehaviour
     public HoldObjectState holdObjectState = HoldObjectState.InHand;
     public GameObject currentInteractableObject;
     [SerializeField] private LayerMask interactableLayerMask;
-    [SerializeField] public AnimationCurve takeOrPutAwayInteractable;
+    [SerializeField] private Animator consoleAnim;
 
     public static PlayerInputs instance;
 
@@ -55,6 +54,11 @@ public class PlayerInputs : MonoBehaviour
         SelectInteractableInLookDir();
     }
 
+    public void PlayChildAggressiveAnimation()
+    {
+        consoleAnim.SetTrigger("aggression");
+    }
+    
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
     private void LookAround()
     {
@@ -88,7 +92,7 @@ public class PlayerInputs : MonoBehaviour
             {
                 currentInteractableObject = raycastHit.collider.gameObject;
 
-                if (FindObjectOfType<TutorialManager>() != null && !FindObjectOfType<TutorialManager>().canInteractWithConsole)
+                if (FindObjectOfType<StartMemScape>() != null && !FindObjectOfType<StartMemScape>().canInteractWithConsole)
                 {
                     if (!currentInteractableObject.TryGetComponent(out Console console))
                     {
@@ -152,12 +156,15 @@ public class PlayerInputs : MonoBehaviour
         {
             vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
 
-            currentInteractableObject.GetComponent<Interaction>().TakeInteractableObject(currentInteractableObject, takeOrPutAwayInteractable);
+            currentInteractableObject.GetComponent<Interaction>().TakeInteractableObject(currentInteractableObject);
 
             currentInteractableObject.GetComponent<Collider>().enabled = false;
             
             yield return null;
         }
+        
+        currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed = 4;
+
         
         mousePosition = new Vector2(0, 0);
 
@@ -186,21 +193,37 @@ public class PlayerInputs : MonoBehaviour
             Quaternion toRotation = Quaternion.LookRotation(direction, transform.up);
             vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.rotation, toRotation, currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             
-            currentInteractableObject.GetComponent<Interaction>().PutDownInteractableObject(currentInteractableObject, takeOrPutAwayInteractable);
+            currentInteractableObject.GetComponent<Interaction>().PutDownInteractableObject(currentInteractableObject);
         
             yield return null;
         }
 
         if (currentInteractableObject.TryGetComponent(out Book bookEnd) && FindObjectOfType<EndManager>())
         {
-            FindObjectOfType<EndManager>().CloseGame();
+            FindObjectOfType<MotherTextManager>().EndMotherText();
         }
         
-        if (FindObjectOfType<TutorialManager>() != null && !FindObjectOfType<TutorialManager>().canInteractWithConsole)
+        if (FindObjectOfType<StartMemScape>() != null && !FindObjectOfType<StartMemScape>().canInteractWithConsole)
         {
             if (!currentInteractableObject.TryGetComponent(out Console console))
             {
-                FindObjectOfType<TutorialManager>().OpenFirstGame();
+                FindObjectOfType<StartMemScape>().OpenMemScape();
+            }   
+        }
+        
+        if (FindObjectOfType<StartPapanicePizza>() != null)
+        {
+            if (!currentInteractableObject.TryGetComponent(out Console console))
+            {
+                FindObjectOfType<StartPapanicePizza>().OpenPapanicePizza();
+            }   
+        }
+        
+        if (FindObjectOfType<StartSparkleSpelunk>() != null)
+        {
+            if (!currentInteractableObject.TryGetComponent(out Console console))
+            {
+                FindObjectOfType<StartSparkleSpelunk>().OpenSparkleSpelunk();
             }   
         }
         
@@ -209,8 +232,10 @@ public class PlayerInputs : MonoBehaviour
         
         currentInteractableObject.GetComponent<Collider>().enabled = true;
                 
+        currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed = 4;
+
         holdObjectState = HoldObjectState.OutOfHand;
-        
+
         yield return null;
     }
     

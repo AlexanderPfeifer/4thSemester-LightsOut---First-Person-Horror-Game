@@ -4,7 +4,6 @@ using UnityEngine;
 public class MotherTextManager : MonoBehaviour
 {
     [SerializeField] public List<string> sentences;
-    [HideInInspector] public bool finishedSentence;
 
     public void StartMotherText()
     {
@@ -14,6 +13,15 @@ public class MotherTextManager : MonoBehaviour
         
         StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());
 
-        FindObjectOfType<TutorialManager>().canInteractWithConsole = false;
+        FindObjectOfType<StartMemScape>().canInteractWithConsole = false;
+    }
+
+    public void EndMotherText()
+    {
+        MotherTimerManager.instance.currentTime = 50f;
+
+        //Play another text 
+        
+        TextManager.Instance.DisplayText(sentences[0],.05f);
     }
 }

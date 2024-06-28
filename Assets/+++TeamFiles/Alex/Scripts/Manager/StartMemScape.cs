@@ -1,17 +1,15 @@
 using UnityEngine;
 
-public class TutorialManager : MonoBehaviour
+public class StartMemScape : MonoBehaviour
 {
     public bool canInteractWithConsole;
-
-    [SerializeField] private GameObject loadingScreen;
     [SerializeField] private GameObject memScapeMenu;
      
     
-    public void OpenFirstGame()
+    public void OpenMemScape()
     {
         canInteractWithConsole = true;
-        loadingScreen.SetActive(false);
+        FindObjectOfType<MenuUI>().LoadingScreen(false);
         memScapeMenu.SetActive(true);
     }
 }
