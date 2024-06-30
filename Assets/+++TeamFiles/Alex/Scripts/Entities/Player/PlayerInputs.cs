@@ -32,8 +32,18 @@ public class PlayerInputs : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        hudCanvas.SetActive(false);
-        hudCanvas.SetActive(true);
+        StartCoroutine(ResetHudUi());
+    }
+    
+    private IEnumerator ResetHudUi()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(30);
+            hudCanvas.SetActive(false);
+            hudCanvas.SetActive(true);
+            yield return null;
+        }
     }
 
     //An enum of all the states holding there are
@@ -163,9 +173,10 @@ public class PlayerInputs : MonoBehaviour
             yield return null;
         }
         
+        currentInteractableObject.transform.position = Vector3.zero;
+
         currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed = 4;
 
-        
         mousePosition = new Vector2(0, 0);
 
         holdObjectState = HoldObjectState.InHand;

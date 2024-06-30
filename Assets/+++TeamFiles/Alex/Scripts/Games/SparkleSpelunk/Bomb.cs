@@ -20,6 +20,8 @@ public class Bomb : MonoBehaviour
         {
             transform.position = sparkleSpelunk.transform.GetChild(0).transform.position;
         }
+        
+        Debug.Log( sparkleSpelunk.secondBombSpawned);
     }
 
     private void DestroyBomb()
@@ -58,8 +60,15 @@ public class Bomb : MonoBehaviour
             MotherTimerManager.instance.TimeBonus(sparkleSpelunk.timeBonusDiamond);
         }
         
-        if(Physics.Raycast(transform.position, -transform.up, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, -transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer))
+        if(Physics.Raycast(transform.position, -transform.up, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, -transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || sparkleSpelunk.bombInHand)
         {
+            if (!sparkleSpelunk.firstBombSpawned && sparkleSpelunk.bombInHand)
+            {
+                sparkleSpelunk.minerHead.sprite = sparkleSpelunk.minerIdleSpriteHead;
+                sparkleSpelunk.minerHands.sprite = sparkleSpelunk.minerIdleSpriteHands;
+                sparkleSpelunk.minerHands.transform.localPosition = new Vector3(sparkleSpelunk.minerHands.transform.localPosition.x, -0.709f, sparkleSpelunk.minerHands.transform.localPosition.z);
+            }
+
             sparkleSpelunk.MinerHit();
             MotherTimerManager.instance.TimePenalty(sparkleSpelunk.timePenalty);
         }

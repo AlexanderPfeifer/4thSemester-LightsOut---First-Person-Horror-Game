@@ -19,7 +19,6 @@ public class MotherBehaviour : MonoBehaviour
 
     [Header("Volume")] 
     [SerializeField] public Volume motherCatchVolume;
-    [SerializeField] public Volume winVolume;
     public GameObject caughtPanel;
 
     public static MotherBehaviour instance;
@@ -34,8 +33,6 @@ public class MotherBehaviour : MonoBehaviour
     private void Update()
     {
         CamVisualMotherUpdate();
-        
-        CamVisualWinUpdate();
     }
 
     //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
@@ -57,19 +54,21 @@ public class MotherBehaviour : MonoBehaviour
     //starts visualization of player being caught
     private IEnumerator PlayerWonCoroutine()
     {
-        
         PlayerInputs.instance.isCaught = true;
         MotherTimerManager.instance.currentTime = 0;
         MotherTimerManager.instance.pauseGameTime = false;
         targetWeightWin = 1;
         MotherTimerManager.instance.gameStarted = false;
         FindObjectOfType<MenuUI>().LoadingScreen(true);
-        while (PlayerInputs.instance.vCam.m_Lens.FieldOfView > TargetCamFov)
+        while (PlayerInputs.instance.vCam.m_Lens.FieldOfView > TargetCamFov + 1)
         {
+            PlayerInputs.instance.vCam.transform.localRotation = Quaternion.Lerp(PlayerInputs.instance.vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),PlayerInputs.instance.currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             PlayerInputs.instance.vCam.m_Lens.FieldOfView = Mathf.Lerp(PlayerInputs.instance.vCam.m_Lens.FieldOfView, TargetCamFov, Time.deltaTime);
             yield return null;
         }
         
+        PlayerInputs.instance.vCam.m_Lens.FieldOfView = TargetCamFov;
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
@@ -108,12 +107,6 @@ public class MotherBehaviour : MonoBehaviour
         vCamShake.m_AmplitudeGain = Mathf.Lerp(vCamShake.m_AmplitudeGain, targetAmplitude, Time.deltaTime);
         vCamShake.m_FrequencyGain = Mathf.Lerp(vCamShake.m_FrequencyGain, targetFrequency, Time.deltaTime);
         motherCatchVolume.weight = Mathf.Lerp(motherCatchVolume.weight, targetWeightMother, Time.deltaTime);
-    }
-    
-    //Lerp the camera constantly to the target values
-    private void CamVisualWinUpdate()
-    {
-        winVolume.weight = Mathf.Lerp(winVolume.weight, targetWeightWin, Time.deltaTime);
     }
 
     //shortcut to apply visuals to the cam

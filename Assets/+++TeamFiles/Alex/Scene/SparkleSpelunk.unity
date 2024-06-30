@@ -1011,7 +1011,6 @@ Transform:
   m_Children:
   - {fileID: 1484307368}
   - {fileID: 2081959859}
-  - {fileID: 1042708636}
   m_Father: {fileID: 87403480}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &206275697
@@ -2889,7 +2888,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1042708635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2966,6 +2965,7 @@ MonoBehaviour:
     type: 3}
   firstBombSpawned: 0
   secondBombSpawned: 0
+  bombInHand: 0
   winScore: 50
   currentScore: 0
   bombSpeedMultiplier: 1
@@ -2980,17 +2980,17 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1042708634}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.0015}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1260503331}
   - {fileID: 604461934}
+  - {fileID: 1260503331}
   - {fileID: 1882349636}
   - {fileID: 333784413}
   - {fileID: 169500767}
-  m_Father: {fileID: 206275696}
+  m_Father: {fileID: 2081959859}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1056192573
 GameObject:
@@ -5177,6 +5177,7 @@ Transform:
   - {fileID: 1296925896}
   - {fileID: 272804250}
   - {fileID: 1029341693}
+  - {fileID: 1042708636}
   m_Father: {fileID: 206275696}
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
 --- !u!95 &2081959860

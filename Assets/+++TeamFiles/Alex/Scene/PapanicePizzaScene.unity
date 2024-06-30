@@ -1746,8 +1746,8 @@ MonoBehaviour:
   - {fileID: 1579947651}
   rightOrderReact: {fileID: 1760916735}
   wrongOrderReact: {fileID: 1222373105}
-  timeBonus: 10
-  timePenalty: -10
+  timeBonus: 7
+  timePenalty: 10
   timerBar: {fileID: 2077647847}
   maxTimeForOrder: 20
   winScore: 20
@@ -1782,6 +1782,7 @@ Transform:
   m_Children:
   - {fileID: 1584213343}
   - {fileID: 1936311803}
+  - {fileID: 630307563}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &362362276
@@ -1850,7 +1851,7 @@ MonoBehaviour:
   vCam: {fileID: 1712999757}
   hudCanvas: {fileID: 512572608}
   holdObjectState: 0
-  currentInteractableObject: {fileID: 1522409586}
+  currentInteractableObject: {fileID: 304816646}
   interactableLayerMask:
     serializedVersion: 2
     m_Bits: 128
@@ -3011,6 +3012,50 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 628977544}
   m_Mesh: {fileID: 1101853193227830674, guid: 80bc9574df160cd42b96df8fe938729e, type: 3}
+--- !u!1 &630307562
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 630307563}
+  - component: {fileID: 630307564}
+  m_Layer: 0
+  m_Name: StartPapanice
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &630307563
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 630307562}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 352264977}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &630307564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 630307562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1c29d5bfaa0aaa459ed50cfb6282f6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &638561408
 GameObject:
   m_ObjectHideFlags: 0

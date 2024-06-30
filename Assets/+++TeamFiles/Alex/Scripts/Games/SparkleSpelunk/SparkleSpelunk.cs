@@ -34,15 +34,15 @@ public class SparkleSpelunk : MonoBehaviour
     [SerializeField] private Transform miner;
     [SerializeField] private float dropTime;
     [SerializeField] public SpriteRenderer minerHead;
-    [SerializeField] private SpriteRenderer minerHands;
+    [SerializeField] public SpriteRenderer minerHands;
     [SerializeField] private Sprite minerHoldSpriteHead;
-    [SerializeField] private Sprite minerIdleSpriteHead;
+    [SerializeField] public Sprite minerIdleSpriteHead;
     [SerializeField] private Sprite minerHitSpriteHead;
     [SerializeField] private Sprite minerEarnedSpriteHead;
     [SerializeField] private Sprite minerHoldSpriteHands;
     [SerializeField] public Sprite minerEarnedSpriteHandDiamond;
     [SerializeField] public Sprite minerEarnedSpriteHandGold;
-    [SerializeField] private Sprite minerIdleSpriteHands;
+    [SerializeField] public Sprite minerIdleSpriteHands;
     private bool isFalling;
     private float currentDropTimer;
     private Transform spawnedBomb;
@@ -50,6 +50,7 @@ public class SparkleSpelunk : MonoBehaviour
     private Transform secondBomb;
     public bool firstBombSpawned;
     public bool secondBombSpawned;
+    [HideInInspector] public bool bombInHand;
 
     [Header("Score")] 
     [SerializeField] private int winScore;
@@ -128,9 +129,11 @@ public class SparkleSpelunk : MonoBehaviour
     {
         if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand || secondBombSpawned)
             return;
-
+        
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            bombInHand = true;
+
             minerHead.sprite = minerHoldSpriteHead;
             minerHands.sprite = minerHoldSpriteHands;
             minerHands.transform.localPosition = new Vector3(minerHands.transform.localPosition.x, 0.064f, minerHands.transform.localPosition.z);
@@ -138,6 +141,8 @@ public class SparkleSpelunk : MonoBehaviour
         }
         else if(Input.GetKeyUp(KeyCode.Space) && !isFalling)
         {
+            bombInHand = false;
+            
             minerHead.sprite = minerIdleSpriteHead;
             minerHands.sprite = minerIdleSpriteHands;
             minerHands.transform.localPosition = new Vector3(minerHands.transform.localPosition.x, -0.709f, minerHands.transform.localPosition.z);

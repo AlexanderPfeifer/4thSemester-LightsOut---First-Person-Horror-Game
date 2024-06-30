@@ -4657,7 +4657,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sentences:
-  - Sweetie, stop playing now, I am not telling you again.
+  - Hey Sweetie, for your hard work at doing homework, what do you think about a
+    new console?
 --- !u!1 &1702761497
 GameObject:
   m_ObjectHideFlags: 0
@@ -4971,8 +4972,8 @@ MonoBehaviour:
   isCaught: 0
   vCam: {fileID: 524820142}
   hudCanvas: {fileID: 1416971990}
-  holdObjectState: 3
-  currentInteractableObject: {fileID: 0}
+  holdObjectState: 0
+  currentInteractableObject: {fileID: 992378114}
   interactableLayerMask:
     serializedVersion: 2
     m_Bits: 128
