@@ -87,7 +87,10 @@ public class UIInteraction : MonoBehaviour
                 }
                 else if(Input.GetMouseButtonUp(0))
                 {
-                    currentSelectedButton.onClick.Invoke();
+                    if (currentSelectedButton != null)
+                    {
+                        currentSelectedButton.onClick.Invoke();
+                    }
                 }
             }
         }

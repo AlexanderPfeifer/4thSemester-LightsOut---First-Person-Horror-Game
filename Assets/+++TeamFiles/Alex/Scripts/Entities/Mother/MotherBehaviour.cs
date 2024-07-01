@@ -11,7 +11,6 @@ public class MotherBehaviour : MonoBehaviour
     [SerializeField] private float timeUntilBlackOrWhiteScreen;
     [SerializeField] private float timeInBlackOrWhiteScreen;
     private float targetWeightMother;
-    private float targetWeightWin;
     private float targetFrequency;
     private float targetAmplitude;
     private CinemachineBasicMultiChannelPerlin vCamShake;
@@ -57,7 +56,6 @@ public class MotherBehaviour : MonoBehaviour
         PlayerInputs.instance.isCaught = true;
         MotherTimerManager.instance.currentTime = 0;
         MotherTimerManager.instance.pauseGameTime = false;
-        targetWeightWin = 1;
         MotherTimerManager.instance.gameStarted = false;
         FindObjectOfType<MenuUI>().LoadingScreen(true);
         while (PlayerInputs.instance.vCam.m_Lens.FieldOfView > TargetCamFov + 1)
