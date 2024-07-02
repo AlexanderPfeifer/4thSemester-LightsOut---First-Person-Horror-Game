@@ -2,10 +2,13 @@ using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class Lightning : MonoBehaviour
+public class Lighting : MonoBehaviour
 {
+    [SerializeField] public GameObject roomLight;
+    [SerializeField] public GameObject otherRoomLight;
     [SerializeField] private GameObject lightningObject;
     [SerializeField] private Material whiteMat;
+    [SerializeField] public Material blackMat;
     [SerializeField] private Light lightningLight;
     private float randomTimeBetweenLightning;
     [SerializeField] private float minLightningTime;
@@ -22,7 +25,7 @@ public class Lightning : MonoBehaviour
     {
         randomTimeBetweenLightning -= Time.deltaTime;
 
-        if (randomTimeBetweenLightning <= 0)
+        if (randomTimeBetweenLightning <= 0 && !PlayerInputs.instance.isCaught)
         {
             var randomLightning = Random.Range(1, 4);
 

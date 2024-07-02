@@ -161,12 +161,13 @@ public class MemScape : MonoBehaviour
             goThroughList.Clear();
             AudioManager.Instance.Play("MemScapeWrongClick");
             PlayerInputs.instance.PlayChildAggressiveAnimation();
+            StartCoroutine(DelayedRestart());
         }
     }
 
     private IEnumerator DelayedRestart()
     {
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(1f);
         
         StartCoroutine(SetButtonColors());
     }

@@ -1,0 +1,594 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &86216781157319326
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5669680152469710974}
+  - component: {fileID: 2722035538486993266}
+  m_Layer: 0
+  m_Name: LightingManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5669680152469710974
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86216781157319326}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 118240123638366358}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2722035538486993266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86216781157319326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e6bd76cf05474448b0f9152f398bb60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roomLight: {fileID: 0}
+  otherRoomLight: {fileID: 0}
+  lightningObject: {fileID: 0}
+  whiteMat: {fileID: 2100000, guid: 710ca2df57b8ffc4c977957f95211de3, type: 2}
+  blackMat: {fileID: 0}
+  lightningLight: {fileID: 0}
+  minLightningTime: 15
+  maxLightningTime: 25
+--- !u!1 &3012823570447379837
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7521816049259568409}
+  - component: {fileID: 7345836223089407385}
+  m_Layer: 0
+  m_Name: TutorialManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &7521816049259568409
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3012823570447379837}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 118240123638366358}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7345836223089407385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3012823570447379837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50d32a8f718d71742a26c8ca6f709db3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canInteractWithConsole: 1
+  memScapeMenu: {fileID: 0}
+--- !u!1 &3076764841073242175
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3513012481891750946}
+  - component: {fileID: 7948795515283229590}
+  m_Layer: 5
+  m_Name: MotherTimerManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!224 &3513012481891750946
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076764841073242175}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.0025196075}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 118240123638366358}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 960.08093, y: 539.99994}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7948795515283229590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076764841073242175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81a18d5f878096c439c113cc35d3dd32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxPlayerTries: 3
+  currentPlayerTries: 0
+  gameStarted: 0
+  currentTime: 0
+  timeWhenMotherCatchesPlayer: 60
+  motherVisualCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  camFrequencyVisualCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1.0001302
+      value: 4.973619
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  pauseGameTime: 0
+  minimalTime: -5
+  timeUntilDialogue: 0
+  maxTimeUntilDialogue: 0
+--- !u!1 &4690420899977437553
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4001915547459978574}
+  - component: {fileID: 4565486488946885110}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &4001915547459978574
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4690420899977437553}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 118240123638366358}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4565486488946885110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4690420899977437553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 700986dfed9663e4ba184ea39e997d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - name: Rain
+    clip: {fileID: 8300000, guid: 80aa2c60a5139fe4e9c64f82d4d5c26b, type: 3}
+    audioMixer: {fileID: 6557339868618961460, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 1
+    audioSource: {fileID: 0}
+  - name: ThunderOne
+    clip: {fileID: 8300000, guid: df702aa1902c45240adfe8346e192818, type: 3}
+    audioMixer: {fileID: 6557339868618961460, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: ThunderTwo
+    clip: {fileID: 8300000, guid: 2f81b85d4f607cd46a2bcfa87c92b58a, type: 3}
+    audioMixer: {fileID: 6557339868618961460, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: ThunderThree
+    clip: {fileID: 8300000, guid: a9c54e60a8d73a94eb0351d8a2abdc17, type: 3}
+    audioMixer: {fileID: 6557339868618961460, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: ThunderFour
+    clip: {fileID: 8300000, guid: a1df836315f6b9e42b42c816b0acf461, type: 3}
+    audioMixer: {fileID: 6557339868618961460, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: PapanicePizzaCorrect
+    clip: {fileID: 8300000, guid: 80bd5ff8c00609841aa8478151cb2f71, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: PapanicePizzaWrong
+    clip: {fileID: 8300000, guid: f3e9b28f05892434bb0db5245b98b7d3, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: NewPizza
+    clip: {fileID: 8300000, guid: 86bc197cd1d898a4a8c6a2ac55f40673, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: LightsOutLose
+    clip: {fileID: 8300000, guid: 6b30e96707889b2458c91a33e4eb31ae, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: LightsOutWin
+    clip: {fileID: 8300000, guid: 6b79e231235351b48853e29f40d8066c, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeSequenceCorrect
+    clip: {fileID: 8300000, guid: 4324ac6570aec29449a095218fa1cd69, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeCorrectClick
+    clip: {fileID: 8300000, guid: b08c79f3e70a182498b87b692bd2c90f, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: PizzaAddTopping
+    clip: {fileID: 8300000, guid: 65f6ef2cf58d4a340b5a7e180ed1972c, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeTimeToRemember
+    clip: {fileID: 8300000, guid: 1367e90447e1753438075aa7131df192, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeGameStart
+    clip: {fileID: 8300000, guid: 021c070fa773d5d4ca25fcf8e37e266a, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeWrongClick
+    clip: {fileID: 8300000, guid: f4a9df0a1d3e1f84e85806c0c19aa168, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: SparkleSpelunkWon
+    clip: {fileID: 8300000, guid: 95c314b73df265f45a66d550a3ae5528, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: SparkleSpelunkBombExplosion
+    clip: {fileID: 8300000, guid: dbe88e423574c294597edf2a38b0315c, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: SparkleSpelunkCollect
+    clip: {fileID: 8300000, guid: b33623943ee75294ca59cc90cb3c5f05, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: SparkleSpelunkTakeOutBomb
+    clip: {fileID: 8300000, guid: f5e219dc567a9184a85408f8b2e9c27c, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: SparkleSpelunkBombFirstTick
+    clip: {fileID: 8300000, guid: 66c5041389fb97c4281849e5f30eb84b, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: SparkleSpelunkBombSecondTick
+    clip: {fileID: 8300000, guid: f4d671047efc5c448bc169ecfc65dfc4, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: SparkleSpelunkBombThirdTick
+    clip: {fileID: 8300000, guid: 1703401a83d85414db24e688b716d60b, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeFirstImage
+    clip: {fileID: 8300000, guid: 8b3903da85a4b7d4c9b62182b381c95a, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeSecondImage
+    clip: {fileID: 8300000, guid: f1d115251cd0e09438170ccf18244aba, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeThirdImage
+    clip: {fileID: 8300000, guid: aa28802a9cb875a488078ab7b9c8c9e6, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeFourthImage
+    clip: {fileID: 8300000, guid: 846b9b196f1dbfa43b012dc44a0c5bbe, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeFifthImage
+    clip: {fileID: 8300000, guid: 549659517b07d314d8c8ed9973472604, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeSixthImage
+    clip: {fileID: 8300000, guid: a3fd671db76f697469373b3f39af59ea, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeSeventhImage
+    clip: {fileID: 8300000, guid: 2a3f1c16d15061344961a5ef12d2adc8, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: MemScapeEighthImage
+    clip: {fileID: 8300000, guid: 332740d1fc7c2ec4fb6973fb6e9cd72f, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: ButtonRegular
+    clip: {fileID: 8300000, guid: 7c52c135f9dda8940967f436921e3a15, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.422
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: ButtonImportant
+    clip: {fileID: 8300000, guid: 755a9b3de75f87441b54083744e78be1, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: ButtonDown
+    clip: {fileID: 8300000, guid: 7831e49de300be14199d8bdfcd08f89b, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+  - name: ButtonUp
+    clip: {fileID: 8300000, guid: 4db562a83df221744aba9f767c547d73, type: 3}
+    audioMixer: {fileID: -5142439899371583259, guid: c9b589d399d03a244a020b1bf54be7b0,
+      type: 2}
+    volume: 0.5
+    loop: 0
+    audioSource: {fileID: 0}
+--- !u!1 &5931022089090957658
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2760725559622555752}
+  - component: {fileID: 6091444912650173125}
+  - component: {fileID: 7900238277647379103}
+  m_Layer: 0
+  m_Name: MotherTextManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &2760725559622555752
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5931022089090957658}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 118240123638366358}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6091444912650173125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5931022089090957658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec83ab90f228e7f41abd97205d117309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sentences:
+  - Sweetie, stop playing now, I am not telling you again.
+  friendlySentences: []
+  passiveAggressiveSentences: []
+  madSentences: []
+--- !u!114 &7900238277647379103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5931022089090957658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6440c4b653d299845b68fce860ebaba4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tmpText: {fileID: 0}
+--- !u!1 &9198409348936854338
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 118240123638366358}
+  m_Layer: 0
+  m_Name: ---------------MANAGER
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &118240123638366358
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9198409348936854338}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2760725559622555752}
+  - {fileID: 7521816049259568409}
+  - {fileID: 5669680152469710974}
+  - {fileID: 4001915547459978574}
+  - {fileID: 3513012481891750946}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

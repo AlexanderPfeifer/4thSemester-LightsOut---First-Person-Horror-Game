@@ -3,8 +3,8 @@ using UnityEngine;
 public class MotherTimerManager : MonoBehaviour
 {
     [Header("PlayerTries")] 
-    [SerializeField] private int maxPlayerTries;
-    [SerializeField] private int currentPlayerTries;
+    [SerializeField] public int maxPlayerTries;
+    [SerializeField] public int currentPlayerTries;
     
     [Header("Time")] 
     [HideInInspector] public bool gameStarted;
@@ -14,15 +14,12 @@ public class MotherTimerManager : MonoBehaviour
     [SerializeField] private AnimationCurve camFrequencyVisualCurve;
     [HideInInspector] public bool pauseGameTime;
     [SerializeField] private int minimalTime = -5;
+    [SerializeField] private float timeUntilDialogue;
+    private float maxTimeUntilDialogue = 15;
 
     [Header("Singleton")]
     public static MotherTimerManager instance;
 
-    /*
-    private float t;
-    private float moritzT = .7f;
-    */
-    
     //Singleton
     private void Awake()
     {
@@ -77,20 +74,13 @@ public class MotherTimerManager : MonoBehaviour
     
     private void CheckPlayerLooseState()
     {
-        if (currentTime > timeWhenMotherCatchesPlayer)
+        if (currentTime > timeWhenMotherCatchesPlayer && gameStarted)
         {
+            currentPlayerTries--;
+
             MotherBehaviour.instance.CaughtPlayer();
             
-            currentPlayerTries--;
-            
             gameStarted = false;
-        }
-
-        if (currentPlayerTries <= 0)
-        {
-            MotherBehaviour.instance.PlayerLost();
-
-            currentPlayerTries = maxPlayerTries;
         }
     }
 
@@ -99,6 +89,42 @@ public class MotherTimerManager : MonoBehaviour
         if (gameStarted && !pauseGameTime)
         {
             currentTime += Time.deltaTime;
+            timeUntilDialogue += Time.deltaTime;
+        }
+        
+        if (timeUntilDialogue >= maxTimeUntilDialogue)
+        {
+            if (currentTime <= 30)
+            {
+                FindObjectOfType<MotherTextManager>().PlayRandomTextFriendly();
+                timeUntilDialogue = 0;
+                maxTimeUntilDialogue = 15;
+            }
+            else if (currentTime is > 30 and <= 50)
+            {
+                FindObjectOfType<MotherTextManager>().PlayRandomTextPassiveAggressive();
+                timeUntilDialogue = 0;
+                maxTimeUntilDialogue = 10;
+            }
+            else
+            {
+                FindObjectOfType<MotherTextManager>().PlayRandomTextMad();
+                timeUntilDialogue = 0;
+                maxTimeUntilDialogue = 7;
+            }
+        }
+
+        FindObjectOfType<Lighting>().roomLight.SetActive(currentTime > 50);
+
+        if (currentTime >= 30)
+        {
+            FindObjectOfType<Lighting>().otherRoomLight.SetActive(true);
+            FindObjectOfType<Lighting>().blackMat.color = new Color(1, .76f, 0);
+        }
+        else
+        {
+            FindObjectOfType<Lighting>().otherRoomLight.SetActive(false);
+            FindObjectOfType<Lighting>().blackMat.color = new Color(0, 0, 0);
         }
     }
     
@@ -107,20 +133,4 @@ public class MotherTimerManager : MonoBehaviour
     {
         gameStarted = true;
     }
-
-    //For counting something down faster when at the end
-    /*
-    t += Time.deltaTime;
-        
-    if (moritzT >= .08f)
-    {
-        moritzT -= Time.deltaTime * .05f;
-    }
-        
-    if (t >= moritzT)
-    {
-        currentTime -= 1;
-        t = 0;
-    }
-    */
 }

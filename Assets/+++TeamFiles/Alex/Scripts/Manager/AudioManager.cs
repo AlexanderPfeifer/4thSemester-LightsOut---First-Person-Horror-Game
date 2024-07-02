@@ -16,6 +16,7 @@ public class AudioManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(this);
         }
         else
         {
@@ -45,6 +46,7 @@ public class AudioManager : MonoBehaviour
             Debug.LogWarning("Sound:" + soundName + "not found!");
             return;
         }
+        
         s.audioSource.Play();
     }
     

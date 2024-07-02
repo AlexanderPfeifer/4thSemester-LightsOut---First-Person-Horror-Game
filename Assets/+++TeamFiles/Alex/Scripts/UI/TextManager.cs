@@ -86,7 +86,7 @@ public class TextManager : MonoBehaviour
         // Ensure the last line is added
         tmpText.text += currentLine;
         
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(1.5f);
         
         ClearText();
     }

@@ -3,6 +3,7 @@ using Cinemachine;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class MotherBehaviour : MonoBehaviour
@@ -18,8 +19,17 @@ public class MotherBehaviour : MonoBehaviour
 
     [Header("Volume")] 
     [SerializeField] public Volume motherCatchVolume;
-    public GameObject caughtPanel;
+    public GameObject blackScreen;
 
+    [Header("DeathScreen")] 
+    [SerializeField] private GameObject firstBulb;
+    [SerializeField] private GameObject secondBulb;
+    [SerializeField] private GameObject thirdBulb;
+    [SerializeField] private GameObject firstBulbBroken;
+    [SerializeField] private GameObject secondBulbBroken;
+    [SerializeField] private GameObject thirdBulbBroken;
+    [SerializeField] private GameObject mother;
+    
     public static MotherBehaviour instance;
 
     private void Awake() => instance = this;
@@ -44,21 +54,17 @@ public class MotherBehaviour : MonoBehaviour
     {
         StartCoroutine(PlayerCaughtCoroutine());
     }
-
-    public void PlayerLost()
-    {
-        StartCoroutine(PlayerCaughtThreeTimesCoroutine());
-    }
     
     //starts visualization of player being caught
     private IEnumerator PlayerWonCoroutine()
     {
         AudioManager.Instance.Play("LightsOutWin");
         PlayerInputs.instance.isCaught = true;
-        MotherTimerManager.instance.currentTime = 0;
         MotherTimerManager.instance.pauseGameTime = false;
         MotherTimerManager.instance.gameStarted = false;
         FindObjectOfType<MenuUI>().LoadingScreen(true);
+        MotherTimerManager.instance.currentTime -= 20;
+
         while (PlayerInputs.instance.vCam.m_Lens.FieldOfView > TargetCamFov + 1)
         {
             PlayerInputs.instance.vCam.transform.localRotation = Quaternion.Lerp(PlayerInputs.instance.vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),PlayerInputs.instance.currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
@@ -77,28 +83,44 @@ public class MotherBehaviour : MonoBehaviour
         AudioManager.Instance.Play("LightsOutLose");
         PlayerInputs.instance.isCaught = true;
         yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
-        BlackScreen(0, 1);
+        BlackScreen(1);
+        AudioManager.Instance.Stop("Rain");
         MotherTimerManager.instance.currentTime = 0;
-        yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-    
-    private IEnumerator PlayerCaughtThreeTimesCoroutine()
-    {
-        PlayerInputs.instance.isCaught = true;
         yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
-        BlackScreen(0, 1);
-        MotherTimerManager.instance.currentTime = 0;
-        yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
-        SceneManager.LoadScene(0);
+        
+        switch (MotherTimerManager.instance.currentPlayerTries)
+        {
+            case 2 :
+                firstBulb.SetActive(false);
+                firstBulbBroken.SetActive(true);
+                mother.GetComponent<Image>().color = new Color(1, 1, 1, 0.039f);
+                yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                break;
+            case 1 :
+                secondBulb.SetActive(false);
+                secondBulbBroken.SetActive(true);
+                mother.GetComponent<Image>().color = new Color(1, 1, 1, 0.39f);
+                mother.GetComponent<Transform>().position = new Vector3(350, -277, 0);
+                yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                break;
+            case 0 :
+                thirdBulb.SetActive(false);
+                thirdBulbBroken.SetActive(true);
+                mother.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+                mother.GetComponent<Transform>().position = new Vector3(350, -277, 0);
+                yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
+                MotherTimerManager.instance.currentPlayerTries = MotherTimerManager.instance.maxPlayerTries;
+                SceneManager.LoadScene(0);
+                break;
+        }
     }
 
     //Shortcut to fade black screen
-    private void BlackScreen(float color, int panelAlpha)
+    private void BlackScreen(int panelAlpha)
     {
-        var wantedAlpha = new Color(color, color, color, panelAlpha);
-        
-        caughtPanel.GetComponent<Image>().color = wantedAlpha;
+        blackScreen.GetComponent<CanvasGroup>().alpha = panelAlpha;
     }
 
     //Lerp the camera constantly to the target values
