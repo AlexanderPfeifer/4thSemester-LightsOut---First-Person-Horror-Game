@@ -22,6 +22,9 @@ public class MenuUI : MonoBehaviour
         AudioManager.Instance.Play("ButtonImportant");
         optionsMenu.SetActive(true);
         mainMenu.SetActive(false);
+        audioMenu.SetActive(false);
+        graphicsMenu.SetActive(false);
+        creditsMenu.SetActive(false);
     }
     
     public void LoadingScreen(bool state)
@@ -32,7 +35,7 @@ public class MenuUI : MonoBehaviour
     public void MainMenu()
     {
         AudioManager.Instance.Play("ButtonImportant");
-        audioMenu.SetActive(true);
+        audioMenu.SetActive(false);
         graphicsMenu.SetActive(false);
         creditsMenu.SetActive(false);
         mainMenu.SetActive(true);

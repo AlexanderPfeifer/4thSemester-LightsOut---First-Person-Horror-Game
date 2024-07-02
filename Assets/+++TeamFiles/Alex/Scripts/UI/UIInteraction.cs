@@ -47,7 +47,7 @@ public class UIInteraction : MonoBehaviour
                 if (Input.GetMouseButton(0))
                 {
                     SetSelectedToggleColor(toggle, currentSelectedToggle.colors.pressedColor.r, 
-                        currentSelectedToggle.colors.pressedColor.b,currentSelectedToggle.colors.pressedColor.g, 1, 1, 1, 1);
+                        currentSelectedToggle.colors.pressedColor.b,currentSelectedToggle.colors.pressedColor.g, 1, .2f, .2f, .2f);
                 }
                 else if(Input.GetMouseButtonUp(0))
                 {
@@ -57,7 +57,7 @@ public class UIInteraction : MonoBehaviour
         }
         else if (currentSelectedToggle != null)
         {
-            SetSelectedToggleColor(currentSelectedToggle, 1, 1, 1, 1, 1f, 1f, 1f);
+            SetSelectedToggleColor(currentSelectedToggle, 1, 1, 1, 1, 1, 1, 1);
             currentSelectedToggle = null;
         }
     }
@@ -71,19 +71,19 @@ public class UIInteraction : MonoBehaviour
             {
                 if (lastSelectedButton != null)
                 {
-                    SetSelectedButtonColor(lastSelectedButton, 1, 1, 1 ,1,  .2f, .2f, .2f);
+                    SetSelectedButtonColor(lastSelectedButton, 1, 1, 1 ,1,  1,1,1);
                 }
                 
                 currentSelectedButton = button;
                 lastSelectedButton = currentSelectedButton;
                 
                 SetSelectedButtonColor(currentSelectedButton, currentSelectedButton.colors.highlightedColor.r,
-                    currentSelectedButton.colors.highlightedColor.b,currentSelectedButton.colors.highlightedColor.g, currentSelectedButton.colors.highlightedColor.a, 1f, 1f, 1f);
+                    currentSelectedButton.colors.highlightedColor.b,currentSelectedButton.colors.highlightedColor.g, currentSelectedButton.colors.highlightedColor.a, .2f, .2f, .2f);
                 
                 if (Input.GetMouseButton(0))
                 {
                     SetSelectedButtonColor(currentSelectedButton, currentSelectedButton.colors.pressedColor.r, 
-                        currentSelectedButton.colors.pressedColor.b,currentSelectedButton.colors.pressedColor.g, currentSelectedButton.colors.pressedColor.a, 1, 1, 1);
+                        currentSelectedButton.colors.pressedColor.b,currentSelectedButton.colors.pressedColor.g, currentSelectedButton.colors.pressedColor.a, .2f, .2f, .2f);
                 }
                 else if(Input.GetMouseButtonUp(0))
                 {
@@ -96,7 +96,7 @@ public class UIInteraction : MonoBehaviour
         }
         else if (currentSelectedButton != null)
         {
-            SetSelectedButtonColor(currentSelectedButton, 1, 1, 1, 1, .2f, .2f, .2f);
+            SetSelectedButtonColor(currentSelectedButton, 1, 1, 1, 1, 1, 1, 1);
             currentSelectedButton = null;
         }
     }

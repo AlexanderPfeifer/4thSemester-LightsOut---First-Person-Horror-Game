@@ -1572,7 +1572,7 @@ MonoBehaviour:
   interactableObjectPutAwaySpeed: 4
   interactablePutAwayRotationY: 0
   interactablePutAwayPosition: {x: 0, y: 0, z: 0}
-  holdVolume: {fileID: 0}
+  holdVolume: {fileID: 405452593}
 --- !u!65 &304816649
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7781,7 +7781,7 @@ MonoBehaviour:
   interactableObjectPutAwaySpeed: 4
   interactablePutAwayRotationY: 0
   interactablePutAwayPosition: {x: 0, y: 0, z: 0}
-  holdVolume: {fileID: 0}
+  holdVolume: {fileID: 405452593}
 --- !u!65 &1522409589
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8922,7 +8922,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeUntilBlackOrWhiteScreen: 4
   timeInBlackOrWhiteScreen: 3
-  motherCatchVolume: {fileID: 0}
+  motherCatchVolume: {fileID: 519024790}
   blackScreen: {fileID: 1724262311057327375}
   firstBulb: {fileID: 8901309546454217796}
   secondBulb: {fileID: 2236695789420128560}
