@@ -76,6 +76,7 @@ public class PapanicePizza : MonoBehaviour
             if (currentTimeForOrder <= 0 && !timerUp)
             {
                 StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
+                AudioManager.Instance.Play("PapanicePizzaWrong");
                 MotherTimerManager.instance.TimePenalty(timePenalty);
                 timerUp = true;
             }
@@ -96,6 +97,8 @@ public class PapanicePizza : MonoBehaviour
             orderIngredients.SetActive(Random.Range(0, 2) != 0);
         }
         
+        AudioManager.Instance.Play("PizzaAddTopping");
+
         orderList[0].SetActive(true);
     }
 
@@ -119,6 +122,7 @@ public class PapanicePizza : MonoBehaviour
         if(!ingredientsList[0].activeSelf)
         {
             StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
+            AudioManager.Instance.Play("PapanicePizzaWrong");
             MotherTimerManager.instance.TimePenalty(timePenalty);
             return;  
         }
@@ -126,6 +130,7 @@ public class PapanicePizza : MonoBehaviour
         if (orderList[1].activeSelf && !gotSauce && gotDough)
         {
             StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
+            AudioManager.Instance.Play("PapanicePizzaWrong");
             MotherTimerManager.instance.TimePenalty(timePenalty);
             return;
         }
@@ -136,6 +141,8 @@ public class PapanicePizza : MonoBehaviour
             {
                 StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
                 MotherTimerManager.instance.TimePenalty(timePenalty);
+                AudioManager.Instance.Play("PapanicePizzaWrong");
+                PlayerInputs.instance.PlayChildAggressiveAnimation();
                 return;
             }
         }
@@ -160,6 +167,7 @@ public class PapanicePizza : MonoBehaviour
                     StartCoroutine(SetOrderStateCoroutine(rightOrderReact));
                     MotherTimerManager.instance.TimeBonus(timeBonus);
                     currentScore++;
+                    AudioManager.Instance.Play("PapanicePizzaCorrect");
                     
                     if (currentScore >= winScore)
                     {
@@ -190,6 +198,8 @@ public class PapanicePizza : MonoBehaviour
         orderReactSprite.SetActive(false);
         
         SetActivationListObject(ingredientsList, false);
+        
+        AudioManager.Instance.Play("NewPizza");
 
         GenerateNewOrder();
 

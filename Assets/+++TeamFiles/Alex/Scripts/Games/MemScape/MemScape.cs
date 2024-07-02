@@ -49,12 +49,42 @@ public class MemScape : MonoBehaviour
     private IEnumerator SetButtonColors()
     {
         goThroughList.Clear();
-
+        
+        AudioManager.Instance.Play("MemScapeGameStart");
+        
         UIInteraction.instance.canInteract = false;
         UIInteraction.instance.SetSelectedButtonColor(UIInteraction.instance.lastSelectedButton, 1, 1, 1, 1, .2f, .2f, .2f);
         
         for (int i = 0; i < memorizeOrder.Count; i++) 
         {
+            switch (i)
+            {
+                case 0:
+                    AudioManager.Instance.Play("MemScapeFirstImage");
+                    break;
+                case 1:
+                    AudioManager.Instance.Play("MemScapeSecondImage");
+                    break;
+                case 2:
+                    AudioManager.Instance.Play("MemScapeThirdImage");
+                    break;
+                case 3:
+                    AudioManager.Instance.Play("MemScapeFourthImage");
+                    break;
+                case 4:
+                    AudioManager.Instance.Play("MemScapeFifthImage");
+                    break;
+                case 5:
+                    AudioManager.Instance.Play("MemScapeSixthImage");
+                    break;
+                case 6:
+                    AudioManager.Instance.Play("MemScapeSeventhImage");
+                    break;
+                case 7:
+                    AudioManager.Instance.Play("MemScapeEighthImage");
+                    break;
+            }
+            
             goThroughList.Add(clickableButtons[memorizeOrder[i]]);
             
             while (clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a < 0.7f)
@@ -77,12 +107,16 @@ public class MemScape : MonoBehaviour
         MotherTimerManager.instance.pauseGameTime = false;
         
         UIInteraction.instance.canInteract = true;
+        
+        AudioManager.Instance.Play("MemScapeTimeToRemember");
     }
 
     public void CheckWinState()
     {
         if (goThroughList[0].gameObject.GetComponent<Button>() == UIInteraction.instance.currentSelectedButton)
         {
+            AudioManager.Instance.Play("MemScapeCorrectClick");
+
             goThroughList.RemoveAt(0);
             
             MotherTimerManager.instance.TimeBonus(timeBonus);
@@ -114,6 +148,7 @@ public class MemScape : MonoBehaviour
                 if (!(memorizeOrder.Count >= winningCount))
                 {
                     StartCoroutine(SetButtonColors());
+                    AudioManager.Instance.Play("MemScapeSequenceCorrect");
                 }
                 else
                 {
@@ -124,6 +159,7 @@ public class MemScape : MonoBehaviour
         else
         {
             goThroughList.Clear();
+            AudioManager.Instance.Play("MemScapeWrongClick");
             PlayerInputs.instance.PlayChildAggressiveAnimation();
         }
     }

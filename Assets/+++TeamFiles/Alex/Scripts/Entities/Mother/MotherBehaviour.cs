@@ -53,6 +53,7 @@ public class MotherBehaviour : MonoBehaviour
     //starts visualization of player being caught
     private IEnumerator PlayerWonCoroutine()
     {
+        AudioManager.Instance.Play("LightsOutWin");
         PlayerInputs.instance.isCaught = true;
         MotherTimerManager.instance.currentTime = 0;
         MotherTimerManager.instance.pauseGameTime = false;
@@ -73,6 +74,7 @@ public class MotherBehaviour : MonoBehaviour
     //When player picked a new game, the objects reset from the game on the table to console and mathbook
     private IEnumerator PlayerCaughtCoroutine()
     {
+        AudioManager.Instance.Play("LightsOutLose");
         PlayerInputs.instance.isCaught = true;
         yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
         BlackScreen(0, 1);

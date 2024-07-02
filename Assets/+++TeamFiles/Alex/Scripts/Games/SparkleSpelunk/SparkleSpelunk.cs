@@ -90,6 +90,7 @@ public class SparkleSpelunk : MonoBehaviour
     public void MinerHit()
     {
         StartCoroutine(MinerHitCoroutine());
+        PlayerInputs.instance.PlayChildAggressiveAnimation();
     }
     
     public void MinerEarned(Sprite hands)
@@ -132,6 +133,7 @@ public class SparkleSpelunk : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            AudioManager.Instance.Play("SparkleSpelunkTakeOutBomb");
             bombInHand = true;
 
             minerHead.sprite = minerHoldSpriteHead;
@@ -204,6 +206,7 @@ public class SparkleSpelunk : MonoBehaviour
                 if (currentScore >= winScore)
                 {
                     MotherBehaviour.instance.PlayerWon();
+                    AudioManager.Instance.Play("SparkleSpelunkWon");
                 }
                 
                 foreach (var blockTransform in allBlocks)

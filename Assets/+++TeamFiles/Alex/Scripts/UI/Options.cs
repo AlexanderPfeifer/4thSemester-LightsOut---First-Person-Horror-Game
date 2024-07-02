@@ -1,15 +1,22 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class Options : MonoBehaviour
 {
-    [Header("Fullscreen")] 
+    [Header("Graphics")] 
     private string fullScreenPlayerPrefs = "Fullscreen";
     private int fullScreenInt = 1;
     [SerializeField] private GameObject fullScreenCheck;
+    [SerializeField] private Volume brightnessVolume;
+    private int sameDirectionMinusBrightness = 1;
+    private int sameDirectionPlusBrightness;
+    private int currentBrightnessPoint = 4;
+    private string brightnessPlayerPrefs = "brightness";
+    private float brightness = .5f;
+    [SerializeField] private List<GameObject> brightnessPoints;
 
     [Header("Audio")] 
     public AudioMixer audioMixer;
@@ -75,33 +82,75 @@ public class Options : MonoBehaviour
             }
         }
 
-        ChangeFullScreenMode(fullScreenInt == 1);
+        Screen.fullScreen = fullScreenInt == 1;
+        fullScreenCheck.SetActive(fullScreenInt == 1);
     }
 
     //converts The bool isFullScreenOn to int for player prefab
     public void ChangeFullScreenMode(bool isFullScreenOn)
     {
+        AudioManager.Instance.Play("ButtonRegular");
+        
         Screen.fullScreen = isFullScreenOn;
         
         fullScreenInt = isFullScreenOn ? 1 : 0;
 
-        if (isFullScreenOn)
-        {
-            fullScreenCheck.SetActive(true);
-        }
-        else
-        {
-            fullScreenCheck.SetActive(false);
-        }
-        
+        fullScreenCheck.SetActive(isFullScreenOn);
+
         PlayerPrefs.SetInt(fullScreenPlayerPrefs, fullScreenInt);
     }
 
+    public void BrightnessMinus()
+    {
+        if (brightness <= 0)
+            return;
+        
+        sameDirectionMinusBrightness++;
+        
+        if (sameDirectionPlusBrightness > 0)
+        {
+            currentBrightnessPoint++;
+        }
+
+        sameDirectionPlusBrightness = 0;
+        
+        if (!(currentBrightnessPoint <= 0.2f))
+        {
+            currentBrightnessPoint--;
+            brightnessPoints[currentBrightnessPoint].GetComponent<Image>().color = new Color(0.39f, 0.39f, 0.39f);
+            ChangeBrightness(.1f);
+        }
+    }
+    
+    public void BrightnessPlus()
+    {
+        if (brightness <= .1f)
+            return;
+        
+        Debug.Log(brightness);
+        
+        sameDirectionPlusBrightness++;
+        
+        if (sameDirectionMinusBrightness > 0)
+        {
+            currentBrightnessPoint--;
+        }
+
+        sameDirectionMinusBrightness = 0;
+        
+        if (!(brightness > 0.99f))
+        {
+            currentBrightnessPoint++;
+            brightnessPoints[currentBrightnessPoint].GetComponent<Image>().color = new Color(1f, 1f, 1f);
+            ChangeBrightness(-.1f);
+        }
+    }
+    
     public void MusicVolumeMinus()
     {
         if (musicVolume <= 0)
             return;
-
+        
         sameDirectionMinusMusic++;
         
         if (sameDirectionPlusMusic > 0)
@@ -123,7 +172,7 @@ public class Options : MonoBehaviour
     {
         if (musicVolume >= 1)
             return;
-
+        
         sameDirectionPlusMusic++;
         
         if (sameDirectionMinusMusic > 0)
@@ -145,7 +194,7 @@ public class Options : MonoBehaviour
     {
         if (masterVolume <= 0)
             return;
-
+        
         sameDirectionMinusMaster++;
         
         if (sameDirectionPlusMaster > 0)
@@ -167,7 +216,7 @@ public class Options : MonoBehaviour
     {
         if (masterVolume >= 1)
             return;
-
+        
         sameDirectionPlusMaster++;
         
         if (sameDirectionMinusMaster > 0)
@@ -189,7 +238,7 @@ public class Options : MonoBehaviour
     {
         if (sfxVolume <= 0)
             return;
-
+        
         sameDirectionMinusSfx++;
         
         if (sameDirectionPlusSfx > 0)
@@ -211,7 +260,7 @@ public class Options : MonoBehaviour
     {
         if (sfxVolume >= 1)
             return;
-
+        
         sameDirectionPlusSfx++;
         
         if (sameDirectionMinusSfx > 0)
@@ -236,6 +285,8 @@ public class Options : MonoBehaviour
         audioMixer.SetFloat("masterVolume", Mathf.Log10(masterVolume) * 20);
         
         PlayerPrefs.SetFloat(masterVolumePlayerPrefs, masterVolume);
+        
+        AudioManager.Instance.Play("ButtonDown");
     }
     
     private void ChangeMusicVolume(float value)
@@ -245,6 +296,8 @@ public class Options : MonoBehaviour
         audioMixer.SetFloat("musicVolume", Mathf.Log10(musicVolume) * 20);
         
         PlayerPrefs.SetFloat(musicVolumePlayerPrefs, musicVolume);
+        
+        AudioManager.Instance.Play("ButtonDown");
     }
     
     private void ChangeSfxVolume(float value)
@@ -254,5 +307,18 @@ public class Options : MonoBehaviour
         audioMixer.SetFloat("sfxVolume", Mathf.Log10(sfxVolume) * 20);
         
         PlayerPrefs.SetFloat(sfxVolumePlayerPrefs, sfxVolume);
+        
+        AudioManager.Instance.Play("ButtonDown");
+    }
+    
+    private void ChangeBrightness(float value)
+    {
+        brightness += value;
+
+        brightnessVolume.weight = brightness;
+        
+        PlayerPrefs.SetFloat(brightnessPlayerPrefs, brightness);
+        
+        AudioManager.Instance.Play("ButtonDown");
     }
 }

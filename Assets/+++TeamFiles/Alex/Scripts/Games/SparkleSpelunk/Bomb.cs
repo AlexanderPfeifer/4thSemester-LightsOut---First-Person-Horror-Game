@@ -20,8 +20,21 @@ public class Bomb : MonoBehaviour
         {
             transform.position = sparkleSpelunk.transform.GetChild(0).transform.position;
         }
-        
-        Debug.Log( sparkleSpelunk.secondBombSpawned);
+    }
+
+    public void FirstTickSound()
+    {
+        AudioManager.Instance.Play("SparkleSpelunkBombFirstTick");
+    }    
+    
+    public void SecondTickSound()
+    {
+        AudioManager.Instance.Play("SparkleSpelunkBombSecondTick");
+    }    
+    
+    public void ThirdTickSound()
+    {
+        AudioManager.Instance.Play("SparkleSpelunkBombThirdTick");
     }
 
     private void DestroyBomb()
@@ -40,6 +53,8 @@ public class Bomb : MonoBehaviour
 
     private void OnDestroy()
     {
+        AudioManager.Instance.Play("SparkleSpelunkBombExplosion");
+        
         if (Physics.Raycast(transform.position, -transform.up, out var blockHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.blockLayer))
         {
             sparkleSpelunk.allBlocks.Remove(blockHit.transform);
@@ -47,6 +62,7 @@ public class Bomb : MonoBehaviour
         }
         else if (Physics.Raycast(transform.position, -transform.up, out var goldHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.goldLayer))
         {
+            AudioManager.Instance.Play("SparkleSpelunkCollect");
             sparkleSpelunk.MinerEarned(sparkleSpelunk.minerEarnedSpriteHandGold);
             sparkleSpelunk.allBlocks.Remove(goldHit.transform);
             Destroy(goldHit.transform.gameObject);
@@ -54,6 +70,7 @@ public class Bomb : MonoBehaviour
         }
         else if (Physics.Raycast(transform.position, -transform.up, out var diamondHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.diamondLayer))
         {
+            AudioManager.Instance.Play("SparkleSpelunkCollect");
             sparkleSpelunk.MinerEarned(sparkleSpelunk.minerEarnedSpriteHandDiamond);
             sparkleSpelunk.allBlocks.Remove(diamondHit.transform);
             Destroy(diamondHit.transform.gameObject);
