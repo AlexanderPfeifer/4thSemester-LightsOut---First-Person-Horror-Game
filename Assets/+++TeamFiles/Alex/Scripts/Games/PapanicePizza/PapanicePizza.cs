@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -21,12 +22,14 @@ public class PapanicePizza : MonoBehaviour
     [SerializeField] private Image timerBar;
     [SerializeField] private float maxTimeForOrder;
     private float currentTimeForOrder;
-    private float pizzaTimeSubtraction = 10f;
+    private float pizzaTimeSubtraction = 5f;
 
 
     [Header("Score")]
     [SerializeField] private int winScore;
     private int currentScore;
+    [SerializeField] private TextMeshProUGUI currentScoreText;
+    [SerializeField] private TextMeshProUGUI winScoreText;
     
     bool gotDough;
     bool gotSauce;
@@ -39,6 +42,8 @@ public class PapanicePizza : MonoBehaviour
     //Deactivates sprites and resets the timers and starts the game with a new order
     public void Start()
     {
+        winScoreText.text = winScore.ToString();
+        
         currentTimeForOrder = maxTimeForOrder;
         
         wrongOrderReact.SetActive(false);
@@ -59,7 +64,11 @@ public class PapanicePizza : MonoBehaviour
     {
         yield return new WaitForSeconds(2);
         
+        AudioManager.Instance.Play("NewPizza");
+
         GenerateNewOrder();
+        
+        MotherTimerManager.instance.GameStarted();
 
         runTimer = true;
     }
@@ -67,6 +76,8 @@ public class PapanicePizza : MonoBehaviour
     private void Update()
     {
         Timer();
+        
+        currentScoreText.text = currentScore.ToString();
     }
 
     private void Timer()
@@ -75,9 +86,7 @@ public class PapanicePizza : MonoBehaviour
         {
             if (currentTimeForOrder <= 0 && !timerUp)
             {
-                StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
-                AudioManager.Instance.Play("PapanicePizzaWrong");
-                MotherTimerManager.instance.TimePenalty(timePenalty);
+                WrongPizza();
                 timerUp = true;
             }
             else
@@ -97,8 +106,6 @@ public class PapanicePizza : MonoBehaviour
             orderIngredients.SetActive(Random.Range(0, 2) != 0);
         }
         
-        AudioManager.Instance.Play("PizzaAddTopping");
-
         orderList[0].SetActive(true);
     }
 
@@ -121,37 +128,67 @@ public class PapanicePizza : MonoBehaviour
         
         if(!ingredientsList[0].activeSelf)
         {
-            StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
-            AudioManager.Instance.Play("PapanicePizzaWrong");
-            MotherTimerManager.instance.TimePenalty(timePenalty);
+            WrongPizza();
             return;  
         }
         
         if (orderList[1].activeSelf && !gotSauce && gotDough)
         {
-            StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
-            AudioManager.Instance.Play("PapanicePizzaWrong");
-            MotherTimerManager.instance.TimePenalty(timePenalty);
+            WrongPizza();
+
             return;
         }
 
-        for (int i = 1; i < ingredientsList.Count; i++)
+        if (ingredientsList.Where((ingredient, i) => !orderList[i].activeSelf && ingredient.activeSelf).Any())
         {
-            if (!orderList[i].activeSelf && ingredientsList[i].activeSelf)
-            {
-                StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
-                MotherTimerManager.instance.TimePenalty(timePenalty);
-                AudioManager.Instance.Play("PapanicePizzaWrong");
-                PlayerInputs.instance.PlayChildAggressiveAnimation();
-                return;
-            }
+            WrongPizza();
+            return;
         }
         
         CheckWin();
     }
 
+    private void WrongPizza()
+    {
+        FindObjectOfType<MotherTextManager>().PlayLoseText();
+        StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
+        MotherTimerManager.instance.TimePenalty(timePenalty);
+        AudioManager.Instance.Play("PapanicePizzaWrong");
+        PlayerInputs.instance.PlayChildAggressiveAnimation();
+    }
+    
     private void CheckWin()
     {
+        var randomSound = Random.Range(0, 8);
+        
+        switch (randomSound)
+        {
+            case 0 :
+                AudioManager.Instance.Play("MemScapeFirstImage");
+                break;
+            case 1 :
+                AudioManager.Instance.Play("MemScapeSecondImage");
+                break;
+            case 2 :
+                AudioManager.Instance.Play("MemScapeThirdImage");
+                break;
+            case 3 :
+                AudioManager.Instance.Play("MemScapeFourthImage");
+                break;
+            case 4 :
+                AudioManager.Instance.Play("MemScapeFifthImage");
+                break;
+            case 5 :
+                AudioManager.Instance.Play("MemScapeSixthImage");
+                break;
+            case 6 :
+                AudioManager.Instance.Play("MemScapeSeventhImage");
+                break;
+            case 7 :
+                AudioManager.Instance.Play("MemScapeEighthImage");
+                break;
+        }
+
         var activeOrder = orderList.Count(orderElement => orderElement.activeSelf);
 
         var correctIngredients = 0;
@@ -199,8 +236,6 @@ public class PapanicePizza : MonoBehaviour
         
         SetActivationListObject(ingredientsList, false);
         
-        AudioManager.Instance.Play("NewPizza");
-
         GenerateNewOrder();
 
         timerUp = false;

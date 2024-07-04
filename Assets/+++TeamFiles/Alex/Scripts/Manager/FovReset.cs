@@ -10,6 +10,8 @@ public class FovReset : MonoBehaviour
     
     private IEnumerator CamReset()
     {
+        PlayerInputs.instance.canInteract = false;
+            
         while (PlayerInputs.instance.vCam.m_Lens.FieldOfView < 59)
         {
             PlayerInputs.instance.vCam.m_Lens.FieldOfView = Mathf.Lerp(PlayerInputs.instance.vCam.m_Lens.FieldOfView, 60, Time.deltaTime);
@@ -17,9 +19,20 @@ public class FovReset : MonoBehaviour
         }
 
         PlayerInputs.instance.vCam.m_Lens.FieldOfView = 60;
+        
+        if (!MotherTimerManager.instance.diedInScene)
+        {
+            PlayerInputs.instance.canInteract = true;
 
-        StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());
-
-        yield return null;
+            StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());
+            
+            yield return null;   
+        }
+        else
+        {
+            FindObjectOfType<MenuUI>().LoadingScreen(false);
+            
+            PlayerInputs.instance.canInteract = true;
+        }
     }
 }

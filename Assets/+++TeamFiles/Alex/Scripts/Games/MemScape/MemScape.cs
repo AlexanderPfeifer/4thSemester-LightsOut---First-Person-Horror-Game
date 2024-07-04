@@ -13,11 +13,13 @@ public class MemScape : MonoBehaviour
     private bool selectedConsole;
     [SerializeField] private int winningCount;
     [SerializeField] private int timeBonus;
+    [SerializeField] private CanvasGroup timeToRemember;
 
     private void Start()
     {
         memorizeOrder.Add(1);
-        StartCoroutine(SetButtonColors());
+
+        StartCoroutine(TimeToRememberScreen());
     }
 
     private void Update()
@@ -25,13 +27,38 @@ public class MemScape : MonoBehaviour
         CheckConsoleState();
     }
 
+    private IEnumerator TimeToRememberScreen()
+    {
+        UIInteraction.instance.canInteract = false;
+        
+        while (timeToRemember.alpha < .9f)
+        {
+            timeToRemember.alpha = Mathf.Lerp(timeToRemember.alpha, 1, Time.deltaTime);
+            yield return null;
+        }
+        
+        AudioManager.Instance.Play("MemScapeTimeToRemember");
+
+        while (timeToRemember.alpha > 0.01f)
+        {
+            timeToRemember.alpha = Mathf.Lerp(timeToRemember.alpha, 0, Time.deltaTime * 2);
+            yield return null;
+        }
+
+        timeToRemember.alpha = 0;
+        
+        StartCoroutine(SetButtonColors());
+
+        yield return null;
+    }
+    
     private void CheckConsoleState()
     {
         if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.InHand && PlayerInputs.instance.currentInteractableObject.TryGetComponent(out Console console))
         {
             if (selectedConsole)
             {
-                StartCoroutine(SetButtonColors());
+                StartCoroutine(TimeToRememberScreen());
                 selectedConsole = false;
             }
         }
@@ -49,11 +76,11 @@ public class MemScape : MonoBehaviour
     private IEnumerator SetButtonColors()
     {
         goThroughList.Clear();
-        
-        AudioManager.Instance.Play("MemScapeGameStart");
-        
-        UIInteraction.instance.canInteract = false;
-        UIInteraction.instance.SetSelectedButtonColor(UIInteraction.instance.lastSelectedButton, 1, 1, 1, 1, .2f, .2f, .2f);
+
+        if (UIInteraction.instance.lastSelectedButton != null)
+        {
+            UIInteraction.instance.SetSelectedButtonColor(UIInteraction.instance.lastSelectedButton, 1, 1, 1, 1, .2f, .2f, .2f);
+        }
         
         for (int i = 0; i < memorizeOrder.Count; i++) 
         {
@@ -100,29 +127,27 @@ public class MemScape : MonoBehaviour
                 
                 yield return null;
             }
-        
+            
             clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, 0);
         }
+
+        AudioManager.Instance.Play("MemScapeGameStart");
 
         MotherTimerManager.instance.pauseGameTime = false;
         
         UIInteraction.instance.canInteract = true;
-        
-        AudioManager.Instance.Play("MemScapeTimeToRemember");
     }
 
     public void CheckWinState()
     {
         if (goThroughList[0].gameObject.GetComponent<Button>() == UIInteraction.instance.currentSelectedButton)
         {
-            AudioManager.Instance.Play("MemScapeCorrectClick");
-
             goThroughList.RemoveAt(0);
             
-            MotherTimerManager.instance.TimeBonus(timeBonus);
-
             if (goThroughList.Count == 0)
             {
+                MotherTimerManager.instance.TimeBonus(timeBonus);
+
                 MotherTimerManager.instance.pauseGameTime = true;
 
                 if (firstFourObjects >= 3)
@@ -147,19 +172,26 @@ public class MemScape : MonoBehaviour
 
                 if (!(memorizeOrder.Count >= winningCount))
                 {
-                    StartCoroutine(SetButtonColors());
+                    StartCoroutine(TimeToRememberScreen());
                     AudioManager.Instance.Play("MemScapeSequenceCorrect");
                 }
                 else
                 {
                     MotherBehaviour.instance.PlayerWon();
                 }
+                
+                return;
             }
+            
+            MotherTimerManager.instance.TimeBonus(timeBonus);
+
+            AudioManager.Instance.Play("MemScapeCorrectClick");
         }
         else
         {
             goThroughList.Clear();
             AudioManager.Instance.Play("MemScapeWrongClick");
+            FindObjectOfType<MotherTextManager>().PlayLoseText();
             PlayerInputs.instance.PlayChildAggressiveAnimation();
             StartCoroutine(DelayedRestart());
         }
@@ -169,6 +201,6 @@ public class MemScape : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         
-        StartCoroutine(SetButtonColors());
+        StartCoroutine(TimeToRememberScreen());
     }
 }

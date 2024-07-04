@@ -76,6 +76,8 @@ public class SparkleSpelunk : MonoBehaviour
         {
             allBlocks.Add(blocksElement.GetChild(i));
         }
+        
+        MotherTimerManager.instance.GameStarted();
     }
 
     void Update()
@@ -113,6 +115,9 @@ public class SparkleSpelunk : MonoBehaviour
     
     private IEnumerator MinerHitCoroutine()
     {
+        PlayerInputs.instance.PlayChildAggressiveAnimation();
+        FindObjectOfType<MotherTextManager>().PlayLoseText();
+
         var currentSprite = minerHead.sprite;
         minerHead.sprite = minerHitSpriteHead;
         minerHead.color = Color.red;

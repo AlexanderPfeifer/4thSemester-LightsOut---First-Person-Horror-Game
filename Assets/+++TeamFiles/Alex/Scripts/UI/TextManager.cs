@@ -7,42 +7,45 @@ public class TextManager : MonoBehaviour
     public static TextManager Instance { get; private set; } // Singleton instance.
 
     public TMP_Text tmpText; // Assign your TextMeshPro text component in the inspector.
+
+    private bool isTyping;
     
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject); // Destroy duplicate instance.
+            Destroy(gameObject);
         }
         else
         {
             Instance = this;
-            // DontDestroyOnLoad(gameObject);
         }
     }
 
     // Clears the text of the TMP component.
-    private void ClearText()
+    public void ClearText()
     {
         if (FindObjectOfType<StartMemScape>() != null && !FindObjectOfType<StartMemScape>().canInteractWithConsole)
         {
             MotherTimerManager.instance.currentTime = 0f;
         }
         
-        
         if (FindObjectOfType<EndManager>() != null)
         {
             FindObjectOfType<EndManager>().CloseGame();
         }
-
+        
+        StopCoroutine(TypeTextCoroutine(null, 0));
+        
         StartCoroutine(ClearTextLetterForLetter(0.007f));
     }
 
     // Starts the coroutine to display text letter by letter.
     public void DisplayText(string text, float delay)
     {
-        if (tmpText != null)
+        if (tmpText != null && !isTyping)
         {
+            isTyping = true;
             StartCoroutine(TypeTextCoroutine(text, delay));
         }
     }
@@ -85,13 +88,17 @@ public class TextManager : MonoBehaviour
     
         // Ensure the last line is added
         tmpText.text += currentLine;
-        
-        yield return new WaitForSeconds(1.5f);
-        
+
+        if (FindObjectOfType<StartMemScape>() != null && !FindObjectOfType<StartMemScape>().canInteractWithConsole)
+        {
+            yield break;
+        }
+ 
+        yield return new WaitForSeconds(2.5f);
+
         ClearText();
     }
-
-
+    
     private IEnumerator ClearTextLetterForLetter(float delay)
     {
         for (int i = tmpText.text.Length - 1; i >= 0; i--)
@@ -99,5 +106,7 @@ public class TextManager : MonoBehaviour
             tmpText.text = tmpText.text.Remove(i);
             yield return new WaitForSeconds(delay);
         }
+
+        isTyping = false;
     }
 }

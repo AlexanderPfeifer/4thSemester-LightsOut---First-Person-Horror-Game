@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7739417228533968225
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4691388440426912153}
+  - component: {fileID: 7188116439445163501}
+  - component: {fileID: 6413760782694371867}
+  m_Layer: 0
+  m_Name: MotherTextManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &4691388440426912153
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7739417228533968225}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7188116439445163501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7739417228533968225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec83ab90f228e7f41abd97205d117309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startSentence: Sweetie, I told you not to play games until you are done studying!
+  endSentence: 'Sweetie, look! I''ve bought you the new console! '
+  friendlySentences:
+  - Tell me if you need help with any of the questions!
+  - I am here if you need any help.
+  passiveAggressiveSentences:
+  - Are you still doing your homework?
+  - What are you doing, sweetie?
+  - What would you like for dinner tomorow?
+  madSentences:
+  - Are you playing videogames? I heard something.
+  - I'll check on you soon!
+  - I've told you loud and clear to do your homework!
+  - If you're playing, better put your game away! I will be there.
+  loseSentences:
+  - What did I hear there?
+  - Sweetie, what are you doing?
+  - What are you doing?
+--- !u!114 &6413760782694371867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7739417228533968225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6440c4b653d299845b68fce860ebaba4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tmpText: {fileID: 0}

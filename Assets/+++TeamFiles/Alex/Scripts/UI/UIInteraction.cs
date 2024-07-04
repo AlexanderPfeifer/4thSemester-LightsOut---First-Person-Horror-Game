@@ -114,15 +114,15 @@ public class UIInteraction : MonoBehaviour
         }
     }
     
-    private void SetSelectedToggleColor(Toggle selectedButton, float r, float b, float g, float a, float rText, float bText, float gText)
+    private void SetSelectedToggleColor(Toggle selectedToggle, float r, float b, float g, float a, float rText, float bText, float gText)
     {
-        var selectedButtonColors = selectedButton.colors;
+        var selectedButtonColors = selectedToggle.colors;
         selectedButtonColors.normalColor = new Color(r, b, g, a);
-        selectedButton.colors = selectedButtonColors;
+        selectedToggle.colors = selectedButtonColors;
 
-        if (selectedButton.GetComponentInChildren<TextMeshProUGUI>())
+        if (selectedToggle.GetComponentInChildren<TextMeshProUGUI>())
         {
-            selectedButton.GetComponentInChildren<TextMeshProUGUI>().color = new Color(rText, bText, gText);
+            selectedToggle.GetComponentInChildren<TextMeshProUGUI>().color = new Color(rText, bText, gText);
         }
     }
 }

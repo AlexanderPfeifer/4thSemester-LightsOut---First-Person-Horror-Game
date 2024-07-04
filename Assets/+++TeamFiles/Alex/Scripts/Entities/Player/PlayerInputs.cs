@@ -7,7 +7,7 @@ public class PlayerInputs : MonoBehaviour
     [Header("MouseInput")]
     [SerializeField] private float mouseSensitivity = .85f;
     private Vector2 mousePosition;
-    [HideInInspector] public bool isCaught;
+    [HideInInspector] public bool canInteract;
 
     [Header("Camera")]
     public CinemachineVirtualCamera vCam;
@@ -33,6 +33,7 @@ public class PlayerInputs : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         StartCoroutine(ResetHudUi());
+        canInteract = true;
     }
     
     private IEnumerator ResetHudUi()
@@ -72,7 +73,7 @@ public class PlayerInputs : MonoBehaviour
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
     private void LookAround()
     {
-        if (isCaught || holdObjectState == HoldObjectState.LayingDown || holdObjectState == HoldObjectState.LiftingUp)
+        if (!canInteract || holdObjectState == HoldObjectState.LayingDown || holdObjectState == HoldObjectState.LiftingUp)
             return;
         
         currentVisibilityAngle = holdObjectState == HoldObjectState.OutOfHand ? ClampVisibilityOutOfHand : ClampVisibilityInHand;
@@ -90,7 +91,7 @@ public class PlayerInputs : MonoBehaviour
     //When hovering over an object, it activates another object that indicates, that it is selected
     private void SelectInteractableInLookDir()
     {
-        if (isCaught)
+        if (!canInteract || holdObjectState == HoldObjectState.LayingDown || holdObjectState == HoldObjectState.LiftingUp)
         {
             SelectVisual(false);
             return;   
@@ -149,7 +150,7 @@ public class PlayerInputs : MonoBehaviour
         if ((!Input.GetMouseButtonDown(0) && !Input.GetKeyDown(KeyCode.E)) || currentInteractableObject == null) 
             return;
 
-        if (!isCaught)
+        if (canInteract)
         {
             SelectVisual(false);
 
@@ -162,6 +163,11 @@ public class PlayerInputs : MonoBehaviour
     //Picks up the interactable object
     private IEnumerator TakeInteractable()
     {
+        if (FindObjectOfType<StartMemScape>() != null && !FindObjectOfType<StartMemScape>().canInteractWithConsole)
+        {
+            TextManager.Instance.ClearText();
+        }
+        
         while (Vector3.Distance(currentInteractableObject.transform.position, Vector3.zero) > 0.01f)
         {
             vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
@@ -172,7 +178,7 @@ public class PlayerInputs : MonoBehaviour
             
             yield return null;
         }
-        
+
         currentInteractableObject.transform.position = Vector3.zero;
 
         currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed = 4;
@@ -185,7 +191,7 @@ public class PlayerInputs : MonoBehaviour
     //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
     private void PutDownInteractable()
     {
-        if (!Input.GetKeyDown(KeyCode.E) || holdObjectState is not HoldObjectState.InHand || isCaught || currentInteractableObject == null || MotherTimerManager.instance.gameStarted) 
+        if (!Input.GetKeyDown(KeyCode.E) || holdObjectState is not HoldObjectState.InHand || !canInteract || currentInteractableObject == null || MotherTimerManager.instance.gameStarted) 
             return;
         
         StartCoroutine(PutDownInteractableCoroutine());
@@ -242,7 +248,7 @@ public class PlayerInputs : MonoBehaviour
         mousePosition.y = GetCamInspectorRotationY();
         
         currentInteractableObject.GetComponent<Collider>().enabled = true;
-                
+        
         currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed = 4;
 
         holdObjectState = HoldObjectState.OutOfHand;

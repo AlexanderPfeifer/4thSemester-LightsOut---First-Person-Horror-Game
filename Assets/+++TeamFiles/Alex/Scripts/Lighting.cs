@@ -25,7 +25,7 @@ public class Lighting : MonoBehaviour
     {
         randomTimeBetweenLightning -= Time.deltaTime;
 
-        if (randomTimeBetweenLightning <= 0 && !PlayerInputs.instance.isCaught)
+        if (randomTimeBetweenLightning <= 0 && PlayerInputs.instance.canInteract)
         {
             var randomLightning = Random.Range(1, 4);
 
@@ -135,10 +135,6 @@ public class Lighting : MonoBehaviour
         StartCoroutine(LerpLightningDown(0, 0));
         
         yield return new WaitUntil(() => lerpLightning == false);
-        
-        StartCoroutine(LerpLightningUp(.8f, 11));
-        
-        yield return new WaitUntil(() => lerpLightning == false);
 
         StartCoroutine(LerpLightningDown(0, 0));
         
@@ -150,22 +146,6 @@ public class Lighting : MonoBehaviour
         
         StartCoroutine(LerpLightningDown(0, 0));
 
-        yield return new WaitUntil(() => lerpLightning == false);
-
-        StartCoroutine(LerpLightningUp(.8f, 11));
-        
-        yield return new WaitUntil(() => lerpLightning == false);
-
-        StartCoroutine(LerpLightningDown(0, 0));
-        
-        yield return new WaitUntil(() => lerpLightning == false);
-        
-        StartCoroutine(LerpLightningUp(1f, 13));
-
-        yield return new WaitUntil(() => lerpLightning == false);
-
-        StartCoroutine(LerpLightningDown(0f, 0));
-        
         yield return new WaitUntil(() => lerpLightning == false);
 
         StartCoroutine(LerpLightningUp(.3f, 4));

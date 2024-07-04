@@ -3,7 +3,6 @@ using Cinemachine;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class MotherBehaviour : MonoBehaviour
@@ -12,6 +11,7 @@ public class MotherBehaviour : MonoBehaviour
     [SerializeField] private float timeUntilBlackOrWhiteScreen;
     [SerializeField] private float timeInBlackOrWhiteScreen;
     private float targetWeightMother;
+    private float targetWeightPulsating;
     private float targetFrequency;
     private float targetAmplitude;
     private CinemachineBasicMultiChannelPerlin vCamShake;
@@ -29,6 +29,7 @@ public class MotherBehaviour : MonoBehaviour
     [SerializeField] private GameObject secondBulbBroken;
     [SerializeField] private GameObject thirdBulbBroken;
     [SerializeField] private GameObject mother;
+    [SerializeField] private Transform motherHand;
     
     public static MotherBehaviour instance;
 
@@ -42,7 +43,22 @@ public class MotherBehaviour : MonoBehaviour
     private void Update()
     {
         CamVisualMotherUpdate();
+        
+        MotherHandPositionUpdate();
     }
+
+    private void MotherHandPositionUpdate()
+    {
+        if (MotherTimerManager.instance.gameStarted)
+        {
+            motherHand.gameObject.SetActive(true);
+        }
+
+        motherHand.transform.localPosition = new Vector3(motherHand.transform.localPosition.x, motherHand.transform.localPosition.y,
+            MotherTimerManager.instance.armPositionCurve.Evaluate(MotherTimerManager.instance.currentTime / MotherTimerManager.instance.timeWhenMotherCatchesPlayer));
+        motherHand.GetComponent<Image>().fillAmount = MotherTimerManager.instance.armFilledCurve.Evaluate(MotherTimerManager.instance.currentTime / MotherTimerManager.instance.timeWhenMotherCatchesPlayer);
+    }
+    
 
     //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
     public void PlayerWon()
@@ -59,7 +75,7 @@ public class MotherBehaviour : MonoBehaviour
     private IEnumerator PlayerWonCoroutine()
     {
         AudioManager.Instance.Play("LightsOutWin");
-        PlayerInputs.instance.isCaught = true;
+        PlayerInputs.instance.canInteract = true;
         MotherTimerManager.instance.pauseGameTime = false;
         MotherTimerManager.instance.gameStarted = false;
         FindObjectOfType<MenuUI>().LoadingScreen(true);
@@ -73,6 +89,8 @@ public class MotherBehaviour : MonoBehaviour
         }
         
         PlayerInputs.instance.vCam.m_Lens.FieldOfView = TargetCamFov;
+        
+        MotherTimerManager.instance.diedInScene = true;
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
@@ -81,7 +99,8 @@ public class MotherBehaviour : MonoBehaviour
     private IEnumerator PlayerCaughtCoroutine()
     {
         AudioManager.Instance.Play("LightsOutLose");
-        PlayerInputs.instance.isCaught = true;
+        PlayerInputs.instance.canInteract = true;
+        StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());
         yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
         BlackScreen(1);
         AudioManager.Instance.Stop("Rain");
@@ -101,6 +120,7 @@ public class MotherBehaviour : MonoBehaviour
                 secondBulb.SetActive(false);
                 secondBulbBroken.SetActive(true);
                 mother.GetComponent<Image>().color = new Color(1, 1, 1, 0.39f);
+                mother.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
                 mother.GetComponent<Transform>().position = new Vector3(350, -277, 0);
                 yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -112,6 +132,7 @@ public class MotherBehaviour : MonoBehaviour
                 mother.GetComponent<Transform>().position = new Vector3(350, -277, 0);
                 yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
                 MotherTimerManager.instance.currentPlayerTries = MotherTimerManager.instance.maxPlayerTries;
+                MotherTimerManager.instance.diedInScene = true;
                 SceneManager.LoadScene(0);
                 break;
         }

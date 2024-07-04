@@ -5,13 +5,16 @@ public class MotherTimerManager : MonoBehaviour
     [Header("PlayerTries")] 
     [SerializeField] public int maxPlayerTries;
     [SerializeField] public int currentPlayerTries;
+    [HideInInspector] public bool diedInScene;
     
     [Header("Time")] 
     [HideInInspector] public bool gameStarted;
     [SerializeField] public float currentTime;
-    [SerializeField] private float timeWhenMotherCatchesPlayer;
+    [SerializeField] public float timeWhenMotherCatchesPlayer;
     [SerializeField] private AnimationCurve motherVisualCurve;
+    [SerializeField] public AnimationCurve armFilledCurve;
     [SerializeField] private AnimationCurve camFrequencyVisualCurve;
+    [SerializeField] public AnimationCurve armPositionCurve;
     [HideInInspector] public bool pauseGameTime;
     [SerializeField] private int minimalTime = -5;
     [SerializeField] private float timeUntilDialogue;
@@ -67,9 +70,7 @@ public class MotherTimerManager : MonoBehaviour
     //The mother visuals are based on the time you have left before mother catches you
     private void MotherVisualOverTime()
     {
-        MotherBehaviour.instance.SetCamVisualCaught(motherVisualCurve.Evaluate(currentTime / timeWhenMotherCatchesPlayer), 
-            1, 
-            camFrequencyVisualCurve.Evaluate(currentTime / timeWhenMotherCatchesPlayer));
+        MotherBehaviour.instance.SetCamVisualCaught(motherVisualCurve.Evaluate(currentTime / timeWhenMotherCatchesPlayer),1, camFrequencyVisualCurve.Evaluate(currentTime / timeWhenMotherCatchesPlayer));
     }
     
     private void CheckPlayerLooseState()
@@ -94,17 +95,11 @@ public class MotherTimerManager : MonoBehaviour
         
         if (timeUntilDialogue >= maxTimeUntilDialogue)
         {
-            if (currentTime <= 30)
-            {
-                FindObjectOfType<MotherTextManager>().PlayRandomTextFriendly();
-                timeUntilDialogue = 0;
-                maxTimeUntilDialogue = 15;
-            }
-            else if (currentTime is > 30 and <= 50)
+            if (currentTime is > 30 and <= 45)
             {
                 FindObjectOfType<MotherTextManager>().PlayRandomTextPassiveAggressive();
                 timeUntilDialogue = 0;
-                maxTimeUntilDialogue = 10;
+                maxTimeUntilDialogue = 7;
             }
             else
             {

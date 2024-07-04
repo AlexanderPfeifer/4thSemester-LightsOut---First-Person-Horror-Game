@@ -16,6 +16,11 @@ public class MenuUI : MonoBehaviour
         AudioManager.Instance.Play("ButtonImportant");
     }
 
+    public void PlayButtonSound()
+    {
+        AudioManager.Instance.Play("ButtonImportant");
+    }
+
     //Sets option screen to true
     public void Options()
     {
@@ -34,7 +39,7 @@ public class MenuUI : MonoBehaviour
 
     public void MainMenu()
     {
-        AudioManager.Instance.Play("ButtonImportant");
+        AudioManager.Instance.Play("ButtonRegular");
         audioMenu.SetActive(false);
         graphicsMenu.SetActive(false);
         creditsMenu.SetActive(false);
