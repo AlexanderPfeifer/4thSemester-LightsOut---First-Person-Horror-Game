@@ -9,7 +9,6 @@ public class MemScape : MonoBehaviour
     [SerializeField] private List<Button> clickableButtons;
     [SerializeField] private List<int> memorizeOrder;
     [SerializeField] private List<Button> goThroughList;
-    private int firstFourObjects;
     private bool selectedConsole;
     [SerializeField] private int winningCount;
     [SerializeField] private int timeBonus;
@@ -30,7 +29,7 @@ public class MemScape : MonoBehaviour
     private IEnumerator TimeToRememberScreen()
     {
         UIInteraction.instance.canInteract = false;
-        
+
         while (timeToRemember.alpha < .9f)
         {
             timeToRemember.alpha = Mathf.Lerp(timeToRemember.alpha, 1, Time.deltaTime);
@@ -58,7 +57,7 @@ public class MemScape : MonoBehaviour
         {
             if (selectedConsole)
             {
-                StartCoroutine(TimeToRememberScreen());
+                StartCoroutine(SetButtonColors());
                 selectedConsole = false;
             }
         }
@@ -75,6 +74,8 @@ public class MemScape : MonoBehaviour
     
     private IEnumerator SetButtonColors()
     {
+        UIInteraction.instance.canInteract = false;
+        
         goThroughList.Clear();
 
         if (UIInteraction.instance.lastSelectedButton != null)
@@ -130,9 +131,7 @@ public class MemScape : MonoBehaviour
             
             clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, 0);
         }
-
-        AudioManager.Instance.Play("MemScapeGameStart");
-
+        
         MotherTimerManager.instance.pauseGameTime = false;
         
         UIInteraction.instance.canInteract = true;
@@ -150,29 +149,11 @@ public class MemScape : MonoBehaviour
 
                 MotherTimerManager.instance.pauseGameTime = true;
 
-                if (firstFourObjects >= 3)
-                {
-                    AddMemorizeObject();
-                }
-                else if(firstFourObjects == 0)
-                {
-                    memorizeOrder.Add(3);
-                    firstFourObjects = 1;
-                }
-                else if(firstFourObjects == 1)
-                {
-                    memorizeOrder.Add(2);
-                    firstFourObjects = 2;
-                }
-                else if(firstFourObjects == 2)
-                {
-                    memorizeOrder.Add(0);
-                    firstFourObjects = 3;
-                }
+                AddMemorizeObject();
 
                 if (!(memorizeOrder.Count >= winningCount))
                 {
-                    StartCoroutine(TimeToRememberScreen());
+                    StartCoroutine(SetButtonColors());
                     AudioManager.Instance.Play("MemScapeSequenceCorrect");
                 }
                 else
@@ -201,6 +182,6 @@ public class MemScape : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         
-        StartCoroutine(TimeToRememberScreen());
+        StartCoroutine(SetButtonColors());
     }
 }

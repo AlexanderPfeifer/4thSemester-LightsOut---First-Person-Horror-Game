@@ -5,14 +5,10 @@ public class MotherTextManager : MonoBehaviour
 {
     [SerializeField] public string startSentence;
     [SerializeField] public string endSentence;
-
-    [SerializeField] private List<string> passiveAggressiveSentences;
-    [SerializeField] private List<string> madSentences;
+    
     [SerializeField] private List<string> loseSentences;
 
     private int currentLoseSentence;
-    private int currentPassiveAggressiveSentence;
-    private int currentMadSentence;
 
     public void StartMotherText()
     {
@@ -37,32 +33,6 @@ public class MotherTextManager : MonoBehaviour
             currentLoseSentence = 0;
             TextManager.Instance.DisplayText(loseSentences[currentLoseSentence],.03f);
             currentLoseSentence++;
-        }
-    }
-
-    public void PlayRandomTextPassiveAggressive()
-    {
-        if (currentPassiveAggressiveSentence <= passiveAggressiveSentences.Count)
-        {
-            TextManager.Instance.DisplayText(passiveAggressiveSentences[currentPassiveAggressiveSentence],.03f);
-            currentPassiveAggressiveSentence++;
-            if (currentPassiveAggressiveSentence == passiveAggressiveSentences.Count)
-            {
-                currentPassiveAggressiveSentence = 0;
-            }
-        }
-    }
-    
-    public void PlayRandomTextMad()
-    {
-        if (currentMadSentence <= madSentences.Count)
-        {
-            TextManager.Instance.DisplayText(madSentences[currentMadSentence],.03f);
-            currentMadSentence++;     
-            if (currentMadSentence == madSentences.Count)
-            {
-                currentMadSentence = 0;
-            }
         }
     }
 

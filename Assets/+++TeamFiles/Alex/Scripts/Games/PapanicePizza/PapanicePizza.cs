@@ -22,7 +22,7 @@ public class PapanicePizza : MonoBehaviour
     [SerializeField] private Image timerBar;
     [SerializeField] private float maxTimeForOrder;
     private float currentTimeForOrder;
-    private float pizzaTimeSubtraction = 5f;
+    private float pizzaTimeSubtraction = 17f;
 
 
     [Header("Score")]
@@ -37,7 +37,7 @@ public class PapanicePizza : MonoBehaviour
 
     private bool timerUp;
     private bool generatedOrder;
-    private bool runTimer;
+    [HideInInspector] public bool runTimer;
 
     //Deactivates sprites and resets the timers and starts the game with a new order
     public void Start()
@@ -204,6 +204,7 @@ public class PapanicePizza : MonoBehaviour
                     StartCoroutine(SetOrderStateCoroutine(rightOrderReact));
                     MotherTimerManager.instance.TimeBonus(timeBonus);
                     currentScore++;
+                    maxTimeForOrder -= pizzaTimeSubtraction;
                     AudioManager.Instance.Play("PapanicePizzaCorrect");
                     
                     if (currentScore >= winScore)
@@ -221,8 +222,6 @@ public class PapanicePizza : MonoBehaviour
         runTimer = false;
         
         gotDough = false;
-
-        maxTimeForOrder -= pizzaTimeSubtraction;
 
         orderList[0].SetActive(false);
         orderList[1].SetActive(false);

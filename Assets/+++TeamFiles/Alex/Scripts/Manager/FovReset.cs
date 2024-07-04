@@ -25,14 +25,12 @@ public class FovReset : MonoBehaviour
             PlayerInputs.instance.canInteract = true;
 
             StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());
-            
-            yield return null;   
         }
         else
         {
             FindObjectOfType<MenuUI>().LoadingScreen(false);
             
-            PlayerInputs.instance.canInteract = true;
+            PlayerInputs.instance.canInteract = true; 
         }
     }
 }

@@ -17,8 +17,6 @@ public class MotherTimerManager : MonoBehaviour
     [SerializeField] public AnimationCurve armPositionCurve;
     [HideInInspector] public bool pauseGameTime;
     [SerializeField] private int minimalTime = -5;
-    [SerializeField] private float timeUntilDialogue;
-    private float maxTimeUntilDialogue = 15;
 
     [Header("Singleton")]
     public static MotherTimerManager instance;
@@ -55,15 +53,15 @@ public class MotherTimerManager : MonoBehaviour
     //Adds Time before mother catches you.
     public void TimeBonus(float timeBonus)
     {
+        if (currentTime <= minimalTime)
+            return;
+        
         currentTime -= timeBonus;
     }
     
     //Removes Time that is needed for mother to catch you. Game ends at a certain time
     public void TimePenalty(float timePenalty)
     {
-        if (currentTime <= minimalTime)
-            return;
-        
         currentTime += timePenalty;
     }
     
@@ -90,23 +88,6 @@ public class MotherTimerManager : MonoBehaviour
         if (gameStarted && !pauseGameTime)
         {
             currentTime += Time.deltaTime;
-            timeUntilDialogue += Time.deltaTime;
-        }
-        
-        if (timeUntilDialogue >= maxTimeUntilDialogue)
-        {
-            if (currentTime is > 30 and <= 45)
-            {
-                FindObjectOfType<MotherTextManager>().PlayRandomTextPassiveAggressive();
-                timeUntilDialogue = 0;
-                maxTimeUntilDialogue = 7;
-            }
-            else
-            {
-                FindObjectOfType<MotherTextManager>().PlayRandomTextMad();
-                timeUntilDialogue = 0;
-                maxTimeUntilDialogue = 7;
-            }
         }
 
         FindObjectOfType<Lighting>().roomLight.SetActive(currentTime > 50);

@@ -75,7 +75,7 @@ public class MotherBehaviour : MonoBehaviour
     private IEnumerator PlayerWonCoroutine()
     {
         AudioManager.Instance.Play("LightsOutWin");
-        PlayerInputs.instance.canInteract = true;
+        PlayerInputs.instance.canInteract = false;
         MotherTimerManager.instance.pauseGameTime = false;
         MotherTimerManager.instance.gameStarted = false;
         FindObjectOfType<MenuUI>().LoadingScreen(true);
@@ -90,7 +90,7 @@ public class MotherBehaviour : MonoBehaviour
         
         PlayerInputs.instance.vCam.m_Lens.FieldOfView = TargetCamFov;
         
-        MotherTimerManager.instance.diedInScene = true;
+        MotherTimerManager.instance.diedInScene = false;
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
@@ -98,14 +98,18 @@ public class MotherBehaviour : MonoBehaviour
     //When player picked a new game, the objects reset from the game on the table to console and mathbook
     private IEnumerator PlayerCaughtCoroutine()
     {
+        if (FindObjectOfType<PapanicePizza>())
+        {
+            FindObjectOfType<PapanicePizza>().runTimer = false;
+        }
         AudioManager.Instance.Play("LightsOutLose");
-        PlayerInputs.instance.canInteract = true;
+        MotherTimerManager.instance.gameStarted = false;
+        PlayerInputs.instance.canInteract = false;
         StartCoroutine(PlayerInputs.instance.PutDownInteractableCoroutine());
         yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
         BlackScreen(1);
         AudioManager.Instance.Stop("Rain");
         MotherTimerManager.instance.currentTime = 0;
-        yield return new WaitForSeconds(timeUntilBlackOrWhiteScreen);
         
         switch (MotherTimerManager.instance.currentPlayerTries)
         {
@@ -114,18 +118,23 @@ public class MotherBehaviour : MonoBehaviour
                 firstBulbBroken.SetActive(true);
                 mother.GetComponent<Image>().color = new Color(1, 1, 1, 0.039f);
                 yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
+                MotherTimerManager.instance.diedInScene = true;
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 break;
             case 1 :
+                firstBulb.SetActive(false);
                 secondBulb.SetActive(false);
                 secondBulbBroken.SetActive(true);
                 mother.GetComponent<Image>().color = new Color(1, 1, 1, 0.39f);
                 mother.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
                 mother.GetComponent<Transform>().position = new Vector3(350, -277, 0);
                 yield return new WaitForSeconds(timeInBlackOrWhiteScreen);
+                MotherTimerManager.instance.diedInScene = true;
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 break;
             case 0 :
+                firstBulb.SetActive(false);
+                secondBulb.SetActive(false);
                 thirdBulb.SetActive(false);
                 thirdBulbBroken.SetActive(true);
                 mother.GetComponent<Image>().color = new Color(1, 1, 1, 1);
