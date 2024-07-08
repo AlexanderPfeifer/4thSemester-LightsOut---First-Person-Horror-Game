@@ -6,15 +6,18 @@ public class Bomb : MonoBehaviour
     private SparkleSpelunk sparkleSpelunk;
     private Animator anim;
     private Animator bombAnim;
-
+    
     private void Start()
     {
         sparkleSpelunk = FindObjectOfType<SparkleSpelunk>();
         
         GetComponent<Animator>().SetFloat("speedMultiplier", sparkleSpelunk.bombSpeedMultiplier);
     }
-    
-    private void Update()
+
+    private void Update() => BombDropped();
+
+    //Drops the bomb on the place where it was when left click was released
+    private void BombDropped()
     {
         if (!bombDropped)
         {
@@ -22,35 +25,40 @@ public class Bomb : MonoBehaviour
         }
     }
 
+    #region Sounds
+
+    //Plays first tick sound on animation
     public void FirstTickSound()
     {
         AudioManager.Instance.Play("SparkleSpelunkBombFirstTick");
     }    
     
+    //Plays second tick sound on animation
     public void SecondTickSound()
     {
         AudioManager.Instance.Play("SparkleSpelunkBombSecondTick");
     }    
     
+    //Plays third tick sound on animation
     public void ThirdTickSound()
     {
         AudioManager.Instance.Play("SparkleSpelunkBombThirdTick");
     }
 
+    #endregion
+
+    //Destroys the bomb and sets bool bomb is spawned to false
     private void DestroyBomb()
     {
-        if (sparkleSpelunk.firstBombSpawned)
+        if (sparkleSpelunk.bombSpawned)
         {
-            sparkleSpelunk.firstBombSpawned = false;
+            sparkleSpelunk.bombSpawned = false;
         }
-        else if(sparkleSpelunk.secondBombSpawned)
-        {
-            sparkleSpelunk.secondBombSpawned = false;
-        }
-        
+
         Destroy(gameObject);
     }
-
+    
+    //Checks whether a block or the player is in range and destroys/deals damage according the what is in range
     private void OnDestroy()
     {
         AudioManager.Instance.Play("SparkleSpelunkBombExplosion");
@@ -66,7 +74,7 @@ public class Bomb : MonoBehaviour
             sparkleSpelunk.MinerEarned(sparkleSpelunk.minerEarnedSpriteHandGold);
             sparkleSpelunk.allBlocks.Remove(goldHit.transform);
             Destroy(goldHit.transform.gameObject);
-            MotherTimerManager.instance.TimeBonus(sparkleSpelunk.timeBonusGold);
+            MotherTimerManager.Instance.TimeBonus(sparkleSpelunk.timeBonusGold);
         }
         else if (Physics.Raycast(transform.position, -transform.up, out var diamondHit, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.diamondLayer))
         {
@@ -74,12 +82,12 @@ public class Bomb : MonoBehaviour
             sparkleSpelunk.MinerEarned(sparkleSpelunk.minerEarnedSpriteHandDiamond);
             sparkleSpelunk.allBlocks.Remove(diamondHit.transform);
             Destroy(diamondHit.transform.gameObject);
-            MotherTimerManager.instance.TimeBonus(sparkleSpelunk.timeBonusDiamond);
+            MotherTimerManager.Instance.TimeBonus(sparkleSpelunk.timeBonusDiamond);
         }
         
-        if(Physics.Raycast(transform.position, -transform.up, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, -transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || sparkleSpelunk.bombInHand)
+        if(Physics.Raycast(transform.position, -transform.up, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, -transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || Physics.Raycast(transform.position, transform.right, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer) || sparkleSpelunk.bombInHand ||  Physics.Raycast(transform.position, transform.position, sparkleSpelunk.block.transform.localScale.y, sparkleSpelunk.playerLayer))
         {
-            if (!sparkleSpelunk.firstBombSpawned && sparkleSpelunk.bombInHand)
+            if (!sparkleSpelunk.bombSpawned && sparkleSpelunk.bombInHand)
             {
                 sparkleSpelunk.minerHead.sprite = sparkleSpelunk.minerIdleSpriteHead;
                 sparkleSpelunk.minerHands.sprite = sparkleSpelunk.minerIdleSpriteHands;
@@ -87,7 +95,7 @@ public class Bomb : MonoBehaviour
             }
 
             sparkleSpelunk.MinerHit();
-            MotherTimerManager.instance.TimePenalty(sparkleSpelunk.timePenalty);
+            MotherTimerManager.Instance.TimePenalty(sparkleSpelunk.timePenalty);
         }
     }
 }

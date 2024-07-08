@@ -6,43 +6,44 @@ using UnityEngine.UI;
 
 public class Options : MonoBehaviour
 {
-    [Header("Graphics")] 
-    private string fullScreenPlayerPrefs = "Fullscreen";
+    [Header("Fullscreen")] 
+    private const string FullScreenPlayerPrefs = "Fullscreen";
     private int fullScreenInt = 1;
     [SerializeField] private GameObject fullScreenCheck;
+    
+    [Header("Brightness")]
     [SerializeField] private Volume brightnessVolume;
     private int sameDirectionMinusBrightness = 1;
     private int sameDirectionPlusBrightness;
     private int currentBrightnessPoint = 4;
-    private string brightnessPlayerPrefs = "brightness";
+    private const string BrightnessPlayerPrefs = "brightness";
     private float brightness = .5f;
     [SerializeField] private List<GameObject> brightnessPoints;
 
-    [Header("Audio")] 
+    [Header("AudioMixer")] 
     public AudioMixer audioMixer;
     
+    [Header("AudioMaster")]
     [SerializeField] private List<GameObject> masterPoints;
-    [SerializeField] private List<GameObject> musicPoints;
-    [SerializeField] private List<GameObject> sfxPoints;
-    private int currentVolumePointMusic = 4; 
-    private int currentVolumePointMaster = 4; 
-    private int currentVolumePointSfx = 4; 
-    
-    private string masterVolumePlayerPrefs = "masterVolume";
+    private int currentVolumePointMaster = 4;
+    private const string MasterVolumePlayerPrefs = "masterVolume";
     private float masterVolume = .5f;
-
-    private string musicVolumePlayerPrefs = "musicVolume";
-    private float musicVolume = .5f;
-    
-    private string sfxVolumePlayerPrefs = "sfxVolume";
-    private float sfxVolume = .5f;
-
-    private int sameDirectionMinusMusic = 1;
-    private int sameDirectionPlusMusic;
-    
     private int sameDirectionMinusMaster = 1;
     private int sameDirectionPlusMaster;
     
+    [Header("AudioMusic")]
+    [SerializeField] private List<GameObject> musicPoints;
+    private int currentVolumePointMusic = 4;
+    private const string MusicVolumePlayerPrefs = "musicVolume";
+    private float musicVolume = .5f;
+    private int sameDirectionMinusMusic = 1;
+    private int sameDirectionPlusMusic;
+    
+    [Header("AudioSFX")]
+    [SerializeField] private List<GameObject> sfxPoints;
+    private int currentVolumePointSfx = 4;
+    private const string SfxVolumePlayerPrefs = "sfxVolume";
+    private float sfxVolume = .5f;
     private int sameDirectionMinusSfx = 1;
     private int sameDirectionPlusSfx;
 
@@ -51,11 +52,12 @@ public class Options : MonoBehaviour
         SetPlayerPrefs();
     }
     
+    //Sets all the player prefs for the settings
     private void SetPlayerPrefs()
     {
-        fullScreenInt = PlayerPrefs.GetInt(fullScreenPlayerPrefs, fullScreenInt);
+        fullScreenInt = PlayerPrefs.GetInt(FullScreenPlayerPrefs, fullScreenInt);
 
-        PlayerPrefs.GetFloat(masterVolumePlayerPrefs, masterVolume);
+        PlayerPrefs.GetFloat(MasterVolumePlayerPrefs, masterVolume);
         for (int i = 0; i < masterPoints.Count; i++)
         {
             if (masterVolume * 10 - 2 < i)
@@ -64,7 +66,7 @@ public class Options : MonoBehaviour
             }
         }
         
-        PlayerPrefs.GetFloat(musicVolumePlayerPrefs, musicVolume);
+        PlayerPrefs.GetFloat(MusicVolumePlayerPrefs, musicVolume);
         for (int i = 0; i < musicPoints.Count; i++)
         {
             if (musicVolume * 10 - 2 < i)
@@ -73,7 +75,7 @@ public class Options : MonoBehaviour
             }
         }
         
-        PlayerPrefs.GetFloat(sfxVolumePlayerPrefs, sfxVolume);
+        PlayerPrefs.GetFloat(SfxVolumePlayerPrefs, sfxVolume);
         for (int i = 0; i < sfxPoints.Count; i++)
         {
             if (sfxVolume * 10 - 2 < i)
@@ -97,10 +99,13 @@ public class Options : MonoBehaviour
 
         fullScreenCheck.SetActive(isFullScreenOn);
 
-        PlayerPrefs.SetInt(fullScreenPlayerPrefs, fullScreenInt);
+        PlayerPrefs.SetInt(FullScreenPlayerPrefs, fullScreenInt);
     }
 
-    public void BrightnessMinus()
+    //Adds or subtracts value according to the parameter
+    #region Plus and minus of sfx and graphics
+
+        public void BrightnessMinus()
     {
         if (brightness <= 0)
             return;
@@ -119,6 +124,7 @@ public class Options : MonoBehaviour
             currentBrightnessPoint--;
             brightnessPoints[currentBrightnessPoint].GetComponent<Image>().color = new Color(0.39f, 0.39f, 0.39f);
             ChangeBrightness(.1f);
+            AudioManager.Instance.Play("ButtonDown");
         }
     }
     
@@ -127,7 +133,6 @@ public class Options : MonoBehaviour
         if (brightness <= .1f)
             return;
         
-        Debug.Log(brightness);
         
         sameDirectionPlusBrightness++;
         
@@ -143,6 +148,7 @@ public class Options : MonoBehaviour
             currentBrightnessPoint++;
             brightnessPoints[currentBrightnessPoint].GetComponent<Image>().color = new Color(1f, 1f, 1f);
             ChangeBrightness(-.1f);
+            AudioManager.Instance.Play("ButtonUp");
         }
     }
     
@@ -165,6 +171,7 @@ public class Options : MonoBehaviour
             currentVolumePointMusic--;
             musicPoints[currentVolumePointMusic].GetComponent<Image>().color = new Color(0.39f, 0.39f, 0.39f);
             ChangeMusicVolume(-.1f);
+            AudioManager.Instance.Play("ButtonDown");
         }
     }
     
@@ -187,6 +194,7 @@ public class Options : MonoBehaviour
             currentVolumePointMusic++;
             musicPoints[currentVolumePointMusic].GetComponent<Image>().color = new Color(1f, 1f, 1f);
             ChangeMusicVolume(.1f);
+            AudioManager.Instance.Play("ButtonUp");
         }
     }
     
@@ -209,6 +217,7 @@ public class Options : MonoBehaviour
             currentVolumePointMaster--;
             masterPoints[currentVolumePointMaster].GetComponent<Image>().color = new Color(0.39f, 0.39f, 0.39f);
             ChangeMasterVolume(-.1f);
+            AudioManager.Instance.Play("ButtonDown");
         }
     }
     
@@ -231,6 +240,7 @@ public class Options : MonoBehaviour
             currentVolumePointMaster++;
             masterPoints[currentVolumePointMaster].GetComponent<Image>().color = new Color(1f, 1f, 1f);
             ChangeMasterVolume(.1f);
+            AudioManager.Instance.Play("ButtonUp");
         }
     }
     
@@ -253,6 +263,7 @@ public class Options : MonoBehaviour
             currentVolumePointSfx--;
             sfxPoints[currentVolumePointSfx].GetComponent<Image>().color = new Color(0.39f, 0.39f, 0.39f);
             ChangeSfxVolume(-.1f);
+            AudioManager.Instance.Play("ButtonDown");
         }
     }
     
@@ -275,18 +286,22 @@ public class Options : MonoBehaviour
             currentVolumePointSfx++;
             sfxPoints[currentVolumePointSfx].GetComponent<Image>().color = new Color(1f, 1f, 1f);
             ChangeSfxVolume(.1f);
+            AudioManager.Instance.Play("ButtonUp");
         }
     }
-    
+
+    #endregion
+
+    //Applies the changes of the methods before in here
+    #region sfx and graphics change
+
     private void ChangeMasterVolume(float value)
     {
         masterVolume += value;
         
         audioMixer.SetFloat("masterVolume", Mathf.Log10(masterVolume) * 20);
         
-        PlayerPrefs.SetFloat(masterVolumePlayerPrefs, masterVolume);
-        
-        AudioManager.Instance.Play("ButtonDown");
+        PlayerPrefs.SetFloat(MasterVolumePlayerPrefs, masterVolume);
     }
     
     private void ChangeMusicVolume(float value)
@@ -295,9 +310,7 @@ public class Options : MonoBehaviour
         
         audioMixer.SetFloat("musicVolume", Mathf.Log10(musicVolume) * 20);
         
-        PlayerPrefs.SetFloat(musicVolumePlayerPrefs, musicVolume);
-        
-        AudioManager.Instance.Play("ButtonDown");
+        PlayerPrefs.SetFloat(MusicVolumePlayerPrefs, musicVolume);
     }
     
     private void ChangeSfxVolume(float value)
@@ -306,9 +319,7 @@ public class Options : MonoBehaviour
 
         audioMixer.SetFloat("sfxVolume", Mathf.Log10(sfxVolume) * 20);
         
-        PlayerPrefs.SetFloat(sfxVolumePlayerPrefs, sfxVolume);
-        
-        AudioManager.Instance.Play("ButtonDown");
+        PlayerPrefs.SetFloat(SfxVolumePlayerPrefs, sfxVolume);
     }
     
     private void ChangeBrightness(float value)
@@ -317,8 +328,8 @@ public class Options : MonoBehaviour
 
         brightnessVolume.weight = brightness;
         
-        PlayerPrefs.SetFloat(brightnessPlayerPrefs, brightness);
-        
-        AudioManager.Instance.Play("ButtonDown");
+        PlayerPrefs.SetFloat(BrightnessPlayerPrefs, brightness);
     }
+
+    #endregion
 }

@@ -21,9 +21,9 @@ public class PapanicePizza : MonoBehaviour
     [SerializeField] private int timePenalty;
     [SerializeField] private Image timerBar;
     [SerializeField] private float maxTimeForOrder;
+    [HideInInspector] public bool runTimer;
+    private bool timerUp;
     private float currentTimeForOrder;
-    private float pizzaTimeSubtraction = 17f;
-
 
     [Header("Score")]
     [SerializeField] private int winScore;
@@ -31,13 +31,9 @@ public class PapanicePizza : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentScoreText;
     [SerializeField] private TextMeshProUGUI winScoreText;
     
+    [Header("CurrentOrder")]
     bool gotDough;
-    bool gotSauce;
-    bool gotCheese;
-
-    private bool timerUp;
     private bool generatedOrder;
-    [HideInInspector] public bool runTimer;
 
     //Deactivates sprites and resets the timers and starts the game with a new order
     public void Start()
@@ -46,20 +42,23 @@ public class PapanicePizza : MonoBehaviour
         
         currentTimeForOrder = maxTimeForOrder;
         
+        UIInteraction.instance.canInteract = false;
+
         wrongOrderReact.SetActive(false);
         rightOrderReact.SetActive(false);
-
-        pizzaTimeSubtraction /= winScore;
-
+        
         SetActivationListObject(ingredientsList, false);
         SetActivationListObject(orderList, false);
 
         StartCoroutine(GameStarted());
 
-        if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand)
+        if (PlayerInputs.Instance.holdObjectState != PlayerInputs.HoldObjectState.InHand)
             StopAllCoroutines();
     }
+    
+    private void Update() => Timer();
 
+    //Starts the game a bit delayed to give the player time to react
     private IEnumerator GameStarted()
     {
         yield return new WaitForSeconds(2);
@@ -68,20 +67,18 @@ public class PapanicePizza : MonoBehaviour
 
         GenerateNewOrder();
         
-        MotherTimerManager.instance.GameStarted();
+        UIInteraction.instance.canInteract = true;
+
+        MotherTimerManager.Instance.GameStarted();
 
         runTimer = true;
     }
-    
-    private void Update()
-    {
-        Timer();
-        
-        currentScoreText.text = currentScore.ToString();
-    }
 
+    //Handles everything about the timer to complete orders
     private void Timer()
     {
+        currentScoreText.text = currentScore.ToString();
+        
         if (runTimer)
         {
             if (currentTimeForOrder <= 0 && !timerUp)
@@ -98,7 +95,7 @@ public class PapanicePizza : MonoBehaviour
         }
     }
 
-    //Generates a new order with random outcome, but keeps sauce and dough as the base
+    //Generates a new order with random outcome, but keeps the dough as the base
     private void GenerateNewOrder()
     {
         foreach (var orderIngredients in orderList)
@@ -109,34 +106,20 @@ public class PapanicePizza : MonoBehaviour
         orderList[0].SetActive(true);
     }
 
-    //With every new ingredient added, checks if the ingredients of the pizza and the order match
+    //With every new ingredient added, checks if the ingredients of the pizza and the order match or not
     public void CheckIfMatch()
     {
         if (ingredientsList[0].activeSelf && !gotDough)
         {
             gotDough = true;
-            CheckWin();
+            CheckIfWin();
             return;
         }
-        
-        if (orderList[1].activeSelf && ingredientsList[1].activeSelf && gotDough && !gotSauce)
-        {
-            gotSauce = true;
-            CheckWin();
-            return;
-        }
-        
+
         if(!ingredientsList[0].activeSelf)
         {
             WrongPizza();
             return;  
-        }
-        
-        if (orderList[1].activeSelf && !gotSauce && gotDough)
-        {
-            WrongPizza();
-
-            return;
         }
 
         if (ingredientsList.Where((ingredient, i) => !orderList[i].activeSelf && ingredient.activeSelf).Any())
@@ -145,21 +128,44 @@ public class PapanicePizza : MonoBehaviour
             return;
         }
         
-        CheckWin();
-    }
-
-    private void WrongPizza()
-    {
-        FindObjectOfType<MotherTextManager>().PlayLoseText();
-        StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
-        MotherTimerManager.instance.TimePenalty(timePenalty);
-        AudioManager.Instance.Play("PapanicePizzaWrong");
-        PlayerInputs.instance.PlayChildAggressiveAnimation();
+        CheckIfWin();
     }
     
-    private void CheckWin()
+    //Checks win state on every added ingredient and adds a point to the score and gets a new order ready, plays a random sound effect on any ingredient 
+    private void CheckIfWin()
     {
         var randomSound = Random.Range(0, 8);
+
+        var activeOrder = orderList.Count(orderElement => orderElement.activeSelf);
+
+        var correctIngredients = 0;
+
+        for (var i = 0; i < ingredientsList.Count; i++)
+        {
+            if (orderList[i].activeSelf && ingredientsList[i].activeSelf)
+            {
+                correctIngredients++;
+
+                if (correctIngredients == activeOrder)
+                {
+                    StartCoroutine(SetOrderStateCoroutine(rightOrderReact));
+                    MotherTimerManager.Instance.TimeBonus(timeBonus);
+                    currentScore++;
+                    if (maxTimeForOrder > 4)
+                    {
+                        maxTimeForOrder -= 1.5f;
+                    }
+                    
+                    AudioManager.Instance.Play("MemScapeTimeToRemember");
+                    
+                    if (currentScore >= winScore)
+                    {
+                        MotherBehaviour.instance.PlayerWin();
+                        return;
+                    }
+                }
+            }
+        }
         
         switch (randomSound)
         {
@@ -188,32 +194,16 @@ public class PapanicePizza : MonoBehaviour
                 AudioManager.Instance.Play("MemScapeEighthImage");
                 break;
         }
+    }
 
-        var activeOrder = orderList.Count(orderElement => orderElement.activeSelf);
-
-        var correctIngredients = 0;
-
-        for (var i = 0; i < ingredientsList.Count; i++)
-        {
-            if (orderList[i].activeSelf && ingredientsList[i].activeSelf)
-            {
-                correctIngredients++;
-
-                if (correctIngredients == activeOrder)
-                {
-                    StartCoroutine(SetOrderStateCoroutine(rightOrderReact));
-                    MotherTimerManager.instance.TimeBonus(timeBonus);
-                    currentScore++;
-                    maxTimeForOrder -= pizzaTimeSubtraction;
-                    AudioManager.Instance.Play("PapanicePizzaCorrect");
-                    
-                    if (currentScore >= winScore)
-                    {
-                        MotherBehaviour.instance.PlayerWon();
-                    }
-                }
-            }
-        }
+    //Subtracts time from mother timer and gets a new order ready
+    private void WrongPizza()
+    {
+        FindObjectOfType<MotherTextManager>().PlayLoseText();
+        StartCoroutine(SetOrderStateCoroutine(wrongOrderReact));
+        MotherTimerManager.Instance.TimePenalty(timePenalty);
+        AudioManager.Instance.Play("PapanicePizzaWrong");
+        PlayerInputs.Instance.PlayChildAggressiveAnimation();
     }
 
     //Shows if the order was right or wrong and gets a new order
@@ -222,6 +212,8 @@ public class PapanicePizza : MonoBehaviour
         runTimer = false;
         
         gotDough = false;
+        
+        UIInteraction.instance.canInteract = false;
 
         orderList[0].SetActive(false);
         orderList[1].SetActive(false);
@@ -233,6 +225,8 @@ public class PapanicePizza : MonoBehaviour
         
         orderReactSprite.SetActive(false);
         
+        UIInteraction.instance.canInteract = true;
+
         SetActivationListObject(ingredientsList, false);
         
         GenerateNewOrder();

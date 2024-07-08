@@ -6,32 +6,26 @@ public class RandomSparkling : MonoBehaviour
     private float time;
     [SerializeField] private float minTime;
     [SerializeField] private float maxTime;
-    private bool timerRunning = true;
+    private bool animationPlaying = true;
 
     private void Start()
     {
-        anim = GetComponent<Animator>();
         time = Random.Range(0, 4);
+        anim = GetComponent<Animator>();
     }
 
-    private void Update()
-    {
-        RandomSparklingAnimation();
-    }
+    private void Update() => RandomSparklingAnimation();
+    
+    //Sets random time value on end of sparkling animation
+    private void RandomValue() => time = Random.Range(minTime, maxTime);
 
-    private void RandomValue()
-    {
-        time = Random.Range(minTime, maxTime);
-    }
+    //Checks if animation is playing
+    private void StartTimer() => animationPlaying = true;
 
-    private void StartTimer()
-    {
-        timerRunning = true;
-    }
-
+    //Play sparkling animation
     private void RandomSparklingAnimation()
     {
-        if(!timerRunning)
+        if(!animationPlaying)
             return;
         
         time -= Time.deltaTime;
@@ -39,7 +33,7 @@ public class RandomSparkling : MonoBehaviour
         if (time <= 0)
         {
             anim.SetTrigger("Sparkle");
-            timerRunning = false;
+            animationPlaying = false;
         }
     }
 }

@@ -6,7 +6,7 @@ public class PlayerInputs : MonoBehaviour
 {
     [Header("MouseInput")]
     [SerializeField] private float mouseSensitivity = .85f;
-    private Vector2 mousePosition;
+    [HideInInspector] public Vector2 mousePosition;
     [HideInInspector] public bool canInteract;
 
     [Header("Camera")]
@@ -23,9 +23,18 @@ public class PlayerInputs : MonoBehaviour
     [SerializeField] private LayerMask interactableLayerMask;
     [SerializeField] private Animator consoleAnim;
 
-    public static PlayerInputs instance;
+    public static PlayerInputs Instance;
+    
+    //An enum of all the states holding there are
+    public enum HoldObjectState
+    {
+        InHand,
+        LayingDown,
+        LiftingUp,
+        OutOfHand
+    }
 
-    private void Awake() => instance = this;
+    private void Awake() => Instance = this;
 
     //Locks the cursor and makes it invisible
     private void Start()
@@ -36,6 +45,7 @@ public class PlayerInputs : MonoBehaviour
         canInteract = true;
     }
     
+    //There is a visual bug of the UI which is fixed by resetting the UI from time to time
     private IEnumerator ResetHudUi()
     {
         while (true)
@@ -47,15 +57,6 @@ public class PlayerInputs : MonoBehaviour
         }
     }
 
-    //An enum of all the states holding there are
-    public enum HoldObjectState
-    {
-        InHand,
-        LayingDown,
-        LiftingUp,
-        OutOfHand
-    }
-
     private void Update()
     {
         LookAround();
@@ -65,11 +66,6 @@ public class PlayerInputs : MonoBehaviour
         SelectInteractableInLookDir();
     }
 
-    public void PlayChildAggressiveAnimation()
-    {
-        consoleAnim.SetTrigger("aggression");
-    }
-    
     //Here I made a method which rotates the player according to the mouse movement. I also clamped it so the player cannot rotate around itself
     private void LookAround()
     {
@@ -87,7 +83,31 @@ public class PlayerInputs : MonoBehaviour
         var cameraRotation = Quaternion.Euler(mousePosition.x, mousePosition.y, 0);
         vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, cameraRotation, CamSensitivity * Time.deltaTime);;
     }
+    
+    //Animation when player loses
+    public void PlayChildAggressiveAnimation()
+    {
+        consoleAnim.SetTrigger("aggression");
+    }
 
+    #region Selecting and interacting
+    
+    //Interacts with object when clicked on it(takes it to hold position)
+    private void InteractWithInteractable()
+    {
+        if ((!Input.GetMouseButtonDown(0) && !Input.GetKeyDown(KeyCode.E)) || currentInteractableObject == null) 
+            return;
+
+        if (canInteract)
+        {
+            SelectVisual(false);
+
+            holdObjectState = HoldObjectState.LiftingUp;
+
+            StartCoroutine(PickUpInteractable());
+        }
+    }
+    
     //When hovering over an object, it activates another object that indicates, that it is selected
     private void SelectInteractableInLookDir()
     {
@@ -144,25 +164,15 @@ public class PlayerInputs : MonoBehaviour
         }
     }
 
-    //Interacts with object when clicked on it(takes it to hold position)
-    private void InteractWithInteractable()
-    {
-        if ((!Input.GetMouseButtonDown(0) && !Input.GetKeyDown(KeyCode.E)) || currentInteractableObject == null) 
-            return;
+    #endregion
 
-        if (canInteract)
-        {
-            SelectVisual(false);
-
-            holdObjectState = HoldObjectState.LiftingUp;
-
-            StartCoroutine(TakeInteractable());
-        }
-    }
+    #region Pick Up interactable
 
     //Picks up the interactable object
-    private IEnumerator TakeInteractable()
+    private IEnumerator PickUpInteractable()
     {
+        var currentInteractableInteraction = currentInteractableObject.GetComponent<Interaction>();
+        
         if (FindObjectOfType<StartMemScape>() != null && !FindObjectOfType<StartMemScape>().canInteractWithConsole)
         {
             TextManager.Instance.ClearText();
@@ -170,9 +180,9 @@ public class PlayerInputs : MonoBehaviour
         
         while (Vector3.Distance(currentInteractableObject.transform.position, Vector3.zero) > 0.01f)
         {
-            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
+            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),currentInteractableInteraction.interactableObjectPutAwaySpeed * Time.deltaTime);
 
-            currentInteractableObject.GetComponent<Interaction>().TakeInteractableObject(currentInteractableObject);
+            currentInteractableInteraction.TakeInteractableObject(currentInteractableObject);
 
             currentInteractableObject.GetComponent<Collider>().enabled = false;
             
@@ -181,41 +191,51 @@ public class PlayerInputs : MonoBehaviour
 
         currentInteractableObject.transform.position = Vector3.zero;
 
-        currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed = 4;
+        currentInteractableInteraction.interactableObjectPutAwaySpeed = 4;
 
         mousePosition = new Vector2(0, 0);
 
         holdObjectState = HoldObjectState.InHand;
     }
-    
+
+    #endregion
+
+    #region Put down interactable
+
     //Puts Down the interactable, is as void so the Put Down coroutine works without stopping
     private void PutDownInteractable()
     {
-        if (!Input.GetKeyDown(KeyCode.E) || holdObjectState is not HoldObjectState.InHand || !canInteract || currentInteractableObject == null || MotherTimerManager.instance.gameStarted) 
+        if (!Input.GetKeyDown(KeyCode.E) || holdObjectState is not HoldObjectState.InHand || !canInteract || currentInteractableObject == null || MotherTimerManager.Instance.gameStarted) 
             return;
         
         StartCoroutine(PutDownInteractableCoroutine());
     }
     
+    //Lets camera rotate to the object which is put down, also opens the games when the book is put down the first time
     public IEnumerator PutDownInteractableCoroutine()
     {
         holdObjectState = HoldObjectState.LayingDown;
 
-        currentInteractableObject.GetComponent<Interaction>().AssignPutDownPos();
-        currentInteractableObject.GetComponent<Interaction>().AssignPutDownRot();
+        var currentInteractableInteraction = currentInteractableObject.GetComponent<Interaction>();
+
+        currentInteractableInteraction.AssignPutDownPos();
+        currentInteractableInteraction.AssignPutDownRot();
         
-        while (Vector3.Distance(currentInteractableObject.transform.position, currentInteractableObject.GetComponent<Interaction>().interactablePutAwayPosition) > 0.01f)
+        while (Vector3.Distance(currentInteractableObject.transform.position, currentInteractableInteraction.interactablePutAwayPosition) > 0.01f)
         {
-            Vector3 direction = currentInteractableObject.GetComponent<Interaction>().interactablePutAwayPosition - vCam.transform.position;
-            Quaternion toRotation = Quaternion.LookRotation(direction, transform.up);
-            vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.rotation, toRotation, currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
+            if (!MotherBehaviour.instance.playerCaught)
+            {
+                Vector3 direction = currentInteractableInteraction.interactablePutAwayPosition - vCam.transform.position;
+                Quaternion toRotation = Quaternion.LookRotation(direction, transform.up);
+                vCam.transform.localRotation = Quaternion.Lerp(vCam.transform.rotation, toRotation, currentInteractableInteraction.interactableObjectPutAwaySpeed * Time.deltaTime);
+            }
             
-            currentInteractableObject.GetComponent<Interaction>().PutDownInteractableObject(currentInteractableObject);
+            currentInteractableInteraction.PutDownInteractableObject(currentInteractableObject);
         
             yield return null;
         }
 
-        if (currentInteractableObject.TryGetComponent(out Book bookEnd) && FindObjectOfType<EndManager>())
+        if (currentInteractableObject.TryGetComponent(out Book bookEnd) && FindObjectOfType<QuitAtEndOfGame>())
         {
             FindObjectOfType<MotherTextManager>().EndMotherText();
         }
@@ -249,12 +269,14 @@ public class PlayerInputs : MonoBehaviour
         
         currentInteractableObject.GetComponent<Collider>().enabled = true;
         
-        currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed = 4;
+        currentInteractableInteraction.interactableObjectPutAwaySpeed = 4;
 
         holdObjectState = HoldObjectState.OutOfHand;
 
         yield return null;
     }
+
+    #endregion
     
     //The methods below are for a calculation of the camera where angle resets in script to 360 degrees instead of going to negative
     //I need that for calculate when the camera is facing when putting down an object

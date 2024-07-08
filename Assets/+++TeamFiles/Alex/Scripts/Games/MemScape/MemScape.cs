@@ -6,26 +6,26 @@ using Random = UnityEngine.Random;
 
 public class MemScape : MonoBehaviour
 {
+    [Header("Memorize Objects")]
     [SerializeField] private List<Button> clickableButtons;
     [SerializeField] private List<int> memorizeOrder;
     [SerializeField] private List<Button> goThroughList;
-    private bool selectedConsole;
+    
+    [Header("TimeToRememberBackground")]
+    [SerializeField] private CanvasGroup timeToRemember;
+
+    [Header("GameTime")]
     [SerializeField] private int winningCount;
     [SerializeField] private int timeBonus;
-    [SerializeField] private CanvasGroup timeToRemember;
 
     private void Start()
     {
-        memorizeOrder.Add(1);
+        AddRandomMemorizeObject();
 
         StartCoroutine(TimeToRememberScreen());
     }
 
-    private void Update()
-    {
-        CheckConsoleState();
-    }
-
+    //Shows a screen that says "time to remember" and then adds an object to remember
     private IEnumerator TimeToRememberScreen()
     {
         UIInteraction.instance.canInteract = false;
@@ -50,28 +50,14 @@ public class MemScape : MonoBehaviour
 
         yield return null;
     }
-    
-    private void CheckConsoleState()
-    {
-        if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.InHand && PlayerInputs.instance.currentInteractableObject.TryGetComponent(out Console console))
-        {
-            if (selectedConsole)
-            {
-                StartCoroutine(SetButtonColors());
-                selectedConsole = false;
-            }
-        }
-        else
-        {
-            selectedConsole = true;
-        }
-    }
-    
-    private void AddMemorizeObject()
+
+    //Adds Random Object to remember
+    private void AddRandomMemorizeObject()
     {
         memorizeOrder.Add(Random.Range(0, clickableButtons.Count));
     }
     
+    //Sets the button colors according to the objects and their sequence
     private IEnumerator SetButtonColors()
     {
         UIInteraction.instance.canInteract = false;
@@ -117,14 +103,14 @@ public class MemScape : MonoBehaviour
             
             while (clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a < 0.7f)
             {
-                clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, Mathf.Lerp(clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a, 1, Time.deltaTime * 2));
+                clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, Mathf.Lerp(clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a, 1, Time.deltaTime * 3));
 
                 yield return null;
             }
         
             while (clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a  > 0.1f)
             {
-                clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, Mathf.Lerp(clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a, 0, Time.deltaTime * 2));
+                clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, Mathf.Lerp(clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color.a, 0, Time.deltaTime * 3));
                 
                 yield return null;
             }
@@ -132,11 +118,12 @@ public class MemScape : MonoBehaviour
             clickableButtons[memorizeOrder[i]].transform.GetChild(0).GetComponent<Image>().color = new Color(1,1,1, 0);
         }
         
-        MotherTimerManager.instance.pauseGameTime = false;
+        MotherTimerManager.Instance.pauseGameTime = false;
         
         UIInteraction.instance.canInteract = true;
     }
 
+    //Checks if the game is won after and object was pressed 
     public void CheckWinState()
     {
         if (goThroughList[0].gameObject.GetComponent<Button>() == UIInteraction.instance.currentSelectedButton)
@@ -145,43 +132,60 @@ public class MemScape : MonoBehaviour
             
             if (goThroughList.Count == 0)
             {
-                MotherTimerManager.instance.TimeBonus(timeBonus);
+                MotherTimerManager.Instance.TimeBonus(timeBonus);
 
-                MotherTimerManager.instance.pauseGameTime = true;
+                MotherTimerManager.Instance.pauseGameTime = true;
 
-                AddMemorizeObject();
+                AddRandomMemorizeObject();
 
                 if (!(memorizeOrder.Count >= winningCount))
                 {
-                    StartCoroutine(SetButtonColors());
-                    AudioManager.Instance.Play("MemScapeSequenceCorrect");
+                    StartCoroutine(CorrectSequence());
+
                 }
                 else
                 {
-                    MotherBehaviour.instance.PlayerWon();
+                    MotherBehaviour.instance.PlayerWin();
                 }
                 
                 return;
             }
             
-            MotherTimerManager.instance.TimeBonus(timeBonus);
+            MotherTimerManager.Instance.TimeBonus(timeBonus);
 
             AudioManager.Instance.Play("MemScapeCorrectClick");
         }
         else
         {
-            goThroughList.Clear();
-            AudioManager.Instance.Play("MemScapeWrongClick");
-            FindObjectOfType<MotherTextManager>().PlayLoseText();
-            PlayerInputs.instance.PlayChildAggressiveAnimation();
-            StartCoroutine(DelayedRestart());
+            StartCoroutine(WrongSequence());
         }
     }
 
-    private IEnumerator DelayedRestart()
+    //When every object that needed to be remember is pressed, adds another object to remember
+    private IEnumerator CorrectSequence()
     {
-        yield return new WaitForSeconds(1f);
+        UIInteraction.instance.canInteract = false;
+
+        AudioManager.Instance.Play("MemScapeSequenceCorrect");
         
+        yield return new WaitUntil(() => AudioManager.Instance.IsPlaying("MemScapeSequenceCorrect") == false);
+        
+        StartCoroutine(SetButtonColors());
+    }
+
+    //When a wrong object is pressed, the sequence resets and is played again
+    private IEnumerator WrongSequence()
+    {
+        UIInteraction.instance.canInteract = false;
+        
+        goThroughList.Clear();
+        FindObjectOfType<MotherTextManager>().PlayLoseText();
+        PlayerInputs.Instance.PlayChildAggressiveAnimation();
+
+        AudioManager.Instance.Play("MemScapeWrongClick");
+
+        yield return new WaitUntil(() => AudioManager.Instance.IsPlaying("MemScapeWrongClick") == false);
+
         StartCoroutine(SetButtonColors());
     }
 }

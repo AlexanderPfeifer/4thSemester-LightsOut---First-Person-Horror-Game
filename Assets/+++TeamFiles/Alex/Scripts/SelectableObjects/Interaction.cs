@@ -11,7 +11,7 @@ public abstract class Interaction : MonoBehaviour
         interactableObjectPutAwaySpeed = 4;
     }
 
-    //Lerps the rotation and position of the object to the position of where the player holds the console
+    //Lerp the rotation and position of the object to the position of where the player holds the console
     public virtual void TakeInteractableObject(GameObject interactable)
     {
         interactableObjectPutAwaySpeed += Time.deltaTime * 2;
@@ -19,7 +19,7 @@ public abstract class Interaction : MonoBehaviour
         interactable.transform.localRotation = Quaternion.Lerp(interactable.transform.localRotation, Quaternion.Euler(0,0,0), Time.deltaTime * interactableObjectPutAwaySpeed);
     }
 
-    //Lerps the rotation and position of the object to the position where it is put away
+    //Lerp the rotation and position of the object to the position where it is put away
     public virtual void PutDownInteractableObject(GameObject interactable)
     {
         interactableObjectPutAwaySpeed += Time.deltaTime * 2;

@@ -22,29 +22,14 @@ public class TextManager : MonoBehaviour
         }
     }
 
-    // Clears the text of the TMP component.
-    public void ClearText()
-    {
-        if (FindObjectOfType<StartMemScape>() != null && !FindObjectOfType<StartMemScape>().canInteractWithConsole)
-        {
-            MotherTimerManager.instance.currentTime = 0f;
-        }
-        
-        if (FindObjectOfType<EndManager>() != null)
-        {
-            FindObjectOfType<EndManager>().CloseGame();
-        }
-        
-        StopCoroutine(TypeTextCoroutine(null, 0));
-        
-        StartCoroutine(ClearTextLetterForLetter(0.007f));
-    }
+    #region Type Text
 
-    // Starts the coroutine to display text letter by letter.
-    public void DisplayText(string text, float delay)
+        // Starts the coroutine to display text letter by letter.
+    public void TypeText(string text, float delay)
     {
         if (tmpText != null && !isTyping)
         {
+            AudioManager.Instance.FadeIn("MotherTalking");
             isTyping = true;
             StartCoroutine(TypeTextCoroutine(text, delay));
         }
@@ -98,7 +83,32 @@ public class TextManager : MonoBehaviour
 
         ClearText();
     }
+
+    #endregion
+
+    #region ClearText
+
+    // Clears the text of the TMP component.
+    public void ClearText()
+    {
+        if (FindObjectOfType<StartMemScape>() != null && !FindObjectOfType<StartMemScape>().canInteractWithConsole)
+        {
+            MotherTimerManager.Instance.currentTime = 0f;
+        }
+        
+        if (FindObjectOfType<QuitAtEndOfGame>() != null)
+        {
+            FindObjectOfType<QuitAtEndOfGame>().CloseGame();
+        }
+        
+        StopCoroutine(TypeTextCoroutine(null, 0));
+
+        AudioManager.Instance.FadeOut("MotherTalking");
+        
+        StartCoroutine(ClearTextLetterForLetter(0.007f));
+    }
     
+    //Clears the text letter by letter
     private IEnumerator ClearTextLetterForLetter(float delay)
     {
         for (int i = tmpText.text.Length - 1; i >= 0; i--)
@@ -109,4 +119,6 @@ public class TextManager : MonoBehaviour
 
         isTyping = false;
     }
+
+    #endregion
 }

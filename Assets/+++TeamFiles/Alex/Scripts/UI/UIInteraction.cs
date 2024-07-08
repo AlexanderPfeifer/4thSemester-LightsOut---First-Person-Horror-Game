@@ -23,19 +23,28 @@ public class UIInteraction : MonoBehaviour
         
         CheckIfToggleInLookDirection();
 
-        if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.LiftingUp)
+        CheckInteractionState();
+    }
+
+    //checks if ui can be interacted with or not depending on if interactable is put away or not
+    private void CheckInteractionState()
+    {
+        if (PlayerInputs.Instance.holdObjectState == PlayerInputs.HoldObjectState.LiftingUp)
         {
             canInteract = true;
         }
-        else if (PlayerInputs.instance.holdObjectState == PlayerInputs.HoldObjectState.LayingDown)
+        else if (PlayerInputs.Instance.holdObjectState == PlayerInputs.HoldObjectState.LayingDown)
         {
             canInteract = false;
         }
     }
 
+    #region CheckInLookDirection
+
+    //Checks if toggle can be interacted with in look direction and changes the color of sprite and text and invokes on click
     private void CheckIfToggleInLookDirection()
     {
-        if (Physics.Raycast(PlayerInputs.instance.vCam.transform.position, PlayerInputs.instance.vCam.transform.forward, out var raycastHit, float.MaxValue) && canInteract)
+        if (Physics.Raycast(PlayerInputs.Instance.vCam.transform.position, PlayerInputs.Instance.vCam.transform.forward, out var raycastHit, float.MaxValue) && canInteract)
         {
             if (raycastHit.transform.TryGetComponent(out Toggle toggle))
             {
@@ -62,10 +71,10 @@ public class UIInteraction : MonoBehaviour
         }
     }
 
-    //Checks if the objects that were displayed match with the objects that were pressed
+    //Checks if button can be interacted with in look direction and changes the color of sprite and text and invokes on click
     private void CheckIfButtonInLookDirection()
     {
-        if (Physics.Raycast(PlayerInputs.instance.vCam.transform.position, PlayerInputs.instance.vCam.transform.forward, out var raycastHit, float.MaxValue) && canInteract)
+        if (Physics.Raycast(PlayerInputs.Instance.vCam.transform.position, PlayerInputs.Instance.vCam.transform.forward, out var raycastHit, float.MaxValue) && canInteract)
         {
             if (raycastHit.transform.TryGetComponent(out Button button))
             {
@@ -101,6 +110,10 @@ public class UIInteraction : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Shortcut
+
     //A shortcut to set the color of a button to the color I need
     public void SetSelectedButtonColor(Button selectedButton, float r, float b, float g, float a, float rText, float bText, float gText)
     {
@@ -114,6 +127,7 @@ public class UIInteraction : MonoBehaviour
         }
     }
     
+    //A shortcut to set the color of a toggle to the color I need
     private void SetSelectedToggleColor(Toggle selectedToggle, float r, float b, float g, float a, float rText, float bText, float gText)
     {
         var selectedButtonColors = selectedToggle.colors;
@@ -125,4 +139,6 @@ public class UIInteraction : MonoBehaviour
             selectedToggle.GetComponentInChildren<TextMeshProUGUI>().color = new Color(rText, bText, gText);
         }
     }
+
+    #endregion
 }

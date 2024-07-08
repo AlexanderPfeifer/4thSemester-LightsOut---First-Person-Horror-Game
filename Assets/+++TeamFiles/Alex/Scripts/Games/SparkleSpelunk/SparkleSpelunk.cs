@@ -12,14 +12,11 @@ public class SparkleSpelunk : MonoBehaviour
     [SerializeField] public LayerMask deleteZone;
     [SerializeField] public LayerMask playerLayer;
     [SerializeField] public LayerMask borderLayer;
-
-    [Header("Prefabs")]
-    [SerializeField] private Transform bomb;
+    
+    [Header("BlockSpawning")]
     [SerializeField] public Transform block;
     [SerializeField] private Transform goldBlock;
     [SerializeField] private Transform diamondBlock;
-
-    [Header("BlockSpawning")]
     [SerializeField] private Transform blockParent;
     [SerializeField] private List<Vector3> blockSpawnPoints;
     [HideInInspector] public List<Transform> allBlocks;
@@ -30,8 +27,7 @@ public class SparkleSpelunk : MonoBehaviour
     private bool spawnDiamond;
 
     [Header("Miner")]
-    [SerializeField] private Transform miner;
-    [SerializeField] private float dropTime;
+    [SerializeField] private Transform miner; 
     [SerializeField] public SpriteRenderer minerHead;
     [SerializeField] public SpriteRenderer minerHands;
     [SerializeField] private Sprite minerHoldSpriteHead;
@@ -42,29 +38,36 @@ public class SparkleSpelunk : MonoBehaviour
     [SerializeField] public Sprite minerEarnedSpriteHandDiamond;
     [SerializeField] public Sprite minerEarnedSpriteHandGold;
     [SerializeField] public Sprite minerIdleSpriteHands;
-    private bool isFalling;
-    private float currentDropTimer;
-    private Transform spawnedBomb;
-    private Transform firstBomb;
-    private Transform secondBomb;
-    public bool firstBombSpawned;
-    public bool secondBombSpawned;
-    [HideInInspector] public bool bombInHand;
 
     [Header("Score")] 
     [SerializeField] private int winScore;
     public int currentScore;
-    private float bombSpeedMultiplierAdd = 3;
+    
+    [Header("Falling")]
     private float fallSpeedSubtraction = .2f;
-    [HideInInspector] public float bombSpeedMultiplier = 1;
+    [SerializeField] private float fallTime;
+    private bool isFalling;
+    private float currentFallTime;
 
     [Header("Time")]
     [SerializeField] public int timeBonusGold;
     [SerializeField] public int timeBonusDiamond;
     [SerializeField] public int timePenalty;
+    
+    [Header("Bomb")]
+    [SerializeField] private Transform bomb;
+    private Transform spawnedBomb;
+    private Transform firstBomb;
+    private Transform secondBomb;
+    public bool bombSpawned;
+    [HideInInspector] public bool bombInHand;
+    private float bombSpeedMultiplierAdd = 3;
+    [HideInInspector] public float bombSpeedMultiplier = 1;
 
     private void Start()
     {
+        MotherTimerManager.Instance.multiplierCurrentTimeSubtraction = 2;
+        
         bombSpeedMultiplierAdd /= winScore;
 
         fallSpeedSubtraction /= winScore;
@@ -76,7 +79,7 @@ public class SparkleSpelunk : MonoBehaviour
             allBlocks.Add(blocksElement.GetChild(i));
         }
         
-        MotherTimerManager.instance.GameStarted();
+        MotherTimerManager.Instance.GameStarted();
     }
 
     void Update()
@@ -88,33 +91,19 @@ public class SparkleSpelunk : MonoBehaviour
         SpawnNewBlocks();
     }
 
+    #region MinerHit
+
     public void MinerHit()
     {
         StartCoroutine(MinerHitCoroutine());
-        PlayerInputs.instance.PlayChildAggressiveAnimation();
+        PlayerInputs.Instance.PlayChildAggressiveAnimation();
     }
     
-    public void MinerEarned(Sprite hands)
-    {
-        StartCoroutine(MinerEarnedCoroutine(hands));
-    }
-    
-    private IEnumerator MinerEarnedCoroutine(Sprite hands)
-    {
-        var currentSpriteHead = minerHead.sprite;
-        var currentSpriteHands = minerHands.sprite;
-        minerHead.sprite = minerEarnedSpriteHead;
-        minerHands.sprite = hands;
-
-        yield return new WaitForSeconds(1f);
-        
-        minerHead.sprite = currentSpriteHead;
-        minerHands.sprite = currentSpriteHands;
-    }
-    
+    //Changes sprite and color and play sfx when player got hit from bomb
     private IEnumerator MinerHitCoroutine()
     {
-        PlayerInputs.instance.PlayChildAggressiveAnimation();
+        AudioManager.Instance.Play("SparkleSpelunkHit");
+        PlayerInputs.Instance.PlayChildAggressiveAnimation();
         FindObjectOfType<MotherTextManager>().PlayLoseText();
 
         var currentSprite = minerHead.sprite;
@@ -129,13 +118,38 @@ public class SparkleSpelunk : MonoBehaviour
         minerHands.color = Color.white;
     }
 
+    #endregion
+
+    #region MinerEarned
+
+    public void MinerEarned(Sprite hands)
+    {
+        StartCoroutine(MinerEarnedCoroutine(hands));
+    }
+    
+    //Plays sfx and changes sprite when miner has earned gold or diamond
+    private IEnumerator MinerEarnedCoroutine(Sprite hands)
+    {
+        var currentSpriteHead = minerHead.sprite;
+        var currentSpriteHands = minerHands.sprite;
+        minerHead.sprite = minerEarnedSpriteHead;
+        minerHands.sprite = hands;
+
+        yield return new WaitForSeconds(1f);
+        
+        minerHead.sprite = currentSpriteHead;
+        minerHands.sprite = currentSpriteHands;
+    }
+
+    #endregion
+    
     //Spawns a bomb for destroying walls
     private void SpawnBomb()
     {
-        if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand || secondBombSpawned)
+        if (bombSpawned || FindObjectOfType<ConsoleAnimationPlayingCheck>().animationPlaying)
             return;
         
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetMouseButtonDown(0))
         {
             AudioManager.Instance.Play("SparkleSpelunkTakeOutBomb");
             bombInHand = true;
@@ -145,7 +159,7 @@ public class SparkleSpelunk : MonoBehaviour
             minerHands.transform.localPosition = new Vector3(minerHands.transform.localPosition.x, 0.064f, minerHands.transform.localPosition.z);
             spawnedBomb = Instantiate(bomb, new Vector3(0.089f, 0.323f, 0f), Quaternion.identity, miner);
         }
-        else if(Input.GetKeyUp(KeyCode.Space) && !isFalling)
+        else if(Input.GetMouseButtonUp(0) && !isFalling)
         {
             bombInHand = false;
             
@@ -156,23 +170,18 @@ public class SparkleSpelunk : MonoBehaviour
             spawnedBomb.GetComponent<Bomb>().bombDropped = true;
             spawnedBomb.SetParent(miner.parent);
             
-            if (!firstBombSpawned)
+            if (!bombSpawned)
             {
                 firstBomb = spawnedBomb;
-                firstBombSpawned = true;
-            }
-            else if(!secondBombSpawned)
-            {
-                secondBomb = spawnedBomb;
-                secondBombSpawned = true;
+                bombSpawned = true;
             }
         }
     }
 
-    //Moves miner and blocks in block metric
+    //Moves miner and blocks in block metric, when player has first touched the ground, then only the blocks move up
     private void MoveByBlock()
     {
-        if (PlayerInputs.instance.holdObjectState != PlayerInputs.HoldObjectState.InHand)
+        if (FindObjectOfType<ConsoleAnimationPlayingCheck>().animationPlaying)
             return;
 
         if (Input.GetKeyDown(KeyCode.A))
@@ -195,21 +204,21 @@ public class SparkleSpelunk : MonoBehaviour
         {
             isFalling = true;
             
-            currentDropTimer += Time.deltaTime;
+            currentFallTime += Time.deltaTime;
 
-            if(currentDropTimer >= dropTime && !wallCanGoUp)
+            if(currentFallTime >= fallTime && !wallCanGoUp)
             {
                 MoveObject(miner, block.transform.localScale.y, 0);
-                currentDropTimer = 0;
+                currentFallTime = 0;
             }
-            else if(currentDropTimer >= dropTime && wallCanGoUp)
+            else if(currentFallTime >= fallTime && wallCanGoUp)
             {
                 currentScore++;
-                dropTime -= fallSpeedSubtraction;
+                fallTime -= fallSpeedSubtraction;
                 bombSpeedMultiplier += bombSpeedMultiplierAdd;
                 if (currentScore >= winScore)
                 {
-                    MotherBehaviour.instance.PlayerWon();
+                    MotherBehaviour.instance.PlayerWin();
                     AudioManager.Instance.Play("SparkleSpelunkWon");
                 }
                 
@@ -218,16 +227,11 @@ public class SparkleSpelunk : MonoBehaviour
                     MoveObject(blockTransform, -block.transform.localScale.y, 0);
                 }
                 
-                currentDropTimer = 0;
+                currentFallTime = 0;
 
-                if (firstBombSpawned)
+                if (bombSpawned)
                 {
                     MoveObject(firstBomb, -block.transform.localScale.y, 0);
-                }
-                
-                if (secondBombSpawned)
-                {
-                    MoveObject(secondBomb, -block.transform.localScale.y, 0);
                 }
             }
         }
@@ -242,6 +246,9 @@ public class SparkleSpelunk : MonoBehaviour
     //Checks when the miner has dropped by a wall and spawns new walls 
     private void SpawnNewBlocks()
     {
+        if (FindObjectOfType<ConsoleAnimationPlayingCheck>().animationPlaying)
+            return;
+        
         if(RaycastInDirection(miner.right, blockLayer) || RaycastInDirection(miner.right, goldLayer) || RaycastInDirection(-miner.right, goldLayer) || RaycastInDirection(-miner.right, blockLayer) || RaycastInDirection(miner.right, diamondLayer) || RaycastInDirection(-miner.right, diamondLayer))
         {
             if (canSpawnNewWall)
@@ -289,6 +296,8 @@ public class SparkleSpelunk : MonoBehaviour
         }
     }
 
+    #region Shortcuts
+
     //Shortcut for making a raycast in a direction
     private bool RaycastInDirection(Vector3 direction, LayerMask layer)
     {
@@ -302,4 +311,6 @@ public class SparkleSpelunk : MonoBehaviour
         position = new Vector3(position.x - positionOffsetX, position.y - positionOffsetY, position.z);
         objectTransform.position = position;
     }
+
+    #endregion
 }
