@@ -7,7 +7,6 @@ public class MotherTimerManager : MonoBehaviour
     public Texture secondTexture;
     public Texture thirdTexture;
     public Texture fourthTexture;
-    public GameObject book;
      
     [Header("PlayerTries")] 
     [SerializeField] public int maxPlayerTries;
@@ -57,7 +56,6 @@ public class MotherTimerManager : MonoBehaviour
         currentPlayerTries = maxPlayerTries;
         AudioManager.Instance.Play("MotherTalking");
         FindObjectOfType<Lighting>().blackMat.color = new Color(0, 0, 0);
-        book.GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", firstTexture);
     }
 
     private void Update()

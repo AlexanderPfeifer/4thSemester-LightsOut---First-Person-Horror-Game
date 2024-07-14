@@ -76,7 +76,7 @@ public class Lighting : MonoBehaviour
     {
         lightningObject.SetActive(true);
 
-        StartCoroutine(LerpLightningUp(.5f, 8));
+        StartCoroutine(LerpLightningUp(.5f, 500));
         
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -84,7 +84,7 @@ public class Lighting : MonoBehaviour
 
         yield return new WaitUntil(() => lerpLightning == false);
         
-        StartCoroutine(LerpLightningUp(.5f, 8));
+        StartCoroutine(LerpLightningUp(.5f, 500));
 
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -92,7 +92,7 @@ public class Lighting : MonoBehaviour
         
         yield return new WaitUntil(() => lerpLightning == false);
         
-        StartCoroutine(LerpLightningUp(.2f, 3));
+        StartCoroutine(LerpLightningUp(.2f, 150));
 
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -100,7 +100,7 @@ public class Lighting : MonoBehaviour
         
         yield return new WaitUntil(() => lerpLightning == false);
 
-        StartCoroutine(LerpLightningUp(.9f, 12));
+        StartCoroutine(LerpLightningUp(.9f, 1000));
         
         yield return new WaitUntil(() => lerpLightning == false);
 
@@ -128,7 +128,7 @@ public class Lighting : MonoBehaviour
     {
         lightningObject.SetActive(true);
 
-        StartCoroutine(LerpLightningUp(.3f, 4));
+        StartCoroutine(LerpLightningUp(.3f, 250));
         
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -136,7 +136,7 @@ public class Lighting : MonoBehaviour
 
         yield return new WaitUntil(() => lerpLightning == false);
         
-        StartCoroutine(LerpLightningUp(.3f, 4));
+        StartCoroutine(LerpLightningUp(.3f, 250));
 
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -144,35 +144,16 @@ public class Lighting : MonoBehaviour
         
         yield return new WaitUntil(() => lerpLightning == false);
         
-        StartCoroutine(LerpLightningUp(.6f, 5));
+        StartCoroutine(LerpLightningUp(.6f, 450));
 
         yield return new WaitUntil(() => lerpLightning == false);
         
         StartCoroutine(LerpLightningDown(0, 0));
         
         yield return new WaitUntil(() => lerpLightning == false);
-
-        StartCoroutine(LerpLightningUp(.3f, 4));
         
-        yield return new WaitUntil(() => lerpLightning == false);
         
-        StartCoroutine(LerpLightningDown(0, 0));
-
-        yield return new WaitUntil(() => lerpLightning == false);
-        
-        StartCoroutine(LerpLightningUp(.3f, 4));
-
-        yield return new WaitUntil(() => lerpLightning == false);
-        
-        StartCoroutine(LerpLightningDown(0, 0));
-        
-        yield return new WaitUntil(() => lerpLightning == false);
-
-        StartCoroutine(LerpLightningDown(0, 0));
-        
-        yield return new WaitUntil(() => lerpLightning == false);
-        
-        StartCoroutine(LerpLightningUp(1f, 13));
+        StartCoroutine(LerpLightningUp(1f, 2000));
         
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -180,7 +161,7 @@ public class Lighting : MonoBehaviour
 
         yield return new WaitUntil(() => lerpLightning == false);
 
-        StartCoroutine(LerpLightningUp(.3f, 4));
+        StartCoroutine(LerpLightningUp(.3f, 250));
         
         yield return new WaitUntil(() => lerpLightning == false);
 
@@ -208,7 +189,7 @@ public class Lighting : MonoBehaviour
     {
         lightningObject.SetActive(true);
 
-        StartCoroutine(LerpLightningUp(1f, 13));
+        StartCoroutine(LerpLightningUp(1f, 2500));
 
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -216,7 +197,7 @@ public class Lighting : MonoBehaviour
 
         yield return new WaitForSeconds(.8f);
         
-        StartCoroutine(LerpLightningUp(.4f, 4));
+        StartCoroutine(LerpLightningUp(.4f, 250));
         
         yield return new WaitUntil(() => lerpLightning == false);
 
@@ -224,7 +205,7 @@ public class Lighting : MonoBehaviour
         
         yield return new WaitUntil(() => lerpLightning == false);
         
-        StartCoroutine(LerpLightningUp(.4f, 4));
+        StartCoroutine(LerpLightningUp(.4f, 150));
         
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -251,7 +232,7 @@ public class Lighting : MonoBehaviour
     {
         lightningObject.SetActive(true);
 
-        StartCoroutine(LerpLightningUp(.5f, 7));
+        StartCoroutine(LerpLightningUp(.5f, 950));
 
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -259,7 +240,7 @@ public class Lighting : MonoBehaviour
         
         yield return new WaitUntil(() => lerpLightning == false);
 
-        StartCoroutine(LerpLightningUp(.8f, 11));
+        StartCoroutine(LerpLightningUp(.8f, 1500));
 
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -267,7 +248,7 @@ public class Lighting : MonoBehaviour
         
         yield return new WaitUntil(() => lerpLightning == false);
 
-        StartCoroutine(LerpLightningUp(.4f, 4));
+        StartCoroutine(LerpLightningUp(.4f, 350));
         
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -275,7 +256,7 @@ public class Lighting : MonoBehaviour
         
         yield return new WaitUntil(() => lerpLightning == false);
         
-        StartCoroutine(LerpLightningUp(.4f, 4));
+        StartCoroutine(LerpLightningUp(.4f, 350));
         
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -283,7 +264,7 @@ public class Lighting : MonoBehaviour
 
         yield return new WaitUntil(() => lerpLightning == false);
 
-        StartCoroutine(LerpLightningUp(.8f, 11));
+        StartCoroutine(LerpLightningUp(.8f, 1250));
 
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -291,7 +272,7 @@ public class Lighting : MonoBehaviour
 
         yield return new WaitUntil(() => lerpLightning == false);
 
-        StartCoroutine(LerpLightningUp(.8f, 11));
+        StartCoroutine(LerpLightningUp(.8f, 1500));
 
         yield return new WaitUntil(() => lerpLightning == false);
         
@@ -316,7 +297,7 @@ public class Lighting : MonoBehaviour
         while (whiteMat.color.a < whiteMatAlpha -.01 && lightningLight.intensity < randomIntensityNumber -.01)
         {
             whiteMat.color = new Color(1, 1, 1, Mathf.Lerp(whiteMat.color.a, whiteMatAlpha, Time.deltaTime * 15));
-            lightningLight.intensity = Mathf.Lerp(lightningLight.intensity,randomIntensityNumber, Time.deltaTime * 15);
+            lightningLight.intensity = Mathf.Lerp(lightningLight.intensity,randomIntensityNumber, Time.deltaTime * 30);
             yield return null;
         }
 
@@ -331,7 +312,7 @@ public class Lighting : MonoBehaviour
         while (whiteMat.color.a > whiteMatAlpha +.01 && lightningLight.intensity > randomIntensityNumber +.01)
         {
             whiteMat.color = new Color(1, 1, 1, Mathf.Lerp(whiteMat.color.a, whiteMatAlpha, Time.deltaTime * 15));
-            lightningLight.intensity = Mathf.Lerp(lightningLight.intensity,randomIntensityNumber, Time.deltaTime * 15);
+            lightningLight.intensity = Mathf.Lerp(lightningLight.intensity,randomIntensityNumber, Time.deltaTime * 30);
             yield return null;
         }
 

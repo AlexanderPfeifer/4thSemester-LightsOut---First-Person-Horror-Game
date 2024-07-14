@@ -34,7 +34,26 @@ public class MotherBehaviour : MonoBehaviour
 
     private void Awake() => instance = this;
 
-    private void Start() => vCamShake = PlayerInputs.Instance.vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+    private void Start()
+    {
+        switch (MotherTimerManager.Instance.currentScene)
+        {
+            case 0 :
+                FindObjectOfType<Book>().transform.GetChild(1).GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", MotherTimerManager.Instance.firstTexture);
+                break;
+            case 1 :
+                FindObjectOfType<Book>().transform.GetChild(1).GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", MotherTimerManager.Instance.secondTexture);
+                break;
+            case 2 :
+                FindObjectOfType<Book>().transform.GetChild(1).GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", MotherTimerManager.Instance.thirdTexture);
+                break;
+            case 3 :
+                FindObjectOfType<Book>().transform.GetChild(1).GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", MotherTimerManager.Instance.fourthTexture);
+                break;
+        }
+        
+        vCamShake = PlayerInputs.Instance.vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+    }
 
     private void Update()
     {
@@ -177,32 +196,17 @@ public class MotherBehaviour : MonoBehaviour
         FindObjectOfType<MenuUI>().LoadingScreen(true);
         MotherTimerManager.Instance.currentTime -= 20;
 
+        MotherTimerManager.Instance.currentScene++;
+
         while (PlayerInputs.Instance.vCam.m_Lens.FieldOfView > TargetCamFov + 1)
         {
             PlayerInputs.Instance.vCam.transform.localRotation = Quaternion.Lerp(PlayerInputs.Instance.vCam.transform.localRotation, Quaternion.Euler(0, 0, 0),PlayerInputs.Instance.currentInteractableObject.GetComponent<Interaction>().interactableObjectPutAwaySpeed * Time.deltaTime);
             PlayerInputs.Instance.vCam.m_Lens.FieldOfView = Mathf.Lerp(PlayerInputs.Instance.vCam.m_Lens.FieldOfView, TargetCamFov, Time.deltaTime);
             yield return null;
         }
-        
-        PlayerInputs.Instance.vCam.m_Lens.FieldOfView = TargetCamFov;
-        
+
         MotherTimerManager.Instance.diedInScene = false;
-
-        MotherTimerManager.Instance.currentScene++;
-
-        switch (MotherTimerManager.Instance.currentScene)
-        {
-            case 1 :
-                MotherTimerManager.Instance.book.GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", MotherTimerManager.Instance.secondTexture);
-                break;
-            case 2 :
-                MotherTimerManager.Instance.book.GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", MotherTimerManager.Instance.thirdTexture);
-                break;
-            case 3 :
-                MotherTimerManager.Instance.book.GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", MotherTimerManager.Instance.fourthTexture);
-                break;
-        }
-
+        
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
     
