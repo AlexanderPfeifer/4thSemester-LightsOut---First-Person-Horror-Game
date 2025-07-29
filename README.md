@@ -4,5 +4,5 @@
 
 I made this as part of my 4th semester project, I was responsible for programming and project management.
 
-For an in-depth look into the project, check out my portfolio:
+For an in-depth look into the project, check it out on my portfolio:
 https://alexanderpfeifer06.wixsite.com/gameplayprogrammer/lightsout
